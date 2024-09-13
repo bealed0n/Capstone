@@ -1,11 +1,11 @@
 {
   "expo": {
-    "name": "ign-tattoo-app",
-    "slug": "ign-tattoo-app",
+    "name": "Ign-Tattoo-App",
+    "slug": "Ign-Tattoo-App",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "ignTattooApp",
+    "scheme": "myapp",
     "userInterfaceStyle": "automatic",
     "splash": {
       "image": "./assets/images/splash.png",
