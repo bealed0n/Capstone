@@ -25,6 +25,12 @@ export default function EditScreenInfo({ path }: { path: string }) {
           <MonoText>{path}</MonoText>
         </View>
 
+        <View className="bg-cyan-500">
+          <Text>
+            Text prueba
+          </Text>
+        </View>
+
         <Text
           style={styles.getStartedText}
           lightColor="rgba(0,0,0,0.8)"
