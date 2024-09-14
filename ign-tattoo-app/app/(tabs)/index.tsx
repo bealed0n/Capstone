@@ -1,28 +1,52 @@
-import { StyleSheet } from 'react-native';
+import { StyleSheet, SafeAreaView, ScrollView, RefreshControl } from 'react-native';
 import { Divider } from '@rneui/themed';
-
+import React from 'react';
 import EditScreenInfo from '@/components/EditScreenInfo';
+import PostCard from '@/components/PostCard';
 import { Text, View } from '@/components/Themed';
 
+
+
 export default function TabOneScreen() {
+  const [refreshing, setRefreshing] = React.useState(false);
+
+  const onRefresh = React.useCallback(() => {
+    setRefreshing(true);
+    setTimeout(() => {
+      setRefreshing(false);
+    }, 2000);
+  }, []);
+
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Index</Text>
-      <View style={styles.separator} lightColor="#eee" darkColor="rgba(255,255,255,0.1)" />
-      <EditScreenInfo path="app/(tabs)/index.tsx" />
+    <SafeAreaView>
+      <ScrollView
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+          />
+        }
+      >
 
-      <View className="my-12 h-0.5 border-t-0 bg-neutral-100 dark:bg-white/10" />
-      <Divider />
+        <View style={styles.container}>
 
-    </View>
+          <PostCard />
+          <View style={styles.separator} lightColor="#eee" darkColor="rgba(255,255,255,0.1)" />
+          <EditScreenInfo path="app/(tabs)/index.tsx" />
+
+        </View>
+      </ScrollView>
+    </SafeAreaView>
   );
 }
+
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
+    paddingTop: 15,
   },
   title: {
     fontSize: 20,

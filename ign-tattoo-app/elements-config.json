@@ -1,0 +1,9 @@
+{
+  "theme": "default",
+  "components": {
+    "directory": "components",
+    "installed": [
+      "card"
+    ]
+  }
+}

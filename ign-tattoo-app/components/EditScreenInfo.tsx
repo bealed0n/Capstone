@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet } from 'react-native';
+import { StyleSheet, } from 'react-native';
 
 import { ExternalLink } from './ExternalLink';
 import { MonoText } from './StyledText';
@@ -25,17 +25,11 @@ export default function EditScreenInfo({ path }: { path: string }) {
           <MonoText>{path}</MonoText>
         </View>
 
-        <View className="bg-cyan-500">
-          <Text>
-            Text prueba
-          </Text>
-        </View>
-
         <Text
           style={styles.getStartedText}
           lightColor="rgba(0,0,0,0.8)"
           darkColor="rgba(255,255,255,0.8)">
-          Change any of the text, save the file, and your app will automatically update POR EL POTO.
+          Change any of the text, save the file, and your app will automatically update POR EL POTO .
         </Text>
       </View>
 
@@ -51,6 +45,8 @@ export default function EditScreenInfo({ path }: { path: string }) {
     </View>
   );
 }
+
+
 
 const styles = StyleSheet.create({
   getStartedContainer: {
