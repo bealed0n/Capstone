@@ -8,6 +8,8 @@ import {
 } from "@/components/card";
 import tailwind from "twrnc";
 
+import colors from "@/constants/Colors";
+
 export const CardExample = () => {
     return (
         <Card style={tailwind`w-full max-w-sm`}>
