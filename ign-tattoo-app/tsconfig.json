@@ -11,9 +11,12 @@
   "include": [
     "**/*.ts",
     "**/*.tsx",
+    "**/*.jsx",
     ".expo/types/**/*.ts",
     "expo-env.d.ts",
     "components/EditScreenInfo.js",
-    "components/Texted.js"
+    "components/Texted.js",
+    "app/**/*.{ts,tsx,jsx}",
+    "app/(tabs)/search.tsx"
   ]
 }
