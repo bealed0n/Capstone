@@ -3,7 +3,7 @@ import { StyleSheet, SafeAreaView, View } from 'react-native';
 import { Divider } from '@rneui/themed';
 import EditScreenInfo from '@/components/EditScreenInfo';
 import PostCard from '@/components/PostCard';
-import RefreshControlComp from '@/components/RefreshControl'; // Importamos el componente
+import RefreshControlComp from '@/components/RefreshControl';
 
 export default function IndexScreen() {
   return (

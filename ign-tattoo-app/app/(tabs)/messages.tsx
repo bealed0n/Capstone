@@ -1,7 +1,6 @@
 import React from 'react';
 import { StyleSheet, SafeAreaView, View } from 'react-native';
 import { Divider } from '@rneui/themed';
-import EditScreenInfo from '@/components/EditScreenInfo';
 import Messages from '@/components/messages';
 import RefreshControlComp from '@/components/RefreshControl'; // Importamos el componente
 
@@ -11,8 +10,6 @@ export default function IndexScreen() {
             <RefreshControlComp>
                 <View style={styles.content}>
                     <Messages />
-                    <View style={styles.separator} />
-                    <EditScreenInfo path="app/(tabs)/index.tsx" />
                 </View>
             </RefreshControlComp>
         </SafeAreaView>
@@ -27,10 +24,5 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
         paddingTop: 15,
-    },
-    separator: {
-        marginVertical: 30,
-        height: 1,
-        width: '80%',
     },
 });
