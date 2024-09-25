@@ -8,7 +8,7 @@ module.exports = {
   ],
   theme: {
     colors: {
-      'grayCustom': '#303030',
+      'grayCustom': '#6b6b6b',
 
     },
     extend: {},
