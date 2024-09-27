@@ -7,10 +7,6 @@ module.exports = {
     "./app/(tabs)/**/*.{js,jsx,ts,tsx}",
   ],
   theme: {
-    colors: {
-      'grayCustom': '#6b6b6b',
-
-    },
     extend: {},
   },
   plugins: [],
