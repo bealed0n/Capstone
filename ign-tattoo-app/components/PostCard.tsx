@@ -39,12 +39,12 @@ export const CardExample = () => {
                 </CardSubtitle>
                 <View >
                     <View className="flex-row">
-                        <Text className="text-base pl-1 mb-1 pr-1 p rounded opacity-60 bg-slate-400 dark:bg-slate-700 dark:text-white light:" >
-                            1:30H
+                        <Text className="text-base pl-1 mb-1 pr-1 p rounded opacity-60 bg-neutral-400 dark:bg-slate-700 dark:text-white light:" >
+                            3h 25m
                         </Text>
                     </View>
                     <View className="flex-row">
-                        <Text className="text-base pr-1 rounded opacity-60  bg-slate-400 dark:bg-slate-700 dark:text-white">
+                        <Text className="text-base pr-1 rounded opacity-60  bg-neutral-400 dark:bg-slate-700 dark:text-white">
                             $20.000
                         </Text>
                     </View>
