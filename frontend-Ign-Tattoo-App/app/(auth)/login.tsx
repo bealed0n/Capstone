@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
-import { Button, StyleSheet, TextInput } from 'react-native';
+import { Button, StyleSheet, TextInput, TouchableOpacity } from 'react-native';
 import { View, Text } from "@/components/Themed"
 import { useRouter, Link } from 'expo-router';
 import 'react-native-reanimated';
 import { useNavigation } from '@react-navigation/native';
 
 export default function Login() {
-    const [email, setEmail] = useState('admin@example.com');
-    const [password, setPassword] = useState('1234');
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
     const [error, setError] = useState('');
     const router = useRouter(); // Para redirigir
 
@@ -34,44 +34,49 @@ export default function Login() {
     };
 
     return (
-        <View style={styles.container}>
+        <View className="flex-1 justify-center p-5">
+            <View className='flex-row'>
+                <Text className="text-xl">Welcome to </Text>
+                <Text className="font-bold text-xl">IGN Tattoo</Text>
+            </View>
+            <Text className="mt-4">Email Adress</Text>
             <TextInput
-                className='dark:text-white'
-                placeholder="Email"
+                className="dark:text-white my-2 border border-gray-300 p-2 rounded"
+                placeholder="you@example.com"
                 value={email}
                 onChangeText={setEmail}
-
-                style={styles.input}
             />
+            <Text className="mt-2">Password</Text>
             <TextInput
-                className='dark:text-white'
-                placeholder="Password"
+                className="dark:text-white my-2 border border-gray-300 p-2 rounded"
+                placeholder="Enter your password"
                 value={password}
                 onChangeText={setPassword}
                 secureTextEntry
-                style={styles.input}
             />
-            {error ? <Text style={styles.errorText}>{error}</Text> : null}
-            <Button title="Login" onPress={handleLogin} />
+            <TouchableOpacity
+                className="mt-1"
+            >
+                <Text className='text-right text-neutral-500'>Forgot your password?</Text>
+            </TouchableOpacity>
+
+            {error ? <Text className="text-red-500 mb-2">{error}</Text> : null}
+
+            <TouchableOpacity
+                className='mt-4'
+                onPress={handleLogin}>
+                <Text className='text-lg text-neutral-100 p-2 bg-neutral-800 text-center dark:bg-neutral-500 dark:text-neutral-50 rounded-md'>
+                    Log In
+                </Text>
+            </TouchableOpacity>
+            <View className="flex-row mt-4 justify-center mr-4">
+                <Text className="text-base">New to IGN Tattoo  </Text>
+                <TouchableOpacity className=''>
+                    <Text className='text-base font-bold'>
+                        Sign up
+                    </Text>
+                </TouchableOpacity>
+            </View>
         </View>
     );
 }
-
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        justifyContent: 'center',
-        padding: 20,
-    },
-    input: {
-        marginVertical: 10,
-        borderWidth: 1,
-        borderColor: '#ccc',
-        padding: 10,
-        borderRadius: 5,
-    },
-    errorText: {
-        color: 'red',
-        marginBottom: 10,
-    },
-});

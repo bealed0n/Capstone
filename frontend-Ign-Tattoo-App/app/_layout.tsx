@@ -61,7 +61,6 @@ function RootLayoutNav() {
         {isLoggedIn ? (
           <Stack.Screen name="(tabs)" />
 
-
         ) : (
           <Stack.Screen name="(auth)/login" />
         )}
