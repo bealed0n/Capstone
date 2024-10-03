@@ -41,14 +41,14 @@ export default function Login() {
             </View>
             <Text className="mt-4">Email Adress</Text>
             <TextInput
-                className="dark:text-white my-2 border border-gray-300 p-2 rounded"
+                className="dark:text-white my-2 border border-gray-500 p-2 rounded"
                 placeholder="you@example.com"
                 value={email}
                 onChangeText={setEmail}
             />
             <Text className="mt-2">Password</Text>
             <TextInput
-                className="dark:text-white my-2 border border-gray-300 p-2 rounded"
+                className="dark:text-white my-2 border border-gray-500 p-2 rounded "
                 placeholder="Enter your password"
                 value={password}
                 onChangeText={setPassword}
@@ -65,14 +65,14 @@ export default function Login() {
             <TouchableOpacity
                 className='mt-4'
                 onPress={handleLogin}>
-                <Text className='text-lg text-neutral-100 p-2 bg-neutral-800 text-center dark:bg-neutral-500 dark:text-neutral-50 rounded-md'>
+                <Text className='text-lg text-neutral-100 p-2 bg-neutral-800 text-center dark:bg-neutral-50 dark:text-neutral-700 font-bold rounded-md'>
                     Log In
                 </Text>
             </TouchableOpacity>
             <View className="flex-row mt-4 justify-center mr-4">
-                <Text className="text-base">New to IGN Tattoo  </Text>
+                <Text>New to IGN Tattoo  </Text>
                 <TouchableOpacity className=''>
-                    <Text className='text-base font-bold'>
+                    <Text className='font-bold dark:text-white'>
                         Sign up
                     </Text>
                 </TouchableOpacity>
