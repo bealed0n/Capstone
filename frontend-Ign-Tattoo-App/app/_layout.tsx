@@ -3,7 +3,7 @@ import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native
 import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import 'react-native-reanimated';
 
 import { useColorScheme } from '@/components/useColorScheme';
@@ -45,14 +45,26 @@ export default function RootLayout() {
   return <RootLayoutNav />;
 }
 
+
+
 function RootLayoutNav() {
   const colorScheme = useColorScheme();
+  const [isLoggedIn, setIsLoggedIn] = useState(false); //false para no estar logeado
 
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
+      <Stack
+        screenOptions={{
+          headerShown: false,
+        }}
+      >
+        {isLoggedIn ? (
+          <Stack.Screen name="(tabs)" />
+
+
+        ) : (
+          <Stack.Screen name="(auth)/login" />
+        )}
       </Stack>
     </ThemeProvider>
   );
