@@ -3,7 +3,6 @@ import { TextInput, TouchableOpacity } from 'react-native';
 import { View, Text } from "@/components/Themed"
 import { useRouter } from 'expo-router';
 import 'react-native-reanimated';
-import { useNavigation } from '@react-navigation/native';
 
 export default function Login() {
     const [email, setEmail] = useState('');

@@ -20,5 +20,7 @@
     "app/(tabs)/search.tsx",
     "app/(auth)/register.tsx",
     "/app/(auth)/**/*.{js,jsx,ts,tsx}",
+    "app/context/userContext.js",
+    "components/simpleMenu.js",
   ]
 }

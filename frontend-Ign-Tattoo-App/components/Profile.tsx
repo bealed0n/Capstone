@@ -1,11 +1,14 @@
 import { Image, TouchableOpacity } from 'react-native';
-import React from 'react';
+import React, { useContext } from 'react';
 import { Text, View, } from './Themed';
 import PostCard from './PostCard';
+import { UserContext } from '@/app/context/userContext';
 
 
 export default function Profile() {
-    const user = {
+
+    const user = useContext(UserContext);
+    const user2 = {
         name: 'John Doe',
         photo: require('../assets/images/user.png'),
         email: '',
@@ -17,13 +20,13 @@ export default function Profile() {
     return (
         <View>
             <View className="flex-row">
-                <Image source={user.photo} className='rounded-full w-20 h-20 items-start mt-4 ml-3' />
+                <Image source={user2.photo} className='rounded-full w-20 h-20 items-start mt-4 ml-3' />
                 <View className="flex-col ml-3 mt-4  ">
-                    <Text className='text-xl font-bold'>{user.name}</Text>
+                    <Text className='text-xl font-bold'>{user?.username}</Text>
                     <View className='flex-row'>
-                        <Text className='text-sm mt-1'>{user.tattoos} tattoos</Text>
-                        <Text className='text-sm mt-1 ml-3'>{user.followers} followers</Text>
-                        <Text className='text-sm mt-1 ml-3'>{user.following} following</Text>
+                        <Text className='text-sm mt-1'>{user2.tattoos} tattoos</Text>
+                        <Text className='text-sm mt-1 ml-3'>{user2.followers} followers</Text>
+                        <Text className='text-sm mt-1 ml-3'>{user2.following} following</Text>
                     </View>
                 </View>
             </View>

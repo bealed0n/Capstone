@@ -41,13 +41,12 @@ export default function RootLayout() {
   if (!loaded) {
     return null;
   }
+
   return (
-    <UserProvider> {/* Agrega el UserProvider aquí */}
+    <UserProvider>
       <RootLayoutNav />
     </UserProvider>
   );
-
-
 }
 
 

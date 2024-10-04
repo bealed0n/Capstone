@@ -30,40 +30,35 @@ app.post('/login', async (req, res) => {
 
         if (rows.length > 0) {
             const user = rows[0];
+            const isValidPassword = await bcrypt.compare(password, user.password); // Compara la contraseña
 
-            // Verifica la contraseña
-            const isMatch = await bcrypt.compare(password, user.password);
-            if (isMatch) {
-                res.json({ success: true, message: 'Login exitoso' });
-                console.log('Login exitoso');
+            if (isValidPassword) {
+                // Responde con el usuario
+                res.json({ success: true, user: { username: user.username, email: user.email } });
             } else {
-                res.status(401).json({ success: false, message: 'Wrong password' });
+                res.json({ success: false, message: 'Contraseña incorrecta' });
             }
         } else {
-            res.status(404).json({ success: false, message: 'User not found' });
+            res.json({ success: false, message: 'Usuario no encontrado' });
         }
-    }
-    catch (error) {
-        console.error('Error during login:', error);
-        res.status(500).json({ success: false, message: 'Error del servidor' });
+    } catch (error) {
+        console.log(error);
     }
 });
-
 
 app.post('/register', async (req, res) => {
     const { username, email, password } = req.body;
 
     try {
-        // Hashea la contraseña antes de almacenarla
-        const hashedPassword = await bcrypt.hash(password, 10); // 10 es el número de rondas de salting
+        const hashedPassword = await bcrypt.hash(password, 10); // Hashea la contraseña
 
         // Inserta el nuevo usuario en la base de datos
         const query = 'INSERT INTO users (username, email, password) VALUES ($1, $2, $3)';
         await pool.query(query, [username, email, hashedPassword]);
 
-        // Si todo sale bien, enviamos un mensaje de éxito
-        res.json({ success: true, message: 'Usuario registrado' });
-        console.log('Usuario registrado');
+        // Aquí deberías establecer el usuario en el contexto del front-end
+        // Por ejemplo, si tienes una llamada al front-end que guarda el usuario
+        res.json({ success: true, user: { username, email } });
     } catch (error) {
         console.error('Error al registrar usuario:', error);
         res.json({ success: false, message: 'Error al registrar usuario' });
