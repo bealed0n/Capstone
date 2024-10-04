@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { Button, StyleSheet, TextInput, TouchableOpacity } from 'react-native';
+import { TextInput, TouchableOpacity } from 'react-native';
 import { View, Text } from "@/components/Themed"
-import { useRouter, Link } from 'expo-router';
+import { useRouter } from 'expo-router';
 import 'react-native-reanimated';
 import { useNavigation } from '@react-navigation/native';
 
@@ -71,11 +71,14 @@ export default function Login() {
             </TouchableOpacity>
             <View className="flex-row mt-4 justify-center mr-4">
                 <Text>New to IGN Tattoo  </Text>
-                <TouchableOpacity className=''>
+
+                <TouchableOpacity className=''
+                    onPress={() => router.push('/(auth)/register')} >
                     <Text className='font-bold dark:text-white'>
                         Sign up
                     </Text>
                 </TouchableOpacity>
+
             </View>
         </View>
     );

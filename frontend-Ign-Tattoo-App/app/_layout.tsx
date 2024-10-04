@@ -5,7 +5,7 @@ import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect, useState } from 'react';
 import 'react-native-reanimated';
-
+import { UserProvider } from '@/app/context/userContext';
 import { useColorScheme } from '@/components/useColorScheme';
 
 export {
@@ -41,8 +41,13 @@ export default function RootLayout() {
   if (!loaded) {
     return null;
   }
+  return (
+    <UserProvider> {/* Agrega el UserProvider aquí */}
+      <RootLayoutNav />
+    </UserProvider>
+  );
 
-  return <RootLayoutNav />;
+
 }
 
 
