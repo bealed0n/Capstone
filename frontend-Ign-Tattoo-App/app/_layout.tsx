@@ -3,10 +3,11 @@ import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native
 import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import 'react-native-reanimated';
 import { UserProvider } from '@/app/context/userContext';
 import { useColorScheme } from '@/components/useColorScheme';
+import { UserContext } from '@/app/context/userContext';
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -53,7 +54,10 @@ export default function RootLayout() {
 
 function RootLayoutNav() {
   const colorScheme = useColorScheme();
-  const [isLoggedIn, setIsLoggedIn] = useState(false); //false para no estar logeado
+  const { isLoggedIn, loading } = useContext(UserContext);
+  if (loading) {
+    return null;
+  }
 
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>

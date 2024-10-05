@@ -1,14 +1,16 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { TextInput, TouchableOpacity } from 'react-native';
 import { View, Text } from "@/components/Themed"
 import { useRouter } from 'expo-router';
 import 'react-native-reanimated';
+import { UserContext } from '@/app/context/userContext';
 
 export default function Login() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
-    const router = useRouter(); // Para redirigir
+    const router = useRouter();
+    const { login } = useContext(UserContext);  // Usa la función login del contexto
 
     const handleLogin = async () => {
         try {
@@ -19,13 +21,14 @@ export default function Login() {
                 },
                 body: JSON.stringify({ email, password }),
             });
+
             const data = await response.json();
 
             if (data.success) {
-                // Redirigir a la página principal de tabs después del login exitoso
-                router.replace('/(tabs)');
+                login(data.user);  // Almacenar el usuario y cambiar el estado a logeado
+                router.replace('/(tabs)');  // Redirigir a la pantalla de tabs
             } else {
-                setError(data.message); // Mostrar error si las credenciales son incorrectas
+                setError(data.message);  // Manejo de error
             }
         } catch (error) {
             setError('Error en la conexión con el servidor');
@@ -77,7 +80,6 @@ export default function Login() {
                         Sign up
                     </Text>
                 </TouchableOpacity>
-
             </View>
         </View>
     );

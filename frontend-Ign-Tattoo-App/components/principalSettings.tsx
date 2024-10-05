@@ -9,7 +9,6 @@ export default function principalSettings({ path }: { path: string }) {
 
             <TouchableOpacity
                 className='pr-80'
-
             >
                 <Text className='text-base ml-4 mt-2'>Log out</Text>
             </TouchableOpacity>
