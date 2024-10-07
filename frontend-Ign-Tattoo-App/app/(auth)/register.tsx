@@ -2,6 +2,8 @@ import { View, Text } from '@/components/Themed';
 import { useState } from 'react';
 import { TextInput, TouchableOpacity } from 'react-native';
 import { useRouter } from 'expo-router';
+import { useContext } from 'react';
+import { UserContext } from '@/app/context/userContext';
 
 export default function Register() {
     const [username, setUsername] = useState('');
@@ -9,6 +11,7 @@ export default function Register() {
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
     const router = useRouter(); // Para redirigir
+    const { login } = useContext(UserContext); // Usa la función login del contexto
 
     const handleRegister = async () => {
         try {
@@ -19,19 +22,27 @@ export default function Register() {
                 },
                 body: JSON.stringify({ username, email, password }),
             });
+
+            if (!response.ok) {
+                throw new Error('Error en la respuesta del servidor');
+            }
+
             const data = await response.json();
+
             if (data.success) {
-                // Redirigir a la página principal de tabs después del login exitoso
+                // Llamar a la función login del UserContext
+                login(data.user);
                 router.replace('/(tabs)');
+            } else {
+                setError(data.message);
             }
-            else {
-                setError(data.message); // Mostrar error
-            }
-        }
-        catch (error) {
+        } catch (error) {
+            console.error(error);
             setError('Error en la conexión con el servidor');
         }
-    }
+    };
+
+
 
     return (
         <View className="flex-1 justify-center p-5">

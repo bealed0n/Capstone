@@ -12,6 +12,25 @@ app.use(cors());
 // Middleware para parsear JSON
 app.use(express.json());
 
+const multer = require('multer');
+
+const path = require('path');
+
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, 'uploads/');
+    },
+    filename: function (req, file, cb) {
+        cb(null, file.fieldname + '-' + Date.now() + path.extname(file.originalname));
+    }
+});
+
+const upload = multer({ storage: storage });
+
+// Servir la carpeta 'uploads' de forma pública
+app.use('/uploads', express.static('uploads'));
+
+
 // Configuración de la conexión a PostgreSQL
 const pool = new Pool({
     user: 'admin-igntattoo',
@@ -50,20 +69,41 @@ app.post('/register', async (req, res) => {
     const { username, email, password } = req.body;
 
     try {
-        const hashedPassword = await bcrypt.hash(password, 10); // Hashea la contraseña
-
-        // Inserta el nuevo usuario en la base de datos
+        const hashedPassword = await bcrypt.hash(password, 10);
         const query = 'INSERT INTO users (username, email, password) VALUES ($1, $2, $3)';
         await pool.query(query, [username, email, hashedPassword]);
-
-        // Aquí deberías establecer el usuario en el contexto del front-end
-        // Por ejemplo, si tienes una llamada al front-end que guarda el usuario
-        res.json({ success: true, user: { username, email } });
+        return res.status(200).json({ success: true, user: { username, email } });
     } catch (error) {
         console.error('Error al registrar usuario:', error);
-        res.json({ success: false, message: 'Error al registrar usuario' });
+        return res.status(500).json({ success: false, message: 'Error al registrar usuario' });
+    }
+
+});
+
+app.get('/posts', async (req, res) => {
+    const query = 'SELECT * FROM posts';
+    const { rows } = await pool.query(query);
+    res.json(rows);
+});
+
+
+
+app.post('/posts', upload.single('image'), async (req, res) => {
+    const { content } = req.body;
+    const userId = 1; // Aquí deberías obtener el ID del usuario logueado
+    const imageUrl = req.file ? `/uploads/${req.file.filename}` : null;
+
+    try {
+        const query = 'INSERT INTO posts (user_id, content, image) VALUES ($1, $2, $3) RETURNING *';
+        const result = await pool.query(query, [userId, content, imageUrl]);
+
+        res.status(200).json({ success: true, post: result.rows[0] });
+    } catch (error) {
+        console.error('Error al crear el post:', error);
+        res.status(500).json({ success: false, message: 'Error al crear el post' });
     }
 });
+
 
 
 

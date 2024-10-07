@@ -1,14 +1,13 @@
 import React from 'react';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
-import { Link, router, Tabs, Href } from 'expo-router';
+import { router, Tabs, Href } from 'expo-router';
 import { Pressable } from 'react-native';
-
 import Colors from '@/constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
 import { useClientOnlyValue } from '@/components/useClientOnlyValue';
-import Ionicons from '@expo/vector-icons/Ionicons';
-import AntDesign from '@expo/vector-icons/AntDesign';
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
+
+
 
 // You can explore the built-in icon families and icons on the web at https://icons.expo.fyi/
 function TabBarIcon(props: {
@@ -18,9 +17,13 @@ function TabBarIcon(props: {
   return <FontAwesome size={28} style={{ marginBottom: -3 }} {...props} />;
 }
 
+
 export default function TabLayout() {
   const colorScheme = useColorScheme();
   const iconColor = colorScheme === 'dark' ? 'white' : 'black' // 'light' is the default color scheme
+
+
+
 
   return (
     <Tabs
@@ -33,13 +36,25 @@ export default function TabLayout() {
         options={{
           title: 'Home',
           tabBarIcon: ({ color }) => <FontAwesome5 name="home" size={24} color={iconColor} />,
+          headerRight: () => (  // Add a header button
+            <Pressable onPress={() => router.push('/createPost' as Href)}>
+              {({ pressed }) => (
+                <FontAwesome5
+                  name="plus"
+                  size={22}
+                  color={Colors[colorScheme ?? 'light'].text}
+                  style={{ marginRight: 15, opacity: pressed ? 0.5 : 1 }}
+                />
+              )}
+            </Pressable>
+          ),
         }}
       />
       <Tabs.Screen
         name="search"
         options={{
           title: 'Search',
-          tabBarIcon: ({ color }) => <FontAwesome name="search" size={24} color={iconColor} />,
+          tabBarIcon: ({ color }) => <FontAwesome5 name="search" size={24} color={iconColor} />,
 
         }}
       />
@@ -47,7 +62,7 @@ export default function TabLayout() {
         name="messages"
         options={{
           title: 'Messages',
-          tabBarIcon: ({ color }) => <TabBarIcon name="envelope" color={color} />,
+          tabBarIcon: ({ color }) => <FontAwesome5 name="envelope" size={24} color={iconColor} />,
         }}
       />
 
@@ -55,7 +70,7 @@ export default function TabLayout() {
         name="profile"
         options={{
           title: 'Profile',
-          tabBarIcon: ({ color }) => <TabBarIcon name="user" color={color} />,
+          tabBarIcon: ({ color }) => <FontAwesome5 name="user" size={24} color={iconColor} />,
           headerRight: () => (
             <Pressable onPress={() => router.push('/profileConfig' as Href)}>
               {({ pressed }) => (

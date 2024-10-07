@@ -1,21 +1,20 @@
+// RootLayout.js
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
-import { useContext, useEffect, useState } from 'react';
+import { useContext, useEffect } from 'react';
 import 'react-native-reanimated';
 import { UserProvider } from '@/app/context/userContext';
 import { useColorScheme } from '@/components/useColorScheme';
 import { UserContext } from '@/app/context/userContext';
 
 export {
-  // Catch any errors thrown by the Layout component.
   ErrorBoundary,
 } from 'expo-router';
 
 export const unstable_settings = {
-  // Ensure that reloading on `/modal` keeps a back button present.
   initialRouteName: '(tabs)',
 };
 
@@ -50,11 +49,11 @@ export default function RootLayout() {
   );
 }
 
-
-
 function RootLayoutNav() {
   const colorScheme = useColorScheme();
   const { isLoggedIn, loading } = useContext(UserContext);
+
+  // Si está cargando, no se renderiza nada.
   if (loading) {
     return null;
   }
@@ -68,7 +67,6 @@ function RootLayoutNav() {
       >
         {isLoggedIn ? (
           <Stack.Screen name="(tabs)" />
-
         ) : (
           <Stack.Screen name="(auth)/login" />
         )}

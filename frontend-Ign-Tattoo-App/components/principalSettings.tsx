@@ -1,17 +1,38 @@
 import { View, Text } from '../components/Themed';
 import { TouchableOpacity } from 'react-native';
+import FontAwesome from '@expo/vector-icons/FontAwesome';
+import { useColorScheme } from '@/components/useColorScheme';
+import { UserContext } from '@/app/context/userContext';
+import React, { useContext } from 'react';
+import { useRouter } from 'expo-router';
+
+
+
 
 export default function principalSettings({ path }: { path: string }) {
+
+    const { logout } = useContext(UserContext); // Obtén la función logout desde el contexto
+    const router = useRouter(); // Mueve el uso de router aquí
+    const handleLogout = async () => {
+        await logout(); // Llama a la función logout al presionar el botón
+        router.replace('/(auth)/login'); // Redirige a la pantalla de autenticación
+    };
+
+    const colorScheme = useColorScheme();
+    const iconColor = colorScheme === 'dark' ? 'white' : 'black' // 'light' is the default color scheme
     return (
         <View className='flex-1 flex-col '>
 
             <Text className='text-neutral-600 ml-4 mt-2'>Sesion</Text>
 
             <TouchableOpacity
-                className='pr-80'
+                className='flex-row justify-start items-center w-full p-2'
+                onPress={handleLogout} // Llama a handleLogout al presionar el botón
             >
-                <Text className='text-base ml-4 mt-2'>Log out</Text>
+                <FontAwesome name="sign-out" size={22} color={iconColor} className='mr-2' />
+                <Text className='text-base dark:text-white ml-2'>Log out</Text>
             </TouchableOpacity>
+
         </View>
     );
 }

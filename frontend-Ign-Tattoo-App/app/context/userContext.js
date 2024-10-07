@@ -1,3 +1,4 @@
+// UserContext.js
 import { createContext, useState, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -39,6 +40,7 @@ export const UserProvider = ({ children }) => {
     };
 
     // Función para manejar el logout
+    // UserContext.js
     const logout = async () => {
         try {
             await AsyncStorage.removeItem('user'); // Eliminar los datos del usuario
@@ -48,6 +50,7 @@ export const UserProvider = ({ children }) => {
             console.log('Error cerrando sesión:', error);
         }
     };
+
 
     return (
         <UserContext.Provider value={{ user, isLoggedIn, login, logout, loading }}>
