@@ -48,13 +48,22 @@ export default function CreatePost() {
             formData.append('content', content);
 
             if (imageUri) {
-                const imageBlob = await createBlobFromUri(imageUri);
-                formData.append('image', imageBlob, 'post-image.jpg');
+                const image = {
+                    uri: imageUri,
+                    name: 'post-image.jpg', // Nombre del archivo
+                    type: 'image/jpeg', // Tipo MIME (ajústalo según la imagen seleccionada)
+                } as any;
+
+                formData.append('image', image); // Adjuntar la imagen como un archivo
             }
 
             const response = await fetch('http://192.168.100.87:3000/posts', {
                 method: 'POST',
                 body: formData,
+                headers: {
+                    'Accept': 'application/json', // Aceptar JSON en la respuesta
+                    // No incluir 'Content-Type', fetch lo define automáticamente cuando usas FormData
+                },
             });
 
             if (response.ok) {
@@ -72,6 +81,7 @@ export default function CreatePost() {
             Alert.alert('Error', 'Hubo un problema al conectarse al servidor');
         }
     };
+
 
     return (
         <KeyboardAvoidingView
