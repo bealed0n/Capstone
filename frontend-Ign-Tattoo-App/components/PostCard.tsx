@@ -10,14 +10,29 @@ import tailwind from "twrnc";
 
 import { Menu, MenuItem, MenuDivider } from 'react-native-material-menu';
 import { View, Text } from "@/components/Themed";
-import { StyleSheet } from 'react-native';
-import { Image } from 'react-native';
+import { StyleSheet, Image } from 'react-native';
 
+interface CardExampleProps {
+    username: string;
+    content: string;
+    image: string;
+    createdAt: string;
+}
 
+interface Post {
+    username: string;
+    content: string;
+    image: string;
+    created_at: string;
+}
 
-export const CardExample = () => {
+const SERVER_URL = 'http://192.168.100.87:3000'; // Cambia esto a la URL de tu servidor
+
+export const CardExample = ({ username, content, image, createdAt }: CardExampleProps) => {
+    const imageUrl = image ? `${SERVER_URL}${image}` : null;
+
     return (
-        <Card style={tailwind`max-h-176 w-full max-w-90`}>
+        <Card style={tailwind`max-h-176 h-170 w-90 max-w-90 my-2`}>
             <CardContent className="p-3">
                 <View className="flex-row items-center">
                     <Image
@@ -25,37 +40,32 @@ export const CardExample = () => {
                         style={tailwind`w-8 h-8 rounded-full mr-2`}
                     />
                     <CardTitle>
-                        @User
+                        @{username}
                     </CardTitle>
                 </View>
                 <CardText className="text-xs pl-10">
-                    54 minutes ago, Providencia
+                    {new Date(createdAt).toLocaleString()}
                 </CardText>
             </CardContent>
-            <CardImage source={require('@/assets/images/example-45.jpg')} />
+            {imageUrl && <CardImage
+                source={{ uri: imageUrl }} />}
             <CardContent style={tailwind`gap-1`}>
                 <CardSubtitle className="">
-                    Lorem ipsum dolor, sit amet consectetur adipisicing elit. Do
+                    {content}
                 </CardSubtitle>
-                <View >
-                    <View className="flex-row">
-                        <Text className="text-base pl-1 mb-1 pr-1 p rounded opacity-60 bg-neutral-400 dark:bg-neutral-700 dark:text-white light:" >
-                            3h 25m
-                        </Text>
-                    </View>
-                    <View className="flex-row">
-                        <Text className="text-base pr-1 rounded opacity-60  bg-neutral-400 dark:bg-neutral-700 dark:text-white">
-                            $20.000
-                        </Text>
-                    </View>
-                </View>
+
             </CardContent>
         </Card>
     );
 };
 
-export default function PostCard() {
+export default function PostCard({ post }: { post: Post }) {
     return (
-        <CardExample />
+        <CardExample
+            username={post.username}
+            content={post.content}
+            image={post.image}
+            createdAt={post.created_at}
+        />
     );
 }
