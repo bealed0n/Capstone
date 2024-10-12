@@ -1,6 +1,6 @@
 import React from 'react';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
-import { router, Tabs, Href } from 'expo-router';
+import { router, Tabs, Href, Link } from 'expo-router';
 import { Pressable } from 'react-native';
 import Colors from '@/constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
@@ -37,16 +37,19 @@ export default function TabLayout() {
           title: 'Home',
           tabBarIcon: ({ color }) => <FontAwesome5 name="home" size={24} color={iconColor} />,
           headerRight: () => (  // Add a header button
-            <Pressable onPress={() => router.push('/createPost' as Href)}>
-              {({ pressed }) => (
-                <FontAwesome5
-                  name="plus"
-                  size={22}
-                  color={Colors[colorScheme ?? 'light'].text}
-                  style={{ marginRight: 15, opacity: pressed ? 0.5 : 1 }}
-                />
-              )}
-            </Pressable>
+            <Link href="/createPost" asChild>
+
+              <Pressable onPress={() => router.push('/createPost' as Href)}>
+                {({ pressed }) => (
+                  <FontAwesome5
+                    name="plus"
+                    size={22}
+                    color={Colors[colorScheme ?? 'light'].text}
+                    style={{ marginRight: 15, opacity: pressed ? 0.5 : 1 }}
+                  />
+                )}
+              </Pressable>
+            </Link>
           ),
         }}
       />
@@ -55,6 +58,20 @@ export default function TabLayout() {
         options={{
           title: 'Search',
           tabBarIcon: ({ color }) => <FontAwesome5 name="search" size={24} color={iconColor} />,
+          headerRight: () => (
+            <Link href="/modal" asChild>
+              <Pressable>
+                {({ pressed }) => (
+                  <FontAwesome
+                    name="info-circle"
+                    size={25}
+                    color={Colors[colorScheme ?? 'light'].text}
+                    style={{ marginRight: 15, opacity: pressed ? 0.5 : 1 }}
+                  />
+                )}
+              </Pressable>
+            </Link>
+          ),
 
         }}
       />

@@ -1,16 +1,10 @@
-import {
-    Card,
-    CardContent,
-    CardImage,
-    CardSubtitle,
-    CardText,
-    CardTitle,
-} from "@/components/card";
-import tailwind from "twrnc";
+import React, { useState } from 'react';
+import { View, Text, Image, Dimensions, TouchableOpacity } from 'react-native';
+import tailwind from 'twrnc';
+import { formatDistanceToNow, parseISO } from 'date-fns';
+import { Icon } from '@rneui/themed';
+import { MaterialIcons } from '@expo/vector-icons';
 
-import { Menu, MenuItem, MenuDivider } from 'react-native-material-menu';
-import { View, Text } from "@/components/Themed";
-import { StyleSheet, Image } from 'react-native';
 
 interface CardExampleProps {
     username: string;
@@ -27,35 +21,72 @@ interface Post {
 }
 
 const SERVER_URL = 'http://192.168.100.87:3000'; // Cambia esto a la URL de tu servidor
+const { width: SCREEN_WIDTH } = Dimensions.get('window'); // Obtener el ancho de la pantalla
 
 export const CardExample = ({ username, content, image, createdAt }: CardExampleProps) => {
+    const [isExpanded, setIsExpanded] = useState(false); // Estado para controlar si el texto está expandido
     const imageUrl = image ? `${SERVER_URL}${image}` : null;
+    const timeAgo = formatDistanceToNow(parseISO(createdAt), { addSuffix: true });
 
     return (
-        <Card style={tailwind`max-h-176 h-170 w-90 max-w-90 my-2`}>
-            <CardContent className="p-3">
-                <View className="flex-row items-center">
-                    <Image
-                        source={require('@/assets/images/user.png')}
-                        style={tailwind`w-8 h-8 rounded-full mr-2`}
-                    />
-                    <CardTitle>
-                        @{username}
-                    </CardTitle>
-                </View>
-                <CardText className="text-xs pl-10">
-                    {new Date(createdAt).toLocaleString()}
-                </CardText>
-            </CardContent>
-            {imageUrl && <CardImage
-                source={{ uri: imageUrl }} />}
-            <CardContent style={tailwind`gap-1`}>
-                <CardSubtitle className="">
-                    {content}
-                </CardSubtitle>
+        <View className='w-full bg-neutral-200 dark:bg-neutral-900 mb-1 overflow-hidden'>
+            {/* Header con Avatar, Username y Fecha */}
+            <View className="flex-row items-center p-3">
+                <Image
+                    source={require('@/assets/images/user.png')}
+                    className='w-11 h-11 rounded-full mr-3'
+                />
+                <View>
+                    <Text className='text-base font-bold dark:text-white'>@{username}</Text>
+                    <Text className='text-xs text-gray-500'>{timeAgo}</Text>
 
-            </CardContent>
-        </Card>
+                </View>
+            </View>
+            {/* Contenido del Post */}
+            <View className='px-2 pb-1'>
+                <Text
+                    className='text-base text-black dark:text-white'
+                    numberOfLines={isExpanded ? undefined : 2} // Mostrar solo 2 líneas cuando no esté expandido
+                >
+                    {content}
+                </Text>
+
+                {/* Botón "Show more" o "Show less" si el contenido es largo */}
+                {content.length > 60 && (
+                    <TouchableOpacity onPress={() => setIsExpanded(!isExpanded)}>
+                        <Text className='text-neutral-600'>
+                            {isExpanded ? 'Show less' : 'Show more'}
+                        </Text>
+                    </TouchableOpacity>
+                )}
+            </View>
+
+            {/* Imagen del Post */}
+            {imageUrl && (
+                <Image
+                    source={{ uri: imageUrl }}
+                    style={{ width: SCREEN_WIDTH, height: SCREEN_WIDTH * 1.25 }} // Relación 4:5
+                />
+            )}
+            {/* Botones de interaccion */}
+            <View className="flex-row justify-center p-2">
+
+                <TouchableOpacity className="flex-row items-center">
+                    <MaterialIcons name="favorite-outline" size={24} color="gray" />
+                </TouchableOpacity>
+
+                <TouchableOpacity className="flex-row items-center mx-16">
+                    <MaterialIcons name="add-comment" size={24} color="gray" />
+                </TouchableOpacity>
+
+                <TouchableOpacity className="flex-row items-center">
+                    <MaterialIcons name="ios-share" size={24} color="gray" />
+                </TouchableOpacity>
+
+            </View>
+
+
+        </View>
     );
 };
 

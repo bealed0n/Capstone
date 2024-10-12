@@ -81,11 +81,20 @@ app.post('/register', async (req, res) => {
 });
 
 app.get('/posts', async (req, res) => {
-    const query = 'SELECT * FROM posts';
-    const { rows } = await pool.query(query);
-    res.json(rows);
+    const query = `
+        SELECT posts.id, posts.user_id, users.username, posts.content, posts.image, posts.created_at
+        FROM posts
+        JOIN users ON posts.user_id = users.id
+        ORDER BY posts.created_at DESC;
+    `;
+    try {
+        const { rows } = await pool.query(query);
+        res.json(rows);
+    } catch (error) {
+        console.error('Error al obtener los posts:', error);
+        res.status(500).json({ success: false, message: 'Error al obtener los posts' });
+    }
 });
-
 
 
 app.post('/posts', upload.single('image'), async (req, res) => {

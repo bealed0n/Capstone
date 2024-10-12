@@ -1,8 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, SafeAreaView, View, Text, FlatList } from 'react-native';
-import EditScreenInfo from '@/components/EditScreenInfo';
+import { StyleSheet, SafeAreaView, Text, FlatList, RefreshControl } from 'react-native';
 import PostCard from '@/components/PostCard';
-import RefreshControlComp from '@/components/RefreshControl';
 
 interface Post {
   id: number;
@@ -16,6 +14,7 @@ interface Post {
 export default function IndexScreen() {
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
     fetchPosts();
@@ -36,42 +35,28 @@ export default function IndexScreen() {
     }
   };
 
-  const renderItem = ({ item }: { item: Post }) => (
-    <PostCard post={item} />
-  );
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await fetchPosts();
+    setRefreshing(false);
+  };
+
+  const renderItem = ({ item }: { item: Post }) => <PostCard post={item} />;
 
   return (
-    <SafeAreaView style={styles.container}>
-      <RefreshControlComp>
-        <View style={styles.content}>
-          {loading ? (
-            <Text>Cargando...</Text>
-          ) : (
-            <FlatList
-              data={posts}
-              renderItem={renderItem}
-              keyExtractor={(item) => item.id.toString()}
-            />
-          )}
-          <View style={styles.separator} />
-        </View>
-      </RefreshControlComp>
+    <SafeAreaView className='flex-1 items-center'>
+      {loading ? (
+        <Text>Cargando...</Text>
+      ) : (
+        <FlatList
+          data={posts}
+          renderItem={renderItem}
+          keyExtractor={(item) => item.id.toString()}
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+          }
+        />
+      )}
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  content: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingTop: 15,
-  },
-  separator: {
-    marginVertical: 30,
-    height: 1,
-    width: '80%',
-  },
-});
