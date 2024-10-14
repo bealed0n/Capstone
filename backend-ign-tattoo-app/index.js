@@ -53,7 +53,7 @@ app.post('/login', async (req, res) => {
 
             if (isValidPassword) {
                 // Responde con el usuario
-                res.json({ success: true, user: { username: user.username, email: user.email } });
+                res.json({ success: true, user: { id: user.id, username: user.username, email: user.email } });
             } else {
                 res.json({ success: false, message: 'Contraseña incorrecta' });
             }
@@ -98,13 +98,14 @@ app.get('/posts', async (req, res) => {
 
 
 app.post('/posts', upload.single('image'), async (req, res) => {
-    const { content } = req.body;
-    const userId = 1; // Aquí deberías obtener el ID del usuario logueado
+    const { content, user_id } = req.body;
+    console.log('Datos recibidos:', { content, user_id }); // Agregar este log para verificar el userId
+
     const imageUrl = req.file ? `/uploads/${req.file.filename}` : null;
 
     try {
         const query = 'INSERT INTO posts (user_id, content, image) VALUES ($1, $2, $3) RETURNING *';
-        const result = await pool.query(query, [userId, content, imageUrl]);
+        const result = await pool.query(query, [user_id, content, imageUrl]);
 
         res.status(200).json({ success: true, post: result.rows[0] });
     } catch (error) {
@@ -112,6 +113,7 @@ app.post('/posts', upload.single('image'), async (req, res) => {
         res.status(500).json({ success: false, message: 'Error al crear el post' });
     }
 });
+
 
 
 

@@ -15,18 +15,21 @@ export const UserProvider = ({ children }) => {
             try {
                 const storedUser = await AsyncStorage.getItem('user');
                 if (storedUser) {
-                    setUser(JSON.parse(storedUser)); // Parsear el JSON a objeto
-                    setIsLoggedIn(true); // Si hay un usuario, está logeado
+                    const parsedUser = JSON.parse(storedUser);
+                    console.log('Usuario cargado desde AsyncStorage:', parsedUser); // Agregar este log
+                    setUser(parsedUser);
+                    setIsLoggedIn(true);
                 }
             } catch (error) {
                 console.log('Error leyendo el estado de login:', error);
             } finally {
-                setLoading(false); // Terminamos la carga
+                setLoading(false);
             }
         };
 
         checkLoginStatus();
     }, []);
+
 
     // Función para manejar el login exitoso
     const login = async (userData) => {
@@ -40,7 +43,6 @@ export const UserProvider = ({ children }) => {
     };
 
     // Función para manejar el logout
-    // UserContext.js
     const logout = async () => {
         try {
             await AsyncStorage.removeItem('user'); // Eliminar los datos del usuario

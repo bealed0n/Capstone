@@ -1,10 +1,13 @@
-import { useState } from 'react';
+import { useState, useContext } from 'react';
 import { TextInput, TouchableOpacity, Image, Alert, KeyboardAvoidingView, Platform } from 'react-native';
 import { useRouter } from 'expo-router';
 import { View, Text } from '@/components/Themed';
 import * as ImagePicker from 'expo-image-picker';
+import { UserContext } from './context/userContext';
+
 
 export default function CreatePost() {
+    const { user } = useContext(UserContext);
     const [content, setContent] = useState('');
     const [imageUri, setImageUri] = useState<string | null>(null); // Para almacenar la URI de la imagen seleccionada
     const router = useRouter();
@@ -43,15 +46,19 @@ export default function CreatePost() {
             return;
         }
 
+        // Agrega este log para verificar que el `user` y su `id` estén disponibles
+        console.log('Usuario cargado desde el contexto:', user);
+
         try {
             const formData = new FormData();
             formData.append('content', content);
+            formData.append('user_id', user.id); // Aquí estás enviando el userId
 
             if (imageUri) {
                 const image = {
                     uri: imageUri,
-                    name: 'post-image.jpg', // Nombre del archivo
-                    type: 'image/jpeg', // Tipo MIME (ajústalo según la imagen seleccionada)
+                    name: 'post-image.jpg',
+                    type: 'image/jpeg',
                 } as any;
 
                 formData.append('image', image); // Adjuntar la imagen como un archivo
@@ -61,19 +68,18 @@ export default function CreatePost() {
                 method: 'POST',
                 body: formData,
                 headers: {
-                    'Accept': 'application/json', // Aceptar JSON en la respuesta
-                    // No incluir 'Content-Type', fetch lo define automáticamente cuando usas FormData
+                    'Accept': 'application/json',
                 },
             });
 
             if (response.ok) {
                 const jsonResponse = await response.json();
-                console.log('Respuesta del servidor:', jsonResponse); // Agregar log
+                console.log('Respuesta del servidor:', jsonResponse);
                 Alert.alert('Post creado', 'Tu post ha sido creado con éxito');
                 router.replace('/(tabs)');
             } else {
                 const errorResponse = await response.json();
-                console.error('Error en la respuesta del servidor:', errorResponse); // Agregar log
+                console.error('Error en la respuesta del servidor:', errorResponse);
                 Alert.alert('Error', 'No se pudo crear el post');
             }
         } catch (error) {
@@ -81,6 +87,7 @@ export default function CreatePost() {
             Alert.alert('Error', 'Hubo un problema al conectarse al servidor');
         }
     };
+
 
 
     return (

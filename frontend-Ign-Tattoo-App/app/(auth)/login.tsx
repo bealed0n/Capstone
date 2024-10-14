@@ -26,6 +26,7 @@ export default function Login() {
 
             if (data.success) {
                 login(data.user);  // Almacenar el usuario y cambiar el estado a logeado
+
                 router.replace('/(tabs)');  // Redirigir a la pantalla de tabs
             } else {
                 setError(data.message);  // Manejo de error
