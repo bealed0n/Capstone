@@ -1,0 +1,6 @@
+1. iniciar el servidor con express 
+2. dirijirce a la carpeta front end
+3. npm run build despues de cambios
+4. salir de carpeta e ingresar a la carpeta server
+5. node server.js el servidor se abrira en el puerto 5000 http://localhost:5000/
+6. npm install three para modelo 3d
