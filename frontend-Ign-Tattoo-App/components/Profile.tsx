@@ -2,6 +2,7 @@ import { Image, TouchableOpacity } from 'react-native';
 import React, { useContext } from 'react';
 import { Text, View, } from './Themed';
 import { UserContext } from '@/app/context/userContext';
+import { Href, router } from 'expo-router';
 
 
 export default function Profile() {
@@ -33,13 +34,21 @@ export default function Profile() {
             <View>
                 <Text className='text-base mt-4 ml-5 opacity-50'>Dashboard</Text>
                 <View className='flex-row justify-center mt-2'>
-                    <TouchableOpacity className='flex-1 mx-5'>
+                    <TouchableOpacity className='flex-1 mx-5'
+                        onPress={() => {
+                            router.push('/(managment)/calendar' as Href);
+                        }}
+                    >
                         <Text className='text-lg text-neutral-800 p-2 bg-neutral-200 text-center dark:bg-neutral-500 dark:text-neutral-50 rounded-md'>
                             Calendar
                         </Text>
                     </TouchableOpacity>
 
-                    <TouchableOpacity className='flex-1 mx-5'>
+                    <TouchableOpacity className='flex-1 mx-5'
+                        onPress={() => {
+                            router.push('/(managment)/apointmentList' as Href);
+                        }}
+                    >
                         <Text className='text-lg text-neutral-800 p-2 bg-neutral-200 text-center dark:bg-neutral-500 dark:text-neutral-50 rounded-md'>
                             Appointments
                         </Text>

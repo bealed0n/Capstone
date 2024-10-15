@@ -53,7 +53,7 @@ app.post('/login', async (req, res) => {
 
             if (isValidPassword) {
                 // Responde con el usuario
-                res.json({ success: true, user: { id: user.id, username: user.username, email: user.email } });
+                res.json({ success: true, user: { id: user.id, username: user.username, email: user.email, role: user.role } });
             } else {
                 res.json({ success: false, message: 'Contraseña incorrecta' });
             }
