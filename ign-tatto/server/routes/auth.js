@@ -3,6 +3,8 @@ const express = require('express');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const pool = require('../db'); // Conexión a PostgreSQL
+const authMiddleware = require('../middleware/auth'); // Middleware de autenticación
+
 const router = express.Router();
 
 // Ruta para registrar Cliente
@@ -84,6 +86,27 @@ router.post('/login', async (req, res) => {
 
     const token = jwt.sign({ id: user.rows[0].id, role: user.rows[0].role }, 'secret_key', { expiresIn: '1h' });
     res.json({ token, role: user.rows[0].role });
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).json('Error del servidor');
+  }
+});
+
+// Ruta para obtener los datos del perfil
+router.get('/profile', authMiddleware, async (req, res) => {
+  try {
+    // Obtener el ID del usuario desde el token JWT
+    const userId = req.user.id;
+
+    // Consultar los datos del usuario desde la base de datos
+    const user = await pool.query('SELECT id, username, email, role FROM users WHERE id = $1', [userId]);
+
+    if (user.rows.length === 0) {
+      return res.status(404).json({ msg: 'Usuario no encontrado' });
+    }
+
+    // Devolver los datos del usuario
+    res.json(user.rows[0]);
   } catch (err) {
     console.error(err.message);
     res.status(500).json('Error del servidor');

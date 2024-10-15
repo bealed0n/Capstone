@@ -10,11 +10,13 @@ import Products from './pages/Products';
 import ProductDetails from './pages/ProductDetails';
 import Cart from './pages/Cart';
 import AddProduct from './pages/AddProduct';
-import Navbar from './components/Navbar'; // Importar el componente Navbar
+import Navbar from './components/Navbar';
 import ClientRegister from './pages/ClientRegister';
 import TattooArtistRegister from './pages/TattooArtistRegister';
 import DesignerRegister from './pages/DesignerRegister';
 import HumanModel3D from './pages/HumanModel3D';
+import Profile from './pages/Profile';
+import PrivateRoute from './components/PrivateRoute';  // Importa PrivateRoute
 
 function App() {
   const [cartItems, setCartItems] = useState([]);
@@ -44,8 +46,8 @@ function App() {
         <Route path="/client/register" element={<ClientRegister />} />
         <Route path="/tattoo_artist/register" element={<TattooArtistRegister />} />
         <Route path="/designer/register" element={<DesignerRegister />} />
-        <Route path="/login" element={<Login />} />
         <Route path="/model3d" element={<HumanModel3D />} />
+        <Route path="/profile" element={<PrivateRoute><Profile /></PrivateRoute>} /> {/* Ruta protegida */}
       </Routes>
     </Router>
   );
