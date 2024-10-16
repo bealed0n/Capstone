@@ -2,13 +2,12 @@ import React, { useState } from 'react';
 import { View, Text, Image, Dimensions, TouchableOpacity } from 'react-native';
 import tailwind from 'twrnc';
 import { formatDistanceToNow, parseISO } from 'date-fns';
-import { Icon } from '@rneui/themed';
 import { MaterialIcons } from '@expo/vector-icons';
-
 
 interface CardExampleProps {
     username: string;
     content: string;
+    role: string;
     image: string;
     createdAt: string;
 }
@@ -16,22 +15,33 @@ interface CardExampleProps {
 interface Post {
     username: string;
     content: string;
+    role: string;
     image: string;
     created_at: string;
+}
+const beautifyRole = (role: string) => {
+    switch (role) {
+        case 'tattoo_artist':
+            return 'Tattoo Artist';
+        case 'designer':
+            return 'Designer';
+        default:
+            return role;
+    }
 }
 
 const SERVER_URL = 'http://192.168.100.87:3000'; // Cambia esto a la URL de tu servidor
 const { width: SCREEN_WIDTH } = Dimensions.get('window'); // Obtener el ancho de la pantalla
 
-export const CardExample = ({ username, content, image, createdAt }: CardExampleProps) => {
+export const CardExample = ({ username, content, role, image, createdAt }: CardExampleProps) => {
     const [isExpanded, setIsExpanded] = useState(false); // Estado para controlar si el texto está expandido
     const imageUrl = image ? `${SERVER_URL}${image}` : null;
     const timeAgo = formatDistanceToNow(parseISO(createdAt), { addSuffix: true });
 
     return (
         <View className='w-full bg-neutral-200 dark:bg-neutral-900 mb-1 overflow-hidden'>
-            {/* Header con Avatar, Username y Fecha */}
-            <View className="flex-row items-center p-3">
+            {/* Header con Avatar, Username, Fecha y Cuadro Diseñador */}
+            <View className="flex-row items-center p-3 relative">
                 <Image
                     source={require('@/assets/images/user.png')}
                     className='w-11 h-11 rounded-full mr-3'
@@ -39,9 +49,14 @@ export const CardExample = ({ username, content, image, createdAt }: CardExample
                 <View>
                     <Text className='text-base font-bold dark:text-white'>@{username}</Text>
                     <Text className='text-xs text-gray-500'>{timeAgo}</Text>
+                </View>
 
+                {/* Cuadro "Diseñador" en la esquina superior derecha */}
+                <View className='absolute right-2.5 top-2.5 bg-yellow-400 px-2 py-0.5 rounded'>
+                    <Text className='text-black font-bold text-xs'>{beautifyRole(role)}</Text>
                 </View>
             </View>
+
             {/* Contenido del Post */}
             <View className='px-2 pb-1'>
                 <Text
@@ -70,7 +85,6 @@ export const CardExample = ({ username, content, image, createdAt }: CardExample
             )}
             {/* Botones de interaccion */}
             <View className="flex-row justify-center p-2">
-
                 <TouchableOpacity className="flex-row items-center">
                     <MaterialIcons name="favorite-outline" size={24} color="gray" />
                 </TouchableOpacity>
@@ -82,10 +96,7 @@ export const CardExample = ({ username, content, image, createdAt }: CardExample
                 <TouchableOpacity className="flex-row items-center">
                     <MaterialIcons name="ios-share" size={24} color="gray" />
                 </TouchableOpacity>
-
             </View>
-
-
         </View>
     );
 };
@@ -95,6 +106,7 @@ export default function PostCard({ post }: { post: Post }) {
         <CardExample
             username={post.username}
             content={post.content}
+            role={post.role}
             image={post.image}
             createdAt={post.created_at}
         />

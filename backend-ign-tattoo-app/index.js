@@ -82,7 +82,7 @@ app.post('/register', async (req, res) => {
 
 app.get('/posts', async (req, res) => {
     const query = `
-        SELECT posts.id, posts.user_id, users.username, posts.content, posts.image, posts.created_at
+        SELECT posts.id, posts.user_id, users.username,users.role, posts.content, posts.image, posts.created_at
         FROM posts
         JOIN users ON posts.user_id = users.id
         ORDER BY posts.created_at DESC;

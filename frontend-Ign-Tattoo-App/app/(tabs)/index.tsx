@@ -7,6 +7,7 @@ interface Post {
   user_id: number;
   username: string;
   content: string;
+  role: string;
   image: string;
   created_at: string;
 }
