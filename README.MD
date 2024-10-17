@@ -1,16 +1,17 @@
 # Proyecto Full Stack con React Native y Express.js
 
 Proyecto de red social movil en una aplicación móvil con un front-end desarrollado en **React Native** (Expo) y un back-end en **Express.js**. A continuacion los pasos a seguir de la instalacion correcta de este.
+
 * El proyecto esta en constante desarrollo por lo que es probable que la base de datos no este actualizada
 
 ## Requisitos
 
 Riquisito obligatorio:
 
-- [Node.js](https://nodejs.org/) (versión 14 o superior)
-- [Expo CLI](https://docs.expo.dev/get-started/installation/)
-- [PostgreSQL](https://www.postgresql.org/) (versión 12 o superior)
-- Un gestor de paquetes como [npm](https://www.npmjs.com/) o [yarn](https://yarnpkg.com/)
+* [Node.js](https://nodejs.org/) (versión 14 o superior)
+* [Expo CLI](https://docs.expo.dev/get-started/installation/)
+* [PostgreSQL](https://www.postgresql.org/) (versión 12 o superior)
+* Un gestor de paquetes como [npm](https://www.npmjs.com/) o [yarn](https://yarnpkg.com/)
 
 ## Instalación
 
@@ -62,6 +63,7 @@ cd Capstone
    ```bash
    npx expo start
    ```
+
 ### 3. Configuración de la Base de Datos
 
 El proyecto utiliza **PostgreSQL** como base de datos. Aquí tienes la estructura básica de las tablas:
@@ -139,6 +141,8 @@ El proyecto utiliza **PostgreSQL** como base de datos. Aquí tienes la estructur
 ## Uso
 
 Cuando los dos servidores estén ejecutando, puedes abrir el proyecto con android studio o en tu dispositivo móvil mediante la app de **Expo Go** escaneando el código QR.
+
+* README generado con chatgpt
 
 ---
 
