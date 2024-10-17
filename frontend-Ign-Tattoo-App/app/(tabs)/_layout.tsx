@@ -89,8 +89,12 @@ export default function TabLayout() {
       <Tabs.Screen
         name="profile"
         options={{
-          title: 'Profile',
-          tabBarIcon: ({ color }) => <FontAwesome5 name="user" size={24} color={iconColor} />,
+          title: user && (user.role === 'tattoo_artist' || user.role === 'Designer') ? 'Profile' : 'Managment',
+          tabBarIcon: user && (user.role === 'tattoo_artist' || user.role === 'Designer') ? ({ color }) =>
+            <FontAwesome5 name="user" size={24} color={iconColor} /> : ({ color }) =>
+            <FontAwesome5 name="cog" size={24} color={iconColor} />,
+
+          // tabBarIcon: ({ color }) => <FontAwesome5 name="user" size={24} color={iconColor} />,
           headerRight: () => (
             <Pressable onPress={() => router.push('/profileConfig' as Href)}>
               {({ pressed }) => (
@@ -103,7 +107,6 @@ export default function TabLayout() {
               )}
             </Pressable>
           ),
-
         }}
       />
     </Tabs>
