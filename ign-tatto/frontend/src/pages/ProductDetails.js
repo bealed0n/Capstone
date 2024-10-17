@@ -2,9 +2,11 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import AddReview from './AddReview'; // Componente para añadir reseñas
+import ProductReviews from './ProductReviews'; // Componente para mostrar reseñas
 
 const ProductDetails = ({ addToCart }) => {
-  const { id } = useParams();
+  const { id } = useParams(); // 'id' es el ID del producto
   const [product, setProduct] = useState(null);
   const navigate = useNavigate();
 
@@ -45,6 +47,15 @@ const ProductDetails = ({ addToCart }) => {
             Añadir al Carrito
           </button>
         </div>
+      </div>
+
+      {/* Sección de Reseñas */}
+      <div className="mt-5">
+        {/* Mostrar las reseñas del producto */}
+        <ProductReviews productId={product.id} />
+
+        {/* Formulario para agregar una nueva reseña */}
+        <AddReview productId={product.id} />
       </div>
     </div>
   );

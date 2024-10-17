@@ -2,19 +2,13 @@
 const jwt = require('jsonwebtoken');
 
 const authMiddleware = (req, res, next) => {
-  // Obtener el token del encabezado de la solicitud
-  const token = req.header('x-auth-token');
-
-  // Si no hay token, denegar acceso
-  if (!token) {
-    return res.status(401).json({ msg: 'No hay token, autorización denegada' });
-  }
+  const token = req.header('Authorization');
+  if (!token) return res.status(401).json({ msg: 'No hay token, autorización denegada' });
 
   try {
-    // Verificar y decodificar el token
-    const decoded = jwt.verify(token, 'secret_key');  // Asegúrate de usar tu clave secreta real
-    req.user = decoded;  // Guardar los datos del usuario en la solicitud
-    next();  // Continuar al siguiente middleware o ruta
+    const verified = jwt.verify(token.split(' ')[1], 'secret_key'); // Cambia 'secret_key' por tu clave secreta
+    req.user = verified; // Guardar el usuario en la solicitud
+    next();
   } catch (err) {
     res.status(401).json({ msg: 'Token no válido' });
   }

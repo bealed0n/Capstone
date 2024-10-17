@@ -6,25 +6,29 @@ const AddProduct = () => {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [price, setPrice] = useState('');
-  const [image_url, setImageUrl] = useState('');
+  const [image, setImage] = useState(null);
   const [stock, setStock] = useState('');
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const formData = new FormData();
+    formData.append('name', name);
+    formData.append('description', description);
+    formData.append('price', parseFloat(price));
+    formData.append('image', image);
+    formData.append('stock', parseInt(stock));
+
     try {
-      const newProduct = {
-        name,
-        description,
-        price: parseFloat(price),
-        image_url,
-        stock: parseInt(stock)
-      };
-      await axios.post('/products/add', newProduct);
+      await axios.post('/products/add', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
       alert('Producto agregado con éxito');
       setName('');
       setDescription('');
       setPrice('');
-      setImageUrl('');
+      setImage(null);
       setStock('');
     } catch (error) {
       console.error('Error al agregar el producto:', error.response.data);
@@ -65,12 +69,11 @@ const AddProduct = () => {
           />
         </div>
         <div className="form-group">
-          <label>URL de la Imagen</label>
+          <label>Imagen del Producto</label>
           <input
-            type="text"
+            type="file"
             className="form-control"
-            value={image_url}
-            onChange={(e) => setImageUrl(e.target.value)}
+            onChange={(e) => setImage(e.target.files[0])}
             required
           />
         </div>
