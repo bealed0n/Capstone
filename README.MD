@@ -1,6 +1,7 @@
 # Proyecto Full Stack con React Native y Express.js
 
 Proyecto de red social movil en una aplicación móvil con un front-end desarrollado en **React Native** (Expo) y un back-end en **Express.js**. A continuacion los pasos a seguir de la instalacion correcta de este.
+* El proyecto esta en constante desarrollo por lo que es probable que la base de datos no este actualizada
 
 ## Requisitos
 
