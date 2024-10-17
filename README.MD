@@ -149,7 +149,7 @@ Cuando los dos servidores estén ejecutando, puedes abrir el proyecto con androi
 ## Estructura del Proyecto
 
 ```
-tu-repositorio/
+Capstone/
 │
 ├── backend-ign-tattoo-app/     # Código del servidor (Express.js)
 ├── frontend-ign-tatoo-app/    # Código del cliente (React Native)
