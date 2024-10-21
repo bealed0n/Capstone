@@ -11,15 +11,15 @@ import { useRouter } from 'expo-router';
 
 export default function principalSettings({ path }: { path: string }) {
 
-    const { logout } = useContext(UserContext); // Obtén la función logout desde el contexto
-    const router = useRouter(); // Mueve el uso de router aquí
+    const { logout } = useContext(UserContext);
+    const router = useRouter();
     const handleLogout = async () => {
         await logout(); // Llama a la función logout al presionar el botón
-        router.replace('/(auth)/login'); // Redirige a la pantalla de autenticación
+        router.push('/(auth)/login'); // Redirige a la pantalla de autenticación
     };
 
     const colorScheme = useColorScheme();
-    const iconColor = colorScheme === 'dark' ? 'white' : 'black' // 'light' is the default color scheme
+    const iconColor = colorScheme === 'dark' ? 'white' : 'black'
     return (
         <View className='flex-1 flex-col '>
 

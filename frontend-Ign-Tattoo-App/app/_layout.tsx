@@ -1,4 +1,3 @@
-// RootLayout.js
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import { useFonts } from 'expo-font';
@@ -9,14 +8,11 @@ import 'react-native-reanimated';
 import { UserProvider } from '@/app/context/userContext';
 import { useColorScheme } from '@/components/useColorScheme';
 import { UserContext } from '@/app/context/userContext';
+import { use } from 'i18next';
 
 export {
   ErrorBoundary,
 } from 'expo-router';
-
-export const unstable_settings = {
-  initialRouteName: '(tabs)',
-};
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -39,7 +35,7 @@ export default function RootLayout() {
   }, [loaded]);
 
   if (!loaded) {
-    return null;
+    return null; // Prevent rendering until fonts are loaded.
   }
 
   return (
@@ -53,10 +49,17 @@ function RootLayoutNav() {
   const colorScheme = useColorScheme();
   const { isLoggedIn, loading } = useContext(UserContext);
 
-  // Si está cargando, no se renderiza nada.
+  useEffect(() => {
+    console.log('isLoggedIn ha cambiado', isLoggedIn);
+  }, [isLoggedIn]);
+
+  // Esperar a que la información de loading esté lista
   if (loading) {
-    return null;
+    return null; // Evita navegar antes de que se complete la carga de datos.
   }
+
+  // Verificar el estado de "isLoggedIn" y mostrar la vista correcta
+  console.log('Estado actual de isLoggedIn:', isLoggedIn);
 
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
@@ -65,6 +68,7 @@ function RootLayoutNav() {
           headerShown: false,
         }}
       >
+        {/* Navegación condicional según el estado de autenticación */}
         {isLoggedIn ? (
           <Stack.Screen name="(tabs)" />
         ) : (

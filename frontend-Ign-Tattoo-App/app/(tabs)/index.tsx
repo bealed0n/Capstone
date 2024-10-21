@@ -1,6 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { StyleSheet, SafeAreaView, Text, FlatList, RefreshControl } from 'react-native';
+import { useRouter } from 'expo-router';  // Asegúrate de importar el hook para redirección
 import PostCard from '@/components/PostCard';
+import { UserContext } from '../context/userContext';
 
 interface Post {
   id: number;
@@ -13,13 +15,26 @@ interface Post {
 }
 
 export default function IndexScreen() {
+  const { isLoggedIn, loading } = useContext(UserContext);  // Aseguramos que solo cargue si está logueado
   const [posts, setPosts] = useState<Post[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loadingPosts, setLoadingPosts] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const router = useRouter();  // Hook para redirección
 
   useEffect(() => {
-    fetchPosts();
-  }, []);
+    if (loading) return; // Espera a que termine la verificación de carga
+
+    if (!isLoggedIn) {
+      // Si no está logueado, mostrar un aviso y redirigir al login después de 3 segundos
+      alert('Debes iniciar sesión para ver las publicaciones.');
+      const timeoutId = setTimeout(() => {
+        router.push('/(auth)/login');  // Redirigir al login
+      }, 3000);
+      return () => clearTimeout(timeoutId);  // Limpiar timeout si cambia el estado o se desmonta el componente
+    } else {
+      fetchPosts();  // Solo hacer la llamada si está logueado
+    }
+  }, [isLoggedIn, loading, router]);  // Añadir 'loading' a las dependencias
 
   const fetchPosts = async () => {
     try {
@@ -32,7 +47,7 @@ export default function IndexScreen() {
     } catch (error) {
       console.error(error);
     } finally {
-      setLoading(false);
+      setLoadingPosts(false);
     }
   };
 
@@ -44,20 +59,33 @@ export default function IndexScreen() {
 
   const renderItem = ({ item }: { item: Post }) => <PostCard post={item} />;
 
-  return (
-    <SafeAreaView className='flex-1 items-center'>
-      {loading ? (
+  // Mostrar "Cargando..." mientras se verifica el estado de sesión o mientras cargan los posts
+  if (loading || loadingPosts) {
+    return (
+      <SafeAreaView style={styles.container}>
         <Text>Cargando...</Text>
-      ) : (
-        <FlatList
-          data={posts}
-          renderItem={renderItem}
-          keyExtractor={(item) => item.id.toString()}
-          refreshControl={
-            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-          }
-        />
-      )}
+      </SafeAreaView>
+    );
+  }
+
+  return (
+    <SafeAreaView style={styles.container}>
+      <FlatList
+        data={posts}
+        renderItem={renderItem}
+        keyExtractor={(item) => item.id.toString()}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
+      />
     </SafeAreaView>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+});
