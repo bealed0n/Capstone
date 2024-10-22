@@ -1,16 +1,17 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { TextInput, TouchableOpacity, BackHandler } from 'react-native';
+import { TextInput, TouchableOpacity, BackHandler, useColorScheme, KeyboardAvoidingView, Platform } from 'react-native';
 import { View, Text } from "@/components/Themed";
 import { useRouter, useSegments } from 'expo-router';
 import { UserContext } from '@/app/context/userContext';
+import { Feather } from '@expo/vector-icons';
 
 export default function Login() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
     const router = useRouter();
-    const segments = useSegments();  // Obtener los segmentos de la ruta actual
-    const { login, isLoggedIn } = useContext(UserContext);  // Usa la función login del contexto
+    const segments = useSegments();
+    const { login, isLoggedIn } = useContext(UserContext);
 
     const handleLogin = async () => {
         try {
@@ -25,11 +26,10 @@ export default function Login() {
             const data = await response.json();
 
             if (data.success) {
-                login(data.user);  // Almacenar el usuario y cambiar el estado a logeado
-
-                router.replace('/(tabs)');  // Redirigir a la pantalla de tabs
+                login(data.user);
+                router.replace('/(tabs)');
             } else {
-                setError(data.message);  // Manejo de error
+                setError(data.message);
             }
         } catch (error) {
             setError('Error en la conexión con el servidor');
@@ -39,13 +39,12 @@ export default function Login() {
     useEffect(() => {
         const backAction = () => {
             if (!isLoggedIn) {
-                // Si el usuario está en la pantalla de login, permitir que el backhandler cierre la app.
                 if (segments[0] === '(auth)' && segments[1] === 'login') {
-                    BackHandler.exitApp();  // Cerrar la app si está en la pantalla de login
+                    BackHandler.exitApp();
                 }
-                return true;  // Bloquear el retroceso predeterminado
+                return true;
             }
-            return false;  // Permitir que el retroceso predeterminado funcione cuando el usuario está logueado
+            return false;
         };
 
         const backHandler = BackHandler.addEventListener(
@@ -53,11 +52,22 @@ export default function Login() {
             backAction
         );
 
-        return () => backHandler.remove(); // Limpiar el listener
+        return () => backHandler.remove();
     }, [isLoggedIn, segments]);
 
+    const colorScheme = useColorScheme();
+    const iconColor = colorScheme === 'dark' ? 'white' : 'black';
+
     return (
-        <View className="flex-1 justify-center p-5">
+        <KeyboardAvoidingView
+            className="flex-1 justify-center p-5"
+            behavior={Platform.OS === "ios" ? "padding" : "height"}
+            keyboardVerticalOffset={100}
+        >
+            <View className='items-center pb-7'>
+                <Feather name="droplet" size={200} color={iconColor} />
+            </View>
+
             <View className='flex-row'>
                 <Text className="text-xl">Welcome to </Text>
                 <Text className="font-bold text-xl">IGN Tattoo</Text>
@@ -66,6 +76,7 @@ export default function Login() {
             <TextInput
                 className="dark:text-white my-2 border border-gray-500 p-2 rounded"
                 placeholder="you@example.com"
+                placeholderTextColor={colorScheme === 'dark' ? 'gray' : 'black'}
                 value={email}
                 onChangeText={setEmail}
             />
@@ -73,6 +84,7 @@ export default function Login() {
             <TextInput
                 className="dark:text-white my-2 border border-gray-500 p-2 rounded"
                 placeholder="Enter your password"
+                placeholderTextColor={colorScheme === 'dark' ? 'gray' : 'black'}
                 value={password}
                 onChangeText={setPassword}
                 secureTextEntry
@@ -90,10 +102,12 @@ export default function Login() {
             </TouchableOpacity>
             <View className="flex-row mt-4 justify-center mr-4">
                 <Text>New to IGN Tattoo  </Text>
-                <TouchableOpacity onPress={() => router.push('/(auth)/register')}>
+                <TouchableOpacity
+                    onPress={() => router.push('/(auth)/register')}
+                >
                     <Text className='font-bold dark:text-white'>Sign up</Text>
                 </TouchableOpacity>
             </View>
-        </View>
+        </KeyboardAvoidingView>
     );
 }

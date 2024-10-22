@@ -8,7 +8,7 @@ import 'react-native-reanimated';
 import { UserProvider } from '@/app/context/userContext';
 import { useColorScheme } from '@/components/useColorScheme';
 import { UserContext } from '@/app/context/userContext';
-import { use } from 'i18next';
+import LoadingScreen from '@/components/LoadingScreen'; // Nueva pantalla de carga
 
 export {
   ErrorBoundary,
@@ -53,14 +53,12 @@ function RootLayoutNav() {
     console.log('isLoggedIn ha cambiado', isLoggedIn);
   }, [isLoggedIn]);
 
-  // Esperar a que la información de loading esté lista
+  // Si está cargando los datos de usuario, mostramos la pantalla de carga
   if (loading) {
-    return null; // Evita navegar antes de que se complete la carga de datos.
+    return <LoadingScreen />;
   }
 
   // Verificar el estado de "isLoggedIn" y mostrar la vista correcta
-  console.log('Estado actual de isLoggedIn:', isLoggedIn);
-
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
       <Stack
@@ -70,9 +68,9 @@ function RootLayoutNav() {
       >
         {/* Navegación condicional según el estado de autenticación */}
         {isLoggedIn ? (
-          <Stack.Screen name="(tabs)" />
+          <Stack.Screen name="(tabs)" /> // Mostrar tabs solo si está logueado
         ) : (
-          <Stack.Screen name="(auth)/login" />
+          <Stack.Screen name="(auth)/login" /> // Si no está logueado, mostrar login
         )}
       </Stack>
     </ThemeProvider>

@@ -4,9 +4,9 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 export const UserContext = createContext();
 
 export const UserProvider = ({ children }) => {
-    const [user, setUser] = useState(null); // Almacena el usuario logeado
-    const [isLoggedIn, setIsLoggedIn] = useState(false); // Estado del login
-    const [loading, setLoading] = useState(true); // Estado de carga agregado
+    const [user, setUser] = useState(null);
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
+    const [loading, setLoading] = useState(true);
 
     // Al cargar la app, verificar si hay un usuario almacenado
     useEffect(() => {
@@ -16,16 +16,17 @@ export const UserProvider = ({ children }) => {
                 if (storedUser) {
                     const parsedUser = JSON.parse(storedUser);
                     console.log('Usuario cargado desde AsyncStorage:', parsedUser);
+                    // Actualiza el estado solo si el usuario no es el mismo
                     setUser(parsedUser);
-                    setIsLoggedIn(true); // Marca al usuario como logueado
+                    setIsLoggedIn(true);
                 } else {
                     console.log('No hay usuario en AsyncStorage');
-                    setIsLoggedIn(false); // Si no hay usuario, no está logueado
+                    setIsLoggedIn(false);
                 }
             } catch (error) {
                 console.log('Error leyendo el estado de login:', error);
             } finally {
-                setLoading(false); // Cambia el estado de loading una vez verificado
+                setLoading(false);
             }
         };
 
@@ -35,9 +36,9 @@ export const UserProvider = ({ children }) => {
     // Función para manejar el login exitoso
     const login = async (userData) => {
         try {
-            await AsyncStorage.setItem('user', JSON.stringify(userData)); // Guardar el usuario en AsyncStorage
-            setUser(userData);  // Actualiza el usuario en el estado
-            setIsLoggedIn(true); // Marca al usuario como logueado
+            await AsyncStorage.setItem('user', JSON.stringify(userData));
+            setUser(userData);
+            setIsLoggedIn(true);
         } catch (error) {
             console.log('Error guardando el estado de login:', error);
         }
@@ -46,9 +47,9 @@ export const UserProvider = ({ children }) => {
     // Función para manejar el logout
     const logout = async () => {
         try {
-            await AsyncStorage.removeItem('user'); // Eliminar el usuario de AsyncStorage
-            setUser(null); // Limpiar el usuario en el estado
-            setIsLoggedIn(false); // Cambiar el estado a no logueado
+            await AsyncStorage.removeItem('user');
+            setUser(null);
+            setIsLoggedIn(false);
             console.log('Usuario ha cerrado sesión');
         } catch (error) {
             console.log('Error cerrando sesión:', error);

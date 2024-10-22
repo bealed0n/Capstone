@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { StyleSheet, SafeAreaView, Text, FlatList, RefreshControl } from 'react-native';
-import { useRouter } from 'expo-router';  // Asegúrate de importar el hook para redirección
+import { useRouter } from 'expo-router';  // Hook para redirección
 import PostCard from '@/components/PostCard';
 import { UserContext } from '../context/userContext';
 
@@ -15,26 +15,29 @@ interface Post {
 }
 
 export default function IndexScreen() {
-  const { isLoggedIn, loading } = useContext(UserContext);  // Aseguramos que solo cargue si está logueado
+  const { isLoggedIn } = useContext(UserContext);  // Aseguramos que solo cargue si está logueado
   const [posts, setPosts] = useState<Post[]>([]);
-  const [loadingPosts, setLoadingPosts] = useState(true);
+  const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [layoutMounted, setLayoutMounted] = useState(false); // Estado para verificar si el layout está montado
   const router = useRouter();  // Hook para redirección
 
   useEffect(() => {
-    if (loading) return; // Espera a que termine la verificación de carga
+    // Este hook simula el montaje del layout
+    setTimeout(() => setLayoutMounted(true), 0);  // Espera un ciclo de render para asegurar el montaje
+  }, []);
 
-    if (!isLoggedIn) {
-      // Si no está logueado, mostrar un aviso y redirigir al login después de 3 segundos
-      alert('Debes iniciar sesión para ver las publicaciones.');
-      const timeoutId = setTimeout(() => {
-        router.push('/(auth)/login');  // Redirigir al login
-      }, 3000);
-      return () => clearTimeout(timeoutId);  // Limpiar timeout si cambia el estado o se desmonta el componente
-    } else {
-      fetchPosts();  // Solo hacer la llamada si está logueado
+  useEffect(() => {
+    if (layoutMounted) {
+      if (!isLoggedIn) {
+        // Si no está logueado, redirigimos al login
+        router.replace('/(auth)/login');
+      } else {
+        // Si está logueado, obtenemos los posts
+        fetchPosts();
+      }
     }
-  }, [isLoggedIn, loading, router]);  // Añadir 'loading' a las dependencias
+  }, [isLoggedIn, layoutMounted]);
 
   const fetchPosts = async () => {
     try {
@@ -47,7 +50,7 @@ export default function IndexScreen() {
     } catch (error) {
       console.error(error);
     } finally {
-      setLoadingPosts(false);
+      setLoading(false);
     }
   };
 
@@ -59,25 +62,30 @@ export default function IndexScreen() {
 
   const renderItem = ({ item }: { item: Post }) => <PostCard post={item} />;
 
-  // Mostrar "Cargando..." mientras se verifica el estado de sesión o mientras cargan los posts
-  if (loading || loadingPosts) {
-    return (
-      <SafeAreaView style={styles.container}>
-        <Text>Cargando...</Text>
-      </SafeAreaView>
-    );
+  if (!layoutMounted) {
+    // No mostramos nada mientras el layout no esté montado
+    return null;
+  }
+
+  if (!isLoggedIn) {
+    // Si el usuario no está logueado, no mostramos nada (aunque la redirección ya debería estar en marcha)
+    return null;
   }
 
   return (
     <SafeAreaView style={styles.container}>
-      <FlatList
-        data={posts}
-        renderItem={renderItem}
-        keyExtractor={(item) => item.id.toString()}
-        refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-        }
-      />
+      {loading ? (
+        <Text>Cargando posts...</Text>
+      ) : (
+        <FlatList
+          data={posts}
+          renderItem={renderItem}
+          keyExtractor={(item) => item.id.toString()}
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+          }
+        />
+      )}
     </SafeAreaView>
   );
 }

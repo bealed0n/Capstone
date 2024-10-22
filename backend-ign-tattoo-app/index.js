@@ -40,6 +40,7 @@ const pool = new Pool({
     port: 5432,
 });
 
+// Ruta para logearse
 app.post('/login', async (req, res) => {
     const { email, password } = req.body;
 
@@ -65,6 +66,8 @@ app.post('/login', async (req, res) => {
     }
 });
 
+
+// Ruta para registrar un usuario automaticamente rol de user
 app.post('/register', async (req, res) => {
     const { username, email, password } = req.body;
 
@@ -80,6 +83,7 @@ app.post('/register', async (req, res) => {
 
 });
 
+// Ruta para obtener los posts
 app.get('/posts', async (req, res) => {
     const query = `
         SELECT posts.id, posts.user_id, users.username,users.role, posts.content, posts.image, posts.created_at
@@ -96,7 +100,7 @@ app.get('/posts', async (req, res) => {
     }
 });
 
-
+// Ruta para SUBIR posteo
 app.post('/posts', upload.single('image'), async (req, res) => {
     const { content, user_id } = req.body;
     console.log('Datos recibidos:', { content, user_id }); // Agregar este log para verificar el userId
@@ -113,6 +117,121 @@ app.post('/posts', upload.single('image'), async (req, res) => {
         res.status(500).json({ success: false, message: 'Error al crear el post' });
     }
 });
+
+//---------------------------------------------------------------------------------------------------- 
+//APARTADO PARA OBTENER LOS INFORMACION SOBRE FOLLOWERS Y FOLLOWING DE USUARIOS
+//---------------------------------------------------------------------------------------------------- 
+// Ruta para seguir a un usuario
+app.post('/follow', async (req, res) => {
+    const { follower_id, following_id } = req.body;
+
+    try {
+        // Insertar en la tabla follows
+        const query = 'INSERT INTO follows (follower_id, following_id, followed_at) VALUES ($1, $2, NOW())';
+        await pool.query(query, [follower_id, following_id]);
+
+        res.status(200).json({ success: true, message: 'Usuario seguido exitosamente' });
+    } catch (error) {
+        console.error('Error al seguir al usuario:', error);
+        res.status(500).json({ success: false, message: 'Error al seguir al usuario' });
+    }
+});
+
+
+// Ruta para obtener un count de los seguidores de un usuario
+app.get('/followers/:user_id', async (req, res) => {
+    const { user_id } = req.params;
+
+    try {
+        const query = 'SELECT COUNT(*) AS follower_count FROM follows WHERE following_id = $1';
+        const { rows } = await pool.query(query, [user_id]);
+
+        res.json({ follower_count: rows[0].follower_count });
+    } catch (error) {
+        console.error('Error al contar los seguidores:', error);
+        res.status(500).json({ success: false, message: 'Error al contar los seguidores' });
+    }
+});
+
+
+// Ruta para contar los seguidos de un usuario
+app.get('/following/:user_id', async (req, res) => {
+    const { user_id } = req.params;
+
+    try {
+        const query = 'SELECT COUNT(*) AS following_count FROM follows WHERE follower_id = $1';
+        const { rows } = await pool.query(query, [user_id]);
+
+        res.json({ following_count: rows[0].following_count });
+    } catch (error) {
+        console.error('Error al contar los seguidos:', error);
+        res.status(500).json({ success: false, message: 'Error al contar los seguidos' });
+    }
+});
+
+
+// Ruta para obtener la lista de seguidores de un usuario   
+app.get('/followers/list/:user_id', async (req, res) => {
+    const { user_id } = req.params;
+
+    try {
+        const query = `
+            SELECT users.id, users.username, users.profile_pic 
+            FROM follows
+            JOIN users ON follows.follower_id = users.id
+            WHERE follows.following_id = $1
+        `;
+        const { rows } = await pool.query(query, [user_id]);
+
+        res.json(rows);
+    } catch (error) {
+        console.error('Error al obtener la lista de seguidores:', error);
+        res.status(500).json({ success: false, message: 'Error al obtener la lista de seguidores' });
+    }
+});
+
+// Ruta para dejar de seguir a un usuario
+app.delete('/unfollow', async (req, res) => {
+    const { follower_id, following_id } = req.body;
+
+    try {
+        const query = 'DELETE FROM followers WHERE follower_id = $1 AND following_id = $2';
+        const result = await pool.query(query, [follower_id, following_id]);
+
+        if (result.rowCount > 0) {
+            res.json({ success: true, message: 'Has dejado de seguir al usuario' });
+        } else {
+            res.json({ success: false, message: 'No estabas siguiendo a este usuario' });
+        }
+    } catch (error) {
+        console.error('Error al dejar de seguir al usuario:', error);
+        res.status(500).json({ success: false, message: 'Error al dejar de seguir al usuario' });
+    }
+});
+
+
+// Ruta para obtener la lista de seguidos de un usuario
+app.get('/following/list/:user_id', async (req, res) => {
+    const { user_id } = req.params;
+
+    try {
+        const query = `
+            SELECT users.id, users.username, users.profile_pic 
+            FROM follows
+            JOIN users ON follows.following_id = users.id
+            WHERE follows.follower_id = $1
+        `;
+        const { rows } = await pool.query(query, [user_id]);
+
+        res.json(rows);
+    } catch (error) {
+        console.error('Error al obtener la lista de seguidos:', error);
+        res.status(500).json({ success: false, message: 'Error al obtener la lista de seguidos' });
+    }
+});
+//---------------------------------------------------------------------------------------------------- 
+//FIN DE APARTADO DE SEGUIDORES Y SEGUIDOS
+//---------------------------------------------------------------------------------------------------- 
 
 
 
