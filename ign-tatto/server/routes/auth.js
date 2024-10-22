@@ -1,9 +1,10 @@
-// server/routes/auth.js
 const express = require('express');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const pool = require('../db'); // Conexión a PostgreSQL
 const authMiddleware = require('../middleware/auth'); // Middleware de autenticación
+const config = require('../config'); // Importar la clave secreta desde el archivo de configuración
+
 
 const router = express.Router();
 
@@ -69,6 +70,7 @@ router.post('/designer/register', async (req, res) => {
     res.status(500).json('Error del servidor');
   }
 });
+
 // Ruta para iniciar sesión
 router.post('/login', async (req, res) => {
   const { email, password } = req.body;
@@ -76,18 +78,23 @@ router.post('/login', async (req, res) => {
   try {
     const user = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
     if (user.rows.length === 0) {
-      return res.status(400).json({ msg: 'Credenciales inválidas' });
+      return res.status(400).json({ msg: 'Usuario no encontrado' });
     }
 
     const isMatch = await bcrypt.compare(password, user.rows[0].password);
     if (!isMatch) {
-      return res.status(400).json({ msg: 'Credenciales inválidas' });
+      return res.status(400).json({ msg: 'Contraseña incorrecta' });
     }
 
-    const token = jwt.sign({ id: user.rows[0].id, role: user.rows[0].role }, 'secret_key', { expiresIn: '1h' });
-    res.json({ token, role: user.rows[0].role });
+    const payload = {
+      id: user.rows[0].id,
+      role: user.rows[0].role,
+    };
+
+    const token = jwt.sign(payload, config.jwtSecret, { expiresIn: '1h' }); // Usar la clave secreta desde el archivo de configuración
+    res.json({ token });
   } catch (err) {
-    console.error(err.message);
+    console.error('Error al iniciar sesión:', err.message);
     res.status(500).json('Error del servidor');
   }
 });

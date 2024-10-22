@@ -22,7 +22,10 @@ import ReviewList from './pages/ReviewList'; // Asegúrate de importar ReviewLis
 import PrivateRoute from './components/PrivateRoute';
 import PostDetails from './pages/PostDetails'; // Importar el nuevo componente PostDetails
 import NotFound from './pages/NotFound'; // Importar el nuevo componente NotFound
-
+import CreateSlot from './pages/CreateSlot'; // 
+import ReserveSlot from './pages/ReserveSlot'; //
+import MyReservations from './pages/MyReservations';
+import 'bootstrap/dist/css/bootstrap.min.css';
 
 function App() {
   const [cartItems, setCartItems] = useState([]);
@@ -53,13 +56,15 @@ function App() {
         <Route path="/designer/register" element={<DesignerRegister />} />
         <Route path="/model3d" element={<HumanModel3D />} />
         <Route path="/profile" element={<PrivateRoute><Profile /></PrivateRoute>} />
-        <Route path="/upload" element={<PrivateRoute><UploadPost /></PrivateRoute>} />
+        <Route path="/upload" element={<UploadPost /> }/>
         <Route path="/reviews/add/:postId" element={<PrivateRoute><AddReview /></PrivateRoute>} />
         <Route path="/reviews/:postId" element={<ReviewList />} /> {/* Ruta para ver reseñas */}
         <Route path="/posts-list" element={<TattooPosts />} /> {/* Nueva ruta para ver las publicaciones */}
         <Route path="/posts/:id" element={<PostDetails />} /> {/* Nueva ruta para ver los detalles de una publicación */}
         <Route path="*" element={<NotFound />} /> {/* Ruta para la página 404 */}
-
+        <Route path="/create-slot" element={<CreateSlot />} />
+        <Route path="/reserve-slot" element={<ReserveSlot />} />
+        <Route path="/my-reservations" element={<MyReservations />} />
       </Routes>
     </Router>
   );

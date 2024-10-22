@@ -42,8 +42,6 @@ const ProductList = ({ addToCart }) => {
                   <p className="card-text">{product.description}</p>
                   <p className="card-text">${product.price}</p>
                   <Link to={`/products-lists/${product.id}`} className="btn btn-primary">Ver Detalle</Link>
-                  <Link to={`/reviews/add/${product.id}`} className="btn btn-secondary ml-2">Agregar Reseña</Link>
-                  <button className="btn btn-success ml-2" onClick={() => addToCart(product)}>Agregar al Carrito</button>
                 </div>
               </div>
             </div>

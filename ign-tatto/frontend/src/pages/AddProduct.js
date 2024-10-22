@@ -1,95 +1,93 @@
-// src/pages/AddProduct.js
 import React, { useState } from 'react';
 import axios from 'axios';
+import { Form, Button, Alert, Container } from 'react-bootstrap';
 
 const AddProduct = () => {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [price, setPrice] = useState('');
   const [image, setImage] = useState(null);
-  const [stock, setStock] = useState('');
+  const [error, setError] = useState(null);
+  const [success, setSuccess] = useState(null);
 
-  const handleSubmit = async (e) => {
+  const handleAddProduct = async (e) => {
     e.preventDefault();
-    const formData = new FormData();
-    formData.append('name', name);
-    formData.append('description', description);
-    formData.append('price', parseFloat(price));
-    formData.append('image', image);
-    formData.append('stock', parseInt(stock));
-
     try {
-      await axios.post('/products/add', formData, {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        setError('No se encontró el token de autenticación.');
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append('name', name);
+      formData.append('description', description);
+      formData.append('price', price);
+      formData.append('image', image);
+
+      const response = await axios.post('http://localhost:5000/products/add', formData, {
         headers: {
+          'Authorization': `Bearer ${token}`,
           'Content-Type': 'multipart/form-data',
         },
       });
-      alert('Producto agregado con éxito');
+
+      setSuccess('Producto agregado exitosamente.');
+      setError(null);
       setName('');
       setDescription('');
       setPrice('');
       setImage(null);
-      setStock('');
     } catch (error) {
-      console.error('Error al agregar el producto:', error.response.data);
+      console.error('Error al agregar producto:', error);
+      setError('Error al agregar producto.');
+      setSuccess(null);
     }
   };
 
   return (
-    <div className="container mt-5">
-      <h2>Agregar Nuevo Producto</h2>
-      <form onSubmit={handleSubmit}>
-        <div className="form-group">
-          <label>Nombre del Producto</label>
-          <input
+    <Container className="mt-5">
+      <h1 className="text-center">Agregar Producto</h1>
+      {error && <Alert variant="danger">{error}</Alert>}
+      {success && <Alert variant="success">{success}</Alert>}
+      <Form onSubmit={handleAddProduct}>
+        <Form.Group controlId="formName">
+          <Form.Label>Nombre:</Form.Label>
+          <Form.Control
             type="text"
-            className="form-control"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            required
           />
-        </div>
-        <div className="form-group">
-          <label>Descripción</label>
-          <textarea
-            className="form-control"
+        </Form.Group>
+        <Form.Group controlId="formDescription" className="mt-3">
+          <Form.Label>Descripción:</Form.Label>
+          <Form.Control
+            as="textarea"
+            rows={3}
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            required
-          ></textarea>
-        </div>
-        <div className="form-group">
-          <label>Precio</label>
-          <input
+          />
+        </Form.Group>
+        <Form.Group controlId="formPrice" className="mt-3">
+          <Form.Label>Precio:</Form.Label>
+          <Form.Control
             type="number"
-            className="form-control"
             value={price}
             onChange={(e) => setPrice(e.target.value)}
-            required
           />
-        </div>
-        <div className="form-group">
-          <label>Imagen del Producto</label>
-          <input
+        </Form.Group>
+        <Form.Group controlId="formImage" className="mt-3">
+          <Form.Label>Imagen:</Form.Label>
+          <Form.Control
             type="file"
-            className="form-control"
             onChange={(e) => setImage(e.target.files[0])}
-            required
           />
-        </div>
-        <div className="form-group">
-          <label>Stock</label>
-          <input
-            type="number"
-            className="form-control"
-            value={stock}
-            onChange={(e) => setStock(e.target.value)}
-            required
-          />
-        </div>
-        <button type="submit" className="btn btn-success">Agregar Producto</button>
-      </form>
-    </div>
+        </Form.Group>
+        <Button variant="primary" type="submit" className="mt-3">
+          Agregar
+        </Button>
+      </Form>
+    </Container>
   );
 };
 

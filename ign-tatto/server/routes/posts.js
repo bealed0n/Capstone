@@ -21,7 +21,7 @@ const upload = multer({ storage });
 
 // Ruta para que los tatuadores suban publicaciones
 router.post('/upload', authMiddleware, upload.single('image'), async (req, res) => {
-  if (req.user.role !== 'tattoo_artist') {
+  if (req.user.role !== 'tattoo_artist' && req.user.role !== 'designer') {
     return res.status(403).json({ msg: 'Solo los tatuadores pueden subir publicaciones.' });
   }
 
@@ -48,7 +48,7 @@ router.get('/', async (req, res) => {
       SELECT posts.id, posts.image_url, posts.description, users.username
       FROM posts
       JOIN users ON posts.user_id = users.id
-      WHERE users.role = 'tattoo_artist'
+      WHERE users.role = 'tattoo_artist' OR users.role = 'designer'
     `);
     
     res.json(posts.rows);

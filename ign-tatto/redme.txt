@@ -6,3 +6,5 @@
 6. npm install three para modelo 3d
 npm install multer
 npm install config
+npm install date-fns
+npm install react-router-bootstrap

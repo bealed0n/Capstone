@@ -1,62 +1,86 @@
-// src/pages/UploadPost.js
 import React, { useState } from 'react';
 import axios from 'axios';
+import { Form, Button, Alert, Container } from 'react-bootstrap';
 
 const UploadPost = () => {
+  const [title, setTitle] = useState('');
+  const [content, setContent] = useState('');
   const [image, setImage] = useState(null);
-  const [description, setDescription] = useState('');
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
+  const [error, setError] = useState(null);
+  const [success, setSuccess] = useState(null);
 
-  const handleImageChange = (e) => {
-    setImage(e.target.files[0]);
-  };
-
-  const handleSubmit = async (e) => {
+  const handleUpload = async (e) => {
     e.preventDefault();
-
-    const formData = new FormData();
-    formData.append('image', image);
-    formData.append('description', description);
-
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.post('/posts/upload', formData, {
+      if (!token) {
+        setError('No se encontró el token de autenticación.');
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append('title', title);
+      formData.append('content', content);
+      formData.append('image', image);
+
+      const response = await axios.post('http://localhost:5000/posts/upload', formData, {
         headers: {
+          'Authorization': `Bearer ${token}`,
           'Content-Type': 'multipart/form-data',
-          'x-auth-token': token,
         },
       });
 
-      setSuccess('Publicación subida con éxito');
+      setSuccess('Publicación subida exitosamente.');
+      setError(null);
+      setTitle('');
+      setContent('');
       setImage(null);
-      setDescription('');
-    } catch (err) {
-      setError('Error al subir la publicación');
+    } catch (error) {
+      console.error('Error al subir la publicación:', error);
+      if (error.response && error.response.status === 401) {
+        setError('No autorizado. Por favor, inicia sesión nuevamente.');
+      } else {
+        setError('Error al subir el post');
+      }
+      setSuccess(null);
     }
   };
 
   return (
-    <div className="container mt-5">
-      <h2>Subir Publicación</h2>
-      {error && <div className="alert alert-danger">{error}</div>}
-      {success && <div className="alert alert-success">{success}</div>}
-      <form onSubmit={handleSubmit}>
-        <div className="form-group">
-          <label>Imagen</label>
-          <input type="file" className="form-control" onChange={handleImageChange} required />
-        </div>
-        <div className="form-group">
-          <label>Descripción</label>
-          <textarea
-            className="form-control"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
+    <Container className="mt-5">
+      <h1 className="text-center">Subir Publicación</h1>
+      {error && <Alert variant="danger">{error}</Alert>}
+      {success && <Alert variant="success">{success}</Alert>}
+      <Form onSubmit={handleUpload}>
+        <Form.Group controlId="formTitle">
+          <Form.Label>Título:</Form.Label>
+          <Form.Control
+            type="text"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
           />
-        </div>
-        <button type="submit" className="btn btn-primary">Subir Publicación</button>
-      </form>
-    </div>
+        </Form.Group>
+        <Form.Group controlId="formContent" className="mt-3">
+          <Form.Label>Contenido:</Form.Label>
+          <Form.Control
+            as="textarea"
+            rows={3}
+            value={content}
+            onChange={(e) => setContent(e.target.value)}
+          />
+        </Form.Group>
+        <Form.Group controlId="formImage" className="mt-3">
+          <Form.Label>Imagen:</Form.Label>
+          <Form.Control
+            type="file"
+            onChange={(e) => setImage(e.target.files[0])}
+          />
+        </Form.Group>
+        <Button variant="primary" type="submit" className="mt-3">
+          Subir
+        </Button>
+      </Form>
+    </Container>
   );
 };
 
