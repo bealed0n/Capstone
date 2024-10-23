@@ -40,6 +40,10 @@ const pool = new Pool({
     port: 5432,
 });
 
+//---------------------------------------------------------------------------------------------------- 
+//APARTADO PARA MANEJAR TODO LO RELACIONADO CON LOS USUARIOS
+//---------------------------------------------------------------------------------------------------- 
+
 // Ruta para logearse
 app.post('/login', async (req, res) => {
     const { email, password } = req.body;
@@ -82,6 +86,15 @@ app.post('/register', async (req, res) => {
     }
 
 });
+//----------------------------------------------------------------------------------------------------
+//FIN DE APARTADO DE USUARIOS
+//----------------------------------------------------------------------------------------------------
+
+
+
+//---------------------------------------------------------------------------------------------------- 
+//APARTADO PARA MANEJAR TODO LO RELACIONADO CON LOS POSTEOS
+//---------------------------------------------------------------------------------------------------- 
 
 // Ruta para obtener los posts
 app.get('/posts', async (req, res) => {
@@ -100,6 +113,27 @@ app.get('/posts', async (req, res) => {
     }
 });
 
+// Ruta para obtener los posts de un usuario
+app.get('/posts/:user_id', async (req, res) => {
+    const { user_id } = req.params;
+    const query = ` 
+        SELECT posts.id, posts.user_id, users.username,users.role, posts.content, posts.image, posts.created_at
+        FROM posts
+        JOIN users ON posts.user_id = users.id
+        WHERE posts.user_id = $1
+        ORDER BY posts.created_at DESC;
+    `;
+    try {
+        const { rows } = await pool.query(query, [user_id]);
+        res.json(rows);
+        console.log('Posts:', rows);
+    } catch (error) {
+        console.error('Error al obtener los posts:', error);
+        res.status(500).json({ success: false, message: 'Error al obtener los posts' });
+    }
+});
+
+
 // Ruta para SUBIR posteo
 app.post('/posts', upload.single('image'), async (req, res) => {
     const { content, user_id } = req.body;
@@ -117,6 +151,25 @@ app.post('/posts', upload.single('image'), async (req, res) => {
         res.status(500).json({ success: false, message: 'Error al crear el post' });
     }
 });
+
+// Ruta para contar las publicaciones de un usuario
+app.get('/posts/count/:user_id', async (req, res) => {
+    const { user_id } = req.params;
+
+    try {
+        const query = 'SELECT COUNT(*) AS post_count FROM posts WHERE user_id = $1';
+        const { rows } = await pool.query(query, [user_id]);
+
+        res.json({ post_count: rows[0].post_count });
+    } catch (error) {
+        console.error('Error al contar las publicaciones:', error);
+        res.status(500).json({ success: false, message: 'Error al contar las publicaciones' });
+    }
+});
+//---------------------------------------------------------------------------------------------------- 
+//FIN DE APARTADO DE POSTEOS
+//---------------------------------------------------------------------------------------------------- 
+
 
 //---------------------------------------------------------------------------------------------------- 
 //APARTADO PARA OBTENER LOS INFORMACION SOBRE FOLLOWERS Y FOLLOWING DE USUARIOS

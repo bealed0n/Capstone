@@ -1,36 +1,95 @@
-import { Image, TouchableOpacity } from 'react-native';
-import React, { useContext } from 'react';
-import { Text, View, } from './Themed';
+import { Image, RefreshControl, TouchableOpacity, FlatList } from 'react-native';
+import React, { useContext, useState, useEffect } from 'react';
+import { Text, View } from './Themed';
 import { UserContext } from '@/app/context/userContext';
 import { Href, router } from 'expo-router';
+import PostCard from './PostCard';
 
+interface Post {
+    id: number;
+    user_id: number;
+    username: string;
+    content: string;
+    role: string;
+    image: string;
+    created_at: string;
+}
 
 export default function Profile() {
-
+    const [posts, setPosts] = useState<Post[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [refreshing, setRefreshing] = useState(false);
+    const [postCount, setPostCount] = useState(0); // Para contar las publicaciones
+    const [followerCount, setFollowerCount] = useState(0); // Para contar los seguidores
+    const [followingCount, setFollowingCount] = useState(0); // Para contar los seguidos
     const { user } = useContext(UserContext);
-    const user2 = {
-        name: 'John Doe',
-        photo: require('../assets/images/user.png'),
-        email: '',
-        tattoos: '30',
-        followers: '100',
-        following: '200',
-    }
+    const photo = require('../assets/images/user.png');
 
-    return (
+    useEffect(() => {
+        fetchPosts();
+        fetchUserCounts();
+    }, [user?.id]); // Re-fetch posts and counts when user ID changes
+
+    const onRefresh = async () => {
+        setRefreshing(true);
+        await fetchPosts();
+        await fetchUserCounts(); // Refrescar conteos también
+        setRefreshing(false);
+    };
+
+    const fetchPosts = async () => {
+        if (!user?.id) return;
+
+        try {
+            const response = await fetch(`http://192.168.100.87:3000/posts/${user.id}`);
+            if (!response.ok) {
+                throw new Error('Error al obtener los posts');
+            }
+            const data = await response.json();
+            setPosts(data);
+        } catch (error) {
+            console.error(error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const fetchUserCounts = async () => {
+        if (!user?.id) return;
+
+        try {
+            // Obtener el conteo de publicaciones
+            const postResponse = await fetch(`http://192.168.100.87:3000/posts/count/${user.id}`);
+            const postData = await postResponse.json();
+            setPostCount(postData.post_count);
+
+            // Obtener el conteo de seguidores
+            const followerResponse = await fetch(`http://192.168.100.87:3000/followers/${user.id}`);
+            const followerData = await followerResponse.json();
+            setFollowerCount(followerData.follower_count);
+
+            // Obtener el conteo de seguidos
+            const followingResponse = await fetch(`http://192.168.100.87:3000/following/${user.id}`);
+            const followingData = await followingResponse.json();
+            setFollowingCount(followingData.following_count);
+        } catch (error) {
+            console.error(error);
+        }
+    };
+
+    const renderHeader = () => (
         <View>
             <View className="flex-row">
-                <Image source={user2.photo} className='rounded-full w-20 h-20 items-start mt-4 ml-3' />
-                <View className="flex-col ml-3 mt-4  ">
+                <Image source={photo} className='rounded-full w-20 h-20 items-start mt-4 ml-3' />
+                <View className="flex-col ml-3 mt-4">
                     <Text className='text-xl font-bold'>{user?.username ?? 'No encontrado'}</Text>
                     <View className='flex-row'>
-                        <Text className='text-sm mt-1'>{user2.tattoos} tattoos</Text>
-                        <Text className='text-sm mt-1 ml-3'>{user2.followers} followers</Text>
-                        <Text className='text-sm mt-1 ml-3'>{user2.following} following</Text>
+                        <Text className='text-sm mt-1'>{postCount} publicaciones</Text>
+                        <Text className='text-sm mt-1 ml-3'>{followerCount} seguidores</Text>
+                        <Text className='text-sm mt-1 ml-3'>{followingCount} seguidos</Text>
                     </View>
                 </View>
             </View>
-
             <View>
                 <Text className='text-base mt-4 ml-5 opacity-50'>Dashboard</Text>
                 <View className='flex-row justify-center mt-2'>
@@ -55,8 +114,20 @@ export default function Profile() {
                     </TouchableOpacity>
                 </View>
             </View>
-            <View className=" mt-4 h-0.5 border-t-0 bg-neutral-200 dark:bg-white/10" />
-
+            <View className="mt-4 h-0.5 border-t-0 bg-neutral-200 dark:bg-white/10" />
         </View>
+    );
+
+    return (
+        <FlatList
+            data={posts}
+            renderItem={({ item }) => <PostCard post={item} />}
+            keyExtractor={(item) => item.id.toString()}
+            refreshControl={
+                <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+            }
+            ListHeaderComponent={renderHeader}
+            contentContainerStyle={{ paddingBottom: 20 }}
+        />
     );
 }

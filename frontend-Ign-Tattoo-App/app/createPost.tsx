@@ -23,7 +23,7 @@ export default function CreatePost() {
 
         const result = await ImagePicker.launchImageLibraryAsync({
             mediaTypes: ImagePicker.MediaTypeOptions.Images,
-            allowsEditing: true,
+            allowsEditing: false,
             quality: 1,
         });
 
@@ -92,16 +92,20 @@ export default function CreatePost() {
 
     return (
         <KeyboardAvoidingView
-            style={{ flex: 1 }}
+            className="flex-1 justify-center p-5"
             behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-            keyboardVerticalOffset={20} // Ajusta según sea necesario
+            keyboardVerticalOffset={90} // Ajusta según sea necesario
         >
             <View className="flex-1 justify-center items-center p-4">
                 <Text className="text-2xl font-bold mb-4">Crear Post</Text>
 
                 {/* Muestra la imagen seleccionada si existe */}
                 {imageUri ? (
-                    <Image source={{ uri: imageUri }} className="w-full h-60 mb-4 rounded" />
+                    <Image
+                        source={{ uri: imageUri }}
+                        style={{ width: '100%', height: undefined, aspectRatio: 4 / 5 }} // Relación de aspecto 4:5 para la imagen
+                        className="mb-4 rounded"
+                    />
                 ) : (
                     <TouchableOpacity className="bg-gray-200 p-3 rounded mb-4 w-full" onPress={pickImage}>
                         <Text className="text-center text-gray-500">Seleccionar imagen</Text>

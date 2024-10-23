@@ -50,7 +50,6 @@ export default function UserProfile() {
                     My tattoos
                 </Text>
                 <EditScreenInfo path="/screens/UserProfile.tsx" />
-
             </View>
         </View>
     );
