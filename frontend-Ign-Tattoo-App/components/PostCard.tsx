@@ -1,15 +1,19 @@
 import React, { useState } from 'react';
-import { View, Text, Image, Dimensions, TouchableOpacity } from 'react-native';
+import { Image, Dimensions, TouchableOpacity } from 'react-native';
+import { Text, View } from './Themed';
 import tailwind from 'twrnc';
 import { formatDistanceToNow, parseISO } from 'date-fns';
 import { MaterialIcons } from '@expo/vector-icons';
+import { Href, router } from 'expo-router';
 
 interface CardExampleProps {
     username: string;
     content: string;
     role: string;
     image: string;
+    userId: number;
     createdAt: string;
+
 }
 
 interface Post {
@@ -17,7 +21,9 @@ interface Post {
     content: string;
     role: string;
     image: string;
+    user_id: number;
     created_at: string;
+
 }
 const beautifyRole = (role: string) => {
     switch (role) {
@@ -33,7 +39,7 @@ const beautifyRole = (role: string) => {
 const SERVER_URL = 'http://192.168.100.87:3000'; // Cambia esto a la URL de tu servidor
 const { width: SCREEN_WIDTH } = Dimensions.get('window'); // Obtener el ancho de la pantalla
 
-export const CardExample = ({ username, content, role, image, createdAt }: CardExampleProps) => {
+export const CardExample = ({ username, content, role, image, createdAt, userId }: CardExampleProps) => {
     const [isExpanded, setIsExpanded] = useState(false); // Estado para controlar si el texto está expandido
     const imageUrl = image ? `${SERVER_URL}${image}` : null;
     const timeAgo = formatDistanceToNow(parseISO(createdAt), { addSuffix: true });
@@ -46,11 +52,14 @@ export const CardExample = ({ username, content, role, image, createdAt }: CardE
                     source={require('@/assets/images/user.png')}
                     className='w-11 h-11 rounded-full mr-3'
                 />
-                <View>
-                    <Text className='text-base font-bold dark:text-white'>@{username}</Text>
-                    <Text className='text-xs text-gray-500'>{timeAgo}</Text>
-                </View>
-
+                <TouchableOpacity
+                    onPress={() => router.push(`/(profile)/${userId}` as Href)}
+                >
+                    <View>
+                        <Text className='text-base font-bold dark:text-white'>@{username}</Text>
+                        <Text className='text-xs text-gray-500'>{timeAgo}</Text>
+                    </View>
+                </TouchableOpacity>
                 {/* Cuadro "Diseñador" en la esquina superior derecha */}
                 <View className='absolute right-2.5 top-2.5 bg-yellow-400 px-2 py-0.5 rounded'>
                     <Text className='text-black font-bold text-xs'>{beautifyRole(role)}</Text>
@@ -109,6 +118,7 @@ export default function PostCard({ post }: { post: Post }) {
             role={post.role}
             image={post.image}
             createdAt={post.created_at}
+            userId={post.user_id}
         />
     );
 }

@@ -169,6 +169,18 @@ app.get('/posts/count/:user_id', async (req, res) => {
 //---------------------------------------------------------------------------------------------------- 
 //FIN DE APARTADO DE POSTEOS
 //---------------------------------------------------------------------------------------------------- 
+//Obtener informacion de usuario
+app.get('/users/:user_id', async (req, res) => {
+    const { user_id } = req.params;
+    try {
+        const query = 'SELECT id,username,bio,profile_pic,role FROM users WHERE id = $1';
+        const { rows } = await pool.query(query, [user_id]);
+        res.json(rows[0]);
+    } catch (error) {
+        console.error('Error al obtener la información del usuario:', error);
+        res.status(500).json({ success: false, message: 'Error al obtener la información del usuario' });
+    }
+});
 
 
 //---------------------------------------------------------------------------------------------------- 

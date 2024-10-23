@@ -1,5 +1,5 @@
 import { useState, useContext } from 'react';
-import { TextInput, TouchableOpacity, Image, Alert, KeyboardAvoidingView, Platform } from 'react-native';
+import { TextInput, TouchableOpacity, Image, Alert, KeyboardAvoidingView, Platform, useColorScheme } from 'react-native';
 import { useRouter } from 'expo-router';
 import { View, Text } from '@/components/Themed';
 import * as ImagePicker from 'expo-image-picker';
@@ -11,6 +11,8 @@ export default function CreatePost() {
     const [content, setContent] = useState('');
     const [imageUri, setImageUri] = useState<string | null>(null); // Para almacenar la URI de la imagen seleccionada
     const router = useRouter();
+    const colorScheme = useColorScheme();
+    const iconColor = colorScheme === 'dark' ? 'white' : 'black';
 
     // Función para seleccionar imagen desde la galería
     const pickImage = async () => {
@@ -97,7 +99,7 @@ export default function CreatePost() {
             keyboardVerticalOffset={90} // Ajusta según sea necesario
         >
             <View className="flex-1 justify-center items-center p-4">
-                <Text className="text-2xl font-bold mb-4">Crear Post</Text>
+                <Text className="text-2xl font-bold mb-4 ">Upload post</Text>
 
                 {/* Muestra la imagen seleccionada si existe */}
                 {imageUri ? (
@@ -108,13 +110,14 @@ export default function CreatePost() {
                     />
                 ) : (
                     <TouchableOpacity className="bg-gray-200 p-3 rounded mb-4 w-full" onPress={pickImage}>
-                        <Text className="text-center text-gray-500">Seleccionar imagen</Text>
+                        <Text className="text-center text-gray-500">Select image</Text>
                     </TouchableOpacity>
                 )}
 
                 <TextInput
                     className="border border-gray-300 rounded p-2 w-full mb-4 dark:text-white"
                     placeholder="Escribe tu post aquí..."
+                    placeholderTextColor={colorScheme === 'dark' ? 'gray' : 'gray'}
                     value={content}
                     onChangeText={setContent}
                     multiline
