@@ -95,9 +95,9 @@ export default function UsersProfile({ userId }: UsersProfileProps) {
                 <View className="flex-col ml-3 mt-4">
                     <Text className='text-xl font-bold'>{userProfile?.username ?? 'No encontrado'}</Text>
                     <View className='flex-row'>
-                        <Text className='text-sm mt-1'>{postCount} publicaciones</Text>
-                        <Text className='text-sm mt-1 ml-3'>{followerCount} seguidores</Text>
-                        <Text className='text-sm mt-1 ml-3'>{followingCount} seguidos</Text>
+                        <Text className='text-sm mt-1'>{postCount} Posts</Text>
+                        <Text className='text-sm mt-1 ml-3'>{followerCount} Followers</Text>
+                        <Text className='text-sm mt-1 ml-3'>{followingCount} Following</Text>
                     </View>
                 </View>
             </View>

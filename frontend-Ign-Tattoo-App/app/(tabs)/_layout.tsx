@@ -7,6 +7,7 @@ import { useColorScheme } from '@/components/useColorScheme';
 import { useClientOnlyValue } from '@/components/useClientOnlyValue';
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 import { UserContext } from '../context/userContext';
+import { MaterialSymbol } from 'react-material-symbols';
 
 
 
