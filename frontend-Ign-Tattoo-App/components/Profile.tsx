@@ -1,9 +1,10 @@
-import { Image, RefreshControl, TouchableOpacity, FlatList } from 'react-native';
+import { Image, RefreshControl, TouchableOpacity, FlatList, useColorScheme } from 'react-native';
 import React, { useContext, useState, useEffect } from 'react';
 import { Text, View } from './Themed';
 import { UserContext } from '@/app/context/userContext';
 import { Href, router } from 'expo-router';
 import PostCard from './PostCard';
+import { FontAwesome5 } from '@expo/vector-icons';
 
 interface Post {
     id: number;
@@ -76,6 +77,8 @@ export default function Profile() {
             console.error(error);
         }
     };
+    const colorScheme = useColorScheme();
+    const iconColor = colorScheme === 'dark' ? 'white' : 'black';
 
     const renderHeader = () => (
         <View>
@@ -98,9 +101,18 @@ export default function Profile() {
                             router.push('/(managment)/calendar' as Href);
                         }}
                     >
-                        <Text className='text-lg text-neutral-800 p-2 bg-neutral-200 text-center dark:bg-neutral-500 dark:text-neutral-50 rounded-md'>
-                            Calendar
-                        </Text>
+                        <View className='flex-row items-center justify-center bg-gray-200 dark:bg-zinc-700 rounded-md p-3'>
+                            <FontAwesome5
+                                name="calendar-alt"
+                                size={20}
+                                color={iconColor}
+                                style={{ marginRight: 8 }} // Aplicar margen derecho en línea
+                                className='dark:text-white'
+                            />
+                            <Text className='text-base text-black text-center dark:text-white font-semibold'>
+                                Calendar
+                            </Text>
+                        </View>
                     </TouchableOpacity>
 
                     <TouchableOpacity className='flex-1 mx-5'
@@ -108,9 +120,17 @@ export default function Profile() {
                             router.push('/(managment)/apointmentList' as Href);
                         }}
                     >
-                        <Text className='text-lg text-neutral-800 p-2 bg-neutral-200 text-center dark:bg-neutral-500 dark:text-neutral-50 rounded-md'>
-                            Appointments
-                        </Text>
+                        <View className='flex-row items-center justify-center bg-gray-200 dark:bg-zinc-700 rounded-md p-3'>
+                            <FontAwesome5
+                                name="tasks"
+                                size={20}
+                                color={iconColor}
+                                style={{ marginRight: 8 }}
+                            />
+                            <Text className='text-base text-black text-center dark:text-white font-semibold'>
+                                Appointments
+                            </Text>
+                        </View>
                     </TouchableOpacity>
                 </View>
             </View>

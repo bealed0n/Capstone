@@ -1,6 +1,8 @@
-// app/management/appointmentsList.tsx
 import React from 'react';
-import { View, Text, FlatList, StyleSheet } from 'react-native';
+import { FlatList, TouchableOpacity, useColorScheme } from 'react-native';
+import { MaterialIcons } from '@expo/vector-icons';
+import { View, Text } from '@/components/Themed';
+
 
 const dummyAppointments = [
     { id: '1', date: '2024-10-15', client: 'John Doe', time: '10:00 AM' },
@@ -9,17 +11,20 @@ const dummyAppointments = [
 ];
 
 export default function AppointmentsList() {
+    const colorScheme = useColorScheme();
+    const iconColor = colorScheme === 'dark' ? 'white' : 'black';
     return (
-        <View style={{ flex: 1, padding: 20 }}>
-            <Text style={{ fontSize: 24, marginBottom: 10 }}>Appointments List</Text>
+        <View className='flex-1 p-2' >
+            <Text className='font-bold text-xl mt-1 mb-3'>Appointments List</Text>
             <FlatList
                 data={dummyAppointments}
                 keyExtractor={(item) => item.id}
                 renderItem={({ item }) => (
-                    <View style={styles.appointmentItem}>
-                        <Text>Date: {item.date}</Text>
-                        <Text>Client: {item.client}</Text>
-                        <Text>Time: {item.time}</Text>
+                    <View className='p-2 my-2 dark:bg-neutral-700 rounded-lg' >
+                        <Text className='text-white'>Date: {item.date}</Text>
+                        <Text className='text-white' >Client: {item.client}</Text>
+                        <Text className='text-white'>Time: {item.time}</Text>
+
                     </View>
                 )}
             />
@@ -27,11 +32,3 @@ export default function AppointmentsList() {
     );
 }
 
-const styles = StyleSheet.create({
-    appointmentItem: {
-        padding: 10,
-        marginVertical: 5,
-        backgroundColor: '#f9f9f9',
-        borderRadius: 5,
-    },
-});

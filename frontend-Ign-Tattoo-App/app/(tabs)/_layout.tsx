@@ -38,7 +38,8 @@ export default function TabLayout() {
         name="index"
         options={{
           title: 'Home',
-          tabBarIcon: ({ color }) => <FontAwesome5 name="home" size={24} color={iconColor} />,
+          tabBarIcon: ({ color, focused }) => <FontAwesome5 name="home" size={24} color={focused ? '#faf7a5' : iconColor} />,
+
           headerRight: () => (
             user && (user.role === 'tattoo_artist' || user.role === 'Designer') ? (
               <Link href="/createPost" asChild>
@@ -61,7 +62,7 @@ export default function TabLayout() {
         name="search"
         options={{
           title: 'Search',
-          tabBarIcon: ({ color }) => <FontAwesome5 name="search" size={24} color={iconColor} />,
+          tabBarIcon: ({ color, focused }) => <FontAwesome5 name="search" size={24} color={focused ? '#faf7a5' : iconColor} />,
           headerRight: () => (
             <Link href="/modal" asChild>
               <Pressable>
@@ -83,7 +84,7 @@ export default function TabLayout() {
         name="messages"
         options={{
           title: 'Messages',
-          tabBarIcon: ({ color }) => <FontAwesome5 name="envelope" size={24} color={iconColor} />,
+          tabBarIcon: ({ color, focused }) => <FontAwesome5 name="envelope" size={24} color={focused ? '#faf7a5' : iconColor} />,
         }}
       />
 
@@ -91,9 +92,9 @@ export default function TabLayout() {
         name="profile"
         options={{
           title: user && (user.role === 'tattoo_artist' || user.role === 'Designer') ? 'Profile' : 'Managment',
-          tabBarIcon: user && (user.role === 'tattoo_artist' || user.role === 'Designer') ? ({ color }) =>
-            <FontAwesome5 name="user" size={24} color={iconColor} /> : ({ color }) =>
-            <FontAwesome5 name="cog" size={24} color={iconColor} />,
+          tabBarIcon: user && (user.role === 'tattoo_artist' || user.role === 'Designer') ? ({ color, focused }) =>
+            <FontAwesome5 name="user" size={24} color={focused ? '#faf7a5' : iconColor} /> : ({ color, focused }) =>
+            <FontAwesome5 name="cog" size={24} color={focused ? '#faf7a5' : iconColor} />,
 
           // tabBarIcon: ({ color }) => <FontAwesome5 name="user" size={24} color={iconColor} />,
           headerRight: () => (

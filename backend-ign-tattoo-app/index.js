@@ -141,7 +141,6 @@ app.get('/posts/:user_id', async (req, res) => {
     try {
         const { rows } = await pool.query(query, [user_id]);
         res.json(rows);
-        console.log('Posts:', rows);
     } catch (error) {
         console.error('Error al obtener los posts:', error);
         res.status(500).json({ success: false, message: 'Error al obtener los posts' });
