@@ -2,20 +2,30 @@
 const express = require('express');
 const cors = require('cors');
 const { Pool } = require('pg');
+const bcrypt = require('bcrypt');
+const multer = require('multer');
+const path = require('path');
+const http = require("http");
+const { Server } = require("socket.io");
+
+// Configuración de la aplicación Express y el servidor HTTP
 const app = express();
 const port = 3000;
-const bcrypt = require('bcrypt');
+const server = http.createServer(app);  // Crear el servidor HTTP
 
-// Configuración de CORS
+// Configuración de WebSocket con socket.io
+const io = new Server(server, {
+    cors: {
+        origin: "http://localhost:19000", // Cambia el puerto según donde esté corriendo tu Expo
+        methods: ["GET", "POST"]
+    }
+});
+
+// Configuración de CORS y middleware para parsear JSON
 app.use(cors());
-
-// Middleware para parsear JSON
 app.use(express.json());
 
-const multer = require('multer');
-
-const path = require('path');
-
+// Configuración de multer para el manejo de archivos
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
         cb(null, 'uploads/');
@@ -24,12 +34,10 @@ const storage = multer.diskStorage({
         cb(null, file.fieldname + '-' + Date.now() + path.extname(file.originalname));
     }
 });
-
 const upload = multer({ storage: storage });
 
 // Servir la carpeta 'uploads' de forma pública
 app.use('/uploads', express.static('uploads'));
-
 
 // Configuración de la conexión a PostgreSQL
 const pool = new Pool({
@@ -40,6 +48,23 @@ const pool = new Pool({
     port: 5432,
 });
 
+// Configuración de eventos de WebSocket
+io.on("connection", (socket) => {
+    console.log("Usuario conectado:", socket.id);
+
+    // Escuchar el evento de envío de mensajes
+    socket.on("sendMessage", (messageData) => {
+        console.log("Mensaje recibido:", messageData);
+
+        // Emitir el mensaje a todos los clientes conectados
+        io.emit("receiveMessage", messageData);
+    });
+
+    // Evento de desconexión
+    socket.on("disconnect", () => {
+        console.log("Usuario desconectado:", socket.id);
+    });
+});
 //---------------------------------------------------------------------------------------------------- 
 //APARTADO PARA MANEJAR TODO LO RELACIONADO CON LOS USUARIOS
 //---------------------------------------------------------------------------------------------------- 
@@ -299,8 +324,33 @@ app.get('/following/list/:user_id', async (req, res) => {
 //---------------------------------------------------------------------------------------------------- 
 //FIN DE APARTADO DE SEGUIDORES Y SEGUIDOS
 //---------------------------------------------------------------------------------------------------- 
+// Ruta para manejo de mensajes
+app.post('/send', async (req, res) => {
+    const { sender_id, receiver_id, content } = req.body;
 
+    try {
+        const query = 'INSERT INTO messages (sender_id, receiver_id, content, sent_at) VALUES ($1, $2, $3, NOW()) RETURNING *';
+        const { rows } = await pool.query(query, [sender_id, receiver_id, content]);
 
+        // Emitir el mensaje enviado a través de WebSocket
+        io.emit('receiveMessage', {
+            id: rows[0].id, // Obtiene el ID del mensaje insertado
+            sender_id,
+            receiver_id,
+            content,
+            sent_at: rows[0].sent_at, // Usa la fecha del mensaje insertado
+            sender_username: rows[0].sender_username,
+            receiver_username: rows[0].receiver_username,
+        });
+
+        res.status(200).json({ success: true, content: 'Mensaje enviado exitosamente', message: rows[0] });
+    } catch (error) {
+        console.error('Error al enviar el mensaje:', error);
+        res.status(500).json({ success: false, content: 'Error al enviar el mensaje' });
+    }
+});
+
+// Ruta para obtener los mensajes de un usuario
 
 
 

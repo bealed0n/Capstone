@@ -55,6 +55,7 @@
     "react-native-search-bar": "^3.5.1",
     "react-native-svg": "^15.7.1",
     "react-native-web": "~0.19.10",
+    "socket.io-client": "^4.8.1",
     "twrnc": "^4.5.1"
   },
   "devDependencies": {

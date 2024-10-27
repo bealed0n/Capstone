@@ -76,7 +76,7 @@ export default function Login() {
             <TextInput
                 className="dark:text-white my-2 border border-gray-500 p-2 rounded"
                 placeholder="you@example.com"
-                placeholderTextColor={colorScheme === 'dark' ? 'gray' : 'black'}
+                placeholderTextColor={colorScheme === 'dark' ? 'gray' : 'gray'}
                 value={email}
                 onChangeText={setEmail}
             />
@@ -84,7 +84,7 @@ export default function Login() {
             <TextInput
                 className="dark:text-white my-2 border border-gray-500 p-2 rounded"
                 placeholder="Enter your password"
-                placeholderTextColor={colorScheme === 'dark' ? 'gray' : 'black'}
+                placeholderTextColor={colorScheme === 'dark' ? 'gray' : 'gray'}
                 value={password}
                 onChangeText={setPassword}
                 secureTextEntry
