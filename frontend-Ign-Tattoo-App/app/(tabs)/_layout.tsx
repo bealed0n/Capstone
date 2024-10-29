@@ -104,7 +104,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="management/availableDates"
         options={({ navigation }) => ({
-          title: 'Avaible Dates',
+          title: 'Available Dates',
           tabBarButton: () => null, // Oculta el tab para esta ruta
           headerShown: true,
           headerLeft: () => {
