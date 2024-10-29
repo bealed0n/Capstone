@@ -1,5 +1,6 @@
+// app/(tabs)/profile/[id].tsx
 import React from 'react';
-import { View } from 'react-native';
+import { View } from '@/components/Themed';
 import { useRoute, RouteProp } from '@react-navigation/native';
 import UsersProfile from '@/components/usersProfile';
 
@@ -12,7 +13,7 @@ const UserPage = () => {
     const { id } = route.params;
 
     return (
-        <View>
+        <View style={{ flex: 1 }}>
             <UsersProfile userId={id} />
         </View>
     );

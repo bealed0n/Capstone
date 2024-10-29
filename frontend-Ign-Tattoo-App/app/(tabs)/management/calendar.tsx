@@ -1,14 +1,14 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { ActivityIndicator, useColorScheme, FlatList } from 'react-native';
 import { View, Text } from '@/components/Themed';
-import { UserContext } from '@/app/context/userContext'; // Ajusta la ruta según tu proyecto
-import { Calendar } from 'react-native-calendars'; // Importa Calendar
+import { UserContext } from '@/app/context/userContext';
+import { Calendar } from 'react-native-calendars';
 import { format } from 'date-fns';
 
 interface Appointment {
     id: number;
-    date: string; // Formato 'YYYY-MM-DD'
-    time: string; // Formato 'HH:mm:ss'
+    date: string;
+    time: string;
     description: string;
     user_id: number;
     username: string;

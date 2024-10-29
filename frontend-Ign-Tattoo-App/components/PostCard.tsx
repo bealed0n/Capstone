@@ -53,7 +53,7 @@ export const CardExample = ({ username, content, role, image, createdAt, userId 
                     className='w-11 h-11 rounded-full mr-3'
                 />
                 <TouchableOpacity
-                    onPress={() => router.push(`/(profile)/${userId}` as Href)}
+                    onPress={() => router.push(`/(tabs)/profile/${userId}` as Href)}
                 >
                     <View>
                         <Text className='text-base font-bold dark:text-white'>@{username}</Text>

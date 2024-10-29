@@ -113,9 +113,13 @@ export default function UsersProfile({ userId }: UsersProfileProps) {
                     <View className='flex-row justify-center mt-2'>
                         <TouchableOpacity className='flex-1 mx-5'
                             onPress={() => {
-                                console.log('Ir a fechas disponibles');
+                                router.push({
+                                    pathname: '/(tabs)/management/availableDates',
+                                    params: { id: userId }, // Asegúrate que userId sea un valor que representa el ID
+                                });
                             }}
                         >
+
                             <View className='flex-row items-center justify-center bg-gray-200 dark:bg-zinc-700 rounded-md p-3'>
                                 <FontAwesome5
                                     name="clock"
@@ -125,7 +129,7 @@ export default function UsersProfile({ userId }: UsersProfileProps) {
                                     className='dark:text-white'
                                 />
                                 <Text className='text-base text-black text-center dark:text-white font-semibold'>
-                                    Avaible dates
+                                    Available dates
                                 </Text>
                             </View>
                         </TouchableOpacity>
