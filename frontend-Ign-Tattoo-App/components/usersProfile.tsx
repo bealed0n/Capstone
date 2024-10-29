@@ -1,7 +1,9 @@
-import { Image, RefreshControl, TouchableOpacity, FlatList } from 'react-native';
+import { Image, RefreshControl, TouchableOpacity, FlatList, useColorScheme } from 'react-native';
 import React, { useState, useEffect } from 'react';
 import { Text, View } from './Themed';
 import PostCard from './PostCard';
+import { Href, router } from 'expo-router';
+import { FontAwesome5 } from '@expo/vector-icons';
 
 interface Post {
     id: number;
@@ -87,6 +89,8 @@ export default function UsersProfile({ userId }: UsersProfileProps) {
             console.error(error);
         }
     };
+    const colorScheme = useColorScheme();
+    const iconColor = colorScheme === 'dark' ? 'white' : 'black';
 
     const renderHeader = () => (
         <View>
@@ -101,7 +105,33 @@ export default function UsersProfile({ userId }: UsersProfileProps) {
                     </View>
                 </View>
             </View>
+
             <View className="mt-4 h-0.5 border-t-0 bg-neutral-200 dark:bg-white/10" />
+
+            {userProfile?.role === 'tattoo_artist' && (
+                <View className='mb-3'>
+                    <View className='flex-row justify-center mt-2'>
+                        <TouchableOpacity className='flex-1 mx-5'
+                            onPress={() => {
+                                console.log('Ir a fechas disponibles');
+                            }}
+                        >
+                            <View className='flex-row items-center justify-center bg-gray-200 dark:bg-zinc-700 rounded-md p-3'>
+                                <FontAwesome5
+                                    name="clock"
+                                    size={20}
+                                    color={iconColor}
+                                    style={{ marginRight: 8 }} // Aplicar margen derecho en línea
+                                    className='dark:text-white'
+                                />
+                                <Text className='text-base text-black text-center dark:text-white font-semibold'>
+                                    Avaible dates
+                                </Text>
+                            </View>
+                        </TouchableOpacity>
+                    </View>
+                </View>
+            )}
         </View>
     );
 

@@ -85,9 +85,9 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="messages"
+        name="Inbox"
         options={{
-          title: 'Messages',
+          title: 'Inbox',
           tabBarIcon: ({ color, focused }) => <FontAwesome5 name="envelope" size={24} color={focused ? activeColor : iconColor} />,
           tabBarActiveTintColor: activeColor,
         }}

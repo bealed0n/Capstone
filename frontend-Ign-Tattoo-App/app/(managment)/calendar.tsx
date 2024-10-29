@@ -3,6 +3,7 @@ import { ActivityIndicator, useColorScheme, FlatList } from 'react-native';
 import { View, Text } from '@/components/Themed';
 import { UserContext } from '@/app/context/userContext'; // Ajusta la ruta según tu proyecto
 import { Calendar } from 'react-native-calendars'; // Importa Calendar
+import { format } from 'date-fns';
 
 interface Appointment {
     id: number;
@@ -80,15 +81,21 @@ export default function AppointmentsCalendar() {
                     console.log('Selected day', day);
                     setSelectedDate(day.dateString); // Establece la fecha seleccionada
                 }}
+                className='rounded-lg'
+
                 theme={{
                     backgroundColor: '#222',
-                    calendarBackground: '#222',
-                    textSectionTitleColor: 'white',
-                    selectedDayBackgroundColor: 'blue',
+                    calendarBackground: colorScheme === 'dark' ? '#222' : '#c9c9c9',
+
+                    textSectionTitleColor: colorScheme === 'dark' ? '#fff' : '#000',
+                    selectedDayBackgroundColor: colorScheme === 'dark' ? '#333' : '#f4511e',
                     selectedDayTextColor: 'white',
                     todayTextColor: 'red',
-                    dayTextColor: 'white',
-                    textDisabledColor: '#888',
+                    dayTextColor: colorScheme === 'dark' ? '#fff' : '#000',
+                    textDisabledColor: '#888',//888
+                    monthTextColor: colorScheme === 'dark' ? '#fff' : '#000',
+                    arrowColor: colorScheme === 'dark' ? '#fff' : '#000',
+
                 }}
             />
             <View style={{ marginTop: 20 }}>
@@ -104,6 +111,7 @@ export default function AppointmentsCalendar() {
                                 <Text style={{ color: colorScheme === 'dark' ? '#fff' : '#000' }}>
                                     {user?.role === 'user' ? `Tattoo Artist: ${item.username}` : `Client: ${item.username}`}
                                 </Text>
+                                <Text style={{ color: colorScheme === 'dark' ? '#fff' : '#000' }}>Date: {format(new Date(item.date), 'dd/MMM/yyyy')}</Text>
                             </View>
                         )}
                     />

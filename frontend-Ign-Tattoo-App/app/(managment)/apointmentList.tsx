@@ -54,13 +54,13 @@ export default function AppointmentsList() {
 
     return (
         <View style={{ flex: 1, padding: 8 }}>
-            <Text style={{ fontWeight: 'bold', fontSize: 24, marginTop: 8, marginBottom: 16 }}>Appointments List</Text>
+            <Text className='font-bold text-2xl dark:text-white mt-1 mb-2'>Appointments List</Text>
             <FlatList
                 data={appointments}
                 keyExtractor={(item) => item.id.toString()}
                 renderItem={({ item }) => (
-                    <View style={{ padding: 8, marginVertical: 8, backgroundColor: colorScheme === 'dark' ? '#333' : '#fff', borderRadius: 8 }}>
-                        <Text style={{ color: colorScheme === 'dark' ? '#fff' : '#000' }}>Date: {format(new Date(item.date), 'PPpp')}</Text>
+                    <View className='p-2 bg-neutral-200 dark:bg-neutral-900 m-2 rounded-xl' >
+                        <Text style={{ color: colorScheme === 'dark' ? '#fff' : '#000' }}>Date: {format(new Date(item.date), 'dd/MMM/yyyy')}</Text>
                         <Text style={{ color: colorScheme === 'dark' ? '#fff' : '#000' }}>
                             {user?.role === 'user' ? `Tattoo artist: ${item.username}` : `Client: ${item.username}`}
                         </Text>
@@ -72,3 +72,5 @@ export default function AppointmentsList() {
         </View>
     );
 }
+
+// style={{ padding: 8, marginVertical: 8, backgroundColor: colorScheme === 'dark' ? '#333' : '#fff', borderRadius: 8 }}
