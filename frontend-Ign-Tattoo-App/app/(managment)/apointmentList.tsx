@@ -1,11 +1,12 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { FlatList, ActivityIndicator, useColorScheme } from 'react-native';
-import { View, Text } from '@/components/Themed';
+import { FlatList, ActivityIndicator, useColorScheme, View, Text } from 'react-native';
 import { UserContext } from '@/app/context/userContext';
+import { format } from 'date-fns';
 
 interface Appointment {
     id: number;
     date: string;
+    username: string;
     time: string;
     description: string;
     user_id: number;
@@ -21,7 +22,14 @@ export default function AppointmentsList() {
         const fetchAppointments = async () => {
             if (user && isLoggedIn) {
                 try {
-                    const response = await fetch(`http://192.168.100.87:3000/tattoo-artist/${user.id}/appointments`);
+                    let url = '';
+                    if (user.role === 'tattoo_artist') {
+                        url = `http://192.168.100.87:3000/tattoo-artist/${user.id}/appointments`;
+                    } else if (user.role === 'user') {
+                        url = `http://192.168.100.87:3000/user/${user.id}/appointments`;
+                    }
+
+                    const response = await fetch(url);
                     const data = await response.json();
                     if (Array.isArray(data.appointments)) {
                         setAppointments(data.appointments); // Asegúrate de que sea el campo correcto en la respuesta
@@ -45,17 +53,19 @@ export default function AppointmentsList() {
     }
 
     return (
-        <View className="flex-1 p-2">
-            <Text className="font-bold text-xl mt-1 mb-3">Appointments List</Text>
+        <View style={{ flex: 1, padding: 8 }}>
+            <Text style={{ fontWeight: 'bold', fontSize: 24, marginTop: 8, marginBottom: 16 }}>Appointments List</Text>
             <FlatList
                 data={appointments}
                 keyExtractor={(item) => item.id.toString()}
                 renderItem={({ item }) => (
-                    <View className="p-2 my-2 dark:bg-neutral-700 rounded-lg">
-                        <Text className="text-white">Date: {item.date}</Text>
-                        <Text className="text-white">Client ID: {item.user_id}</Text>
-                        <Text className="text-white">Time: {item.time}</Text>
-                        <Text className="text-white">Description: {item.description}</Text>
+                    <View style={{ padding: 8, marginVertical: 8, backgroundColor: colorScheme === 'dark' ? '#333' : '#fff', borderRadius: 8 }}>
+                        <Text style={{ color: colorScheme === 'dark' ? '#fff' : '#000' }}>Date: {format(new Date(item.date), 'PPpp')}</Text>
+                        <Text style={{ color: colorScheme === 'dark' ? '#fff' : '#000' }}>
+                            {user?.role === 'user' ? `Tattoo artist: ${item.username}` : `Client: ${item.username}`}
+                        </Text>
+                        <Text style={{ color: colorScheme === 'dark' ? '#fff' : '#000' }}>Time: {item.time}</Text>
+                        <Text style={{ color: colorScheme === 'dark' ? '#fff' : '#000' }}>Description: {item.description}</Text>
                     </View>
                 )}
             />

@@ -403,8 +403,31 @@ app.get('/tattoo-artist/:tattoo_artist_id/appointments', async (req, res) => {
 
     try {
         const result = await pool.query(
-            `SELECT * FROM appointments WHERE tattoo_artist_id = $1 ORDER BY date, time`,
+            `SELECT appointments.id, users.username,appointments.user_id, appointments.tattoo_artist_id, appointments.date,
+                appointments.time, appointments.description, appointments.status
+                FROM appointments
+                JOIN users ON appointments.user_id = users.id
+                WHERE tattoo_artist_id = $1 ORDER BY date, time`,
             [tattoo_artist_id]
+        );
+        res.status(200).json({ appointments: result.rows });
+    } catch (error) {
+        res.status(500).json({ message: 'Error al obtener las citas', error });
+    }
+});
+
+// Ruta para obtener las citas de un  cliente
+app.get('/user/:user_id/appointments', async (req, res) => {
+    const { user_id } = req.params;
+
+    try {
+        const result = await pool.query(
+            `SELECT appointments.id, users.username,appointments.user_id, appointments.tattoo_artist_id, appointments.date,
+                appointments.time, appointments.description, appointments.status
+                FROM appointments
+                JOIN users ON appointments.tattoo_artist_id = users.id
+                WHERE user_id = $1 ORDER BY date, time`,
+            [user_id]
         );
         res.status(200).json({ appointments: result.rows });
     } catch (error) {
