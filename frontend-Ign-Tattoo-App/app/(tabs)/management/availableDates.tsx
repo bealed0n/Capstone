@@ -1,39 +1,73 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, FlatList } from 'react-native';
-import { useRouter } from 'expo-router'; // Cambia aquí
-import { useRoute } from '@react-navigation/native'; // Cambia aquí
+import { FlatList, TouchableOpacity, RefreshControl } from 'react-native';
+import { View, Text } from '@/components/Themed';
+import { useRoute } from '@react-navigation/native';
+import { format } from 'date-fns';
+import { Href, router } from 'expo-router';
 
 export default function AvailableDates() {
-    const route = useRoute(); // Usa useRoute para obtener la información de la ruta
-    const { id } = route.params as { id: string }; // Accede a los parámetros directamente
+    const route = useRoute();
+    const { id } = route.params as { id: string };
 
     const [availability, setAvailability] = useState<{ id: number; date: string; start_time: string; end_time: string; description: string; }[]>([]);
+    const [refreshing, setRefreshing] = useState(false);
 
-    useEffect(() => {
+    const fetchAvailability = async () => {
         if (typeof id === 'string') {
-            fetch(`http://192.168.100.87:3000/tattoo-artist/${id}/availability`)
-                .then((response) => response.json())
-                .then((data) => setAvailability(data.availability))
-                .catch((error) => console.error('Error fetching availability:', error));
+            try {
+                const response = await fetch(`http://192.168.100.87:3000/tattoo-artist/${id}/availability`);
+                const data = await response.json();
+                setAvailability(data.availability);
+            } catch (error) {
+                console.error('Error fetching availability:', error);
+            }
         } else {
             console.warn('ID no válido:', id);
         }
+    };
+
+    useEffect(() => {
+        fetchAvailability();
     }, [id]);
+
+    const onRefresh = async () => {
+        setRefreshing(true);
+        await fetchAvailability();
+        setRefreshing(false);
+    };
 
     return (
         <View>
-            <Text className="text-lg font-bold">Available Dates</Text>
             <FlatList
                 data={availability}
                 keyExtractor={(item) => item.id.toString()}
                 renderItem={({ item }) => (
                     <View className="p-2 my-1 border-b border-gray-300">
-                        <Text>Date: {new Date(item.date).toLocaleDateString()}</Text>
+                        <Text>Date: {format(new Date(item.date), 'dd/MMM/yyyy')}</Text>
                         <Text>Start Time: {item.start_time}</Text>
-                        <Text>End Time: {item.end_time}</Text>
                         <Text>Description: {item.description}</Text>
+                        <TouchableOpacity
+                            className='absolute right-2 top-4 mr-4 transform -translate-y-1/2 bg-yellow-400 px-2 rounded'
+                            onPress={() => {
+                                router.push({
+                                    pathname: '/(tabs)/management/dateRequest',
+                                    params: {
+                                        date: item.date,
+                                        time: item.start_time,
+                                        tattoo_artist_id: id,
+                                    },
+                                } as unknown as Href);
+                            }}
+                        >
+                            <View className='py-2 px-4 bg-yellow-400'>
+                                <Text className='font-bold dark:text-black'>Book</Text>
+                            </View>
+                        </TouchableOpacity>
                     </View>
                 )}
+                refreshControl={
+                    <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+                }
             />
         </View>
     );

@@ -98,7 +98,7 @@ export default function Profile() {
                 <View className='flex-row justify-center mt-2'>
                     <TouchableOpacity className='flex-1 mx-5'
                         onPress={() => {
-                            router.push('/(tabs)/managment/calendar' as Href);
+                            router.push('/(tabs)/management/calendar' as Href);
                         }}
                     >
                         <View className='flex-row items-center justify-center bg-gray-200 dark:bg-zinc-700 rounded-md p-3'>
@@ -117,7 +117,7 @@ export default function Profile() {
 
                     <TouchableOpacity className='flex-1 mx-5'
                         onPress={() => {
-                            router.push('/(tabs)/managment/apointmentList' as Href);
+                            router.push('/(tabs)/management/apointmentList' as Href);
                         }}
                     >
                         <View className='flex-row items-center justify-center bg-gray-200 dark:bg-zinc-700 rounded-md p-3'>

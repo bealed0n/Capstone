@@ -10,6 +10,7 @@ interface Appointment {
     time: string;
     description: string;
     user_id: number;
+    status: string;
 }
 
 export default function AppointmentsList() {
@@ -66,6 +67,7 @@ export default function AppointmentsList() {
                         </Text>
                         <Text style={{ color: colorScheme === 'dark' ? '#fff' : '#000' }}>Time: {item.time}</Text>
                         <Text style={{ color: colorScheme === 'dark' ? '#fff' : '#000' }}>Description: {item.description}</Text>
+                        <Text style={{ color: colorScheme === 'dark' ? '#fff' : '#000' }}>Status: {item.status}</Text>
                     </View>
                 )}
             />

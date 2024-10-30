@@ -107,13 +107,11 @@ export default function TabLayout() {
           title: 'Available Dates',
           tabBarButton: () => null, // Oculta el tab para esta ruta
           headerShown: true,
-          headerLeft: () => {
-            return (
-              <Pressable className='ml-2' onPress={() => navigation.goBack()}>
-                <MaterialIcons name="arrow-back-ios" size={28} color={iconColor} />
-              </Pressable>
-            );
-          },
+          headerLeft: () => (
+            <Pressable className='ml-2' onPress={() => navigation.goBack()}>
+              <MaterialIcons name="arrow-back-ios" size={28} color={iconColor} />
+            </Pressable>
+          ),
         })}
       />
       <Tabs.Screen
@@ -133,6 +131,19 @@ export default function TabLayout() {
         name="management/apointmentList"
         options={({ navigation }) => ({
           title: 'Appointments',
+          tabBarButton: () => null, // Oculta el tab para esta ruta
+          headerShown: true,
+          headerLeft: () => (
+            <Pressable className='ml-2' onPress={() => navigation.goBack()}>
+              <MaterialIcons name="arrow-back-ios" size={28} color={iconColor} />
+            </Pressable>
+          ),
+        })}
+      />
+      <Tabs.Screen
+        name="management/dateRequest"
+        options={({ navigation }) => ({
+          title: 'Date request',
           tabBarButton: () => null, // Oculta el tab para esta ruta
           headerShown: true,
           headerLeft: () => (
