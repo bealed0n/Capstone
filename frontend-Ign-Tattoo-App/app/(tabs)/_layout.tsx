@@ -34,10 +34,23 @@ export default function TabLayout() {
         name="index"
         options={{
           title: 'Home',
-          tabBarIcon: ({ color, focused }) => (
-            <FontAwesome5 name="home" size={24} color={focused ? activeColor : iconColor} />
+          tabBarIcon: ({ color }) => <FontAwesome5 name="home" size={24} color={iconColor} />,
+          headerRight: () => (
+            user && (user.role === 'tattoo_artist' || user.role === 'Designer') ? (
+              <Link href="/createPost" asChild>
+                <Pressable onPress={() => router.push('/createPost' as Href)}>
+                  {({ pressed }) => (
+                    <FontAwesome5
+                      name="plus"
+                      size={22}
+                      color={Colors[colorScheme ?? 'light'].text}
+                      style={{ marginRight: 15, opacity: pressed ? 0.5 : 1 }}
+                    />
+                  )}
+                </Pressable>
+              </Link>
+            ) : null
           ),
-          tabBarActiveTintColor: activeColor,
         }}
       />
       <Tabs.Screen
@@ -133,6 +146,7 @@ export default function TabLayout() {
           title: 'Appointments',
           tabBarButton: () => null, // Oculta el tab para esta ruta
           headerShown: true,
+
           headerLeft: () => (
             <Pressable className='ml-2' onPress={() => navigation.goBack()}>
               <MaterialIcons name="arrow-back-ios" size={28} color={iconColor} />
@@ -153,7 +167,19 @@ export default function TabLayout() {
           ),
         })}
       />
-
+      <Tabs.Screen
+        name="conversation/ConversationScreen"
+        options={({ navigation }) => ({
+          title: 'Messages',
+          tabBarButton: () => null, // Oculta el tab para esta ruta
+          headerShown: true,
+          headerLeft: () => (
+            <Pressable className='ml-2' onPress={() => navigation.goBack()}>
+              <MaterialIcons name="arrow-back-ios" size={28} color={iconColor} />
+            </Pressable>
+          ),
+        })}
+      />
     </Tabs>
   );
 }

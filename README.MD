@@ -68,7 +68,9 @@ cd Capstone
 
 El proyecto utiliza **PostgreSQL** como base de datos. Aquí tienes la estructura básica de las tablas:
 
-#### 1. **Usuarios (`users`)**
+### 1. **Usuarios (`users`)**
+
+Esta tabla almacena los datos básicos de cada usuario.
 
 | Columna      | Tipo         | Descripción                                |
 |--------------|--------------|--------------------------------------------|
@@ -78,29 +80,22 @@ El proyecto utiliza **PostgreSQL** como base de datos. Aquí tienes la estructur
 | `password`   | VARCHAR(255) | Contraseña cifrada                         |
 | `bio`        | TEXT         | Descripción del usuario                    |
 | `profile_pic`| VARCHAR(255) | URL de la imagen de perfil                 |
-| `role`       | VARCHAR(50)  | Rol del usuario (usuario o tatuador)       |
 | `created_at` | TIMESTAMP    | Fecha de creación de la cuenta             |
+| `role`       | VARCHAR(50)  | Rol del usuario (por ejemplo, 'user', 'admin') |
 
-#### 2. **Seguidores (`followers`)**
+### 2. **Seguidores (`follows`)**
 
-| Columna      | Tipo     | Descripción                                |
-|--------------|----------|--------------------------------------------|
-| `user_id`    | INTEGER  | ID del usuario que sigue                   |
-| `follower_id`| INTEGER  | ID del usuario que está siendo seguido      |
-| `followed_at`| TIMESTAMP| Fecha en la que comenzó a seguir            |
+Esta tabla crea la relación de "seguir" entre usuarios.
 
-#### 3. **Mensajes (`messages`)**
+| Columna        | Tipo     | Descripción                                |
+|----------------|----------|--------------------------------------------|
+| `follower_id`  | INTEGER  | ID del usuario que sigue                   |
+| `following_id` | INTEGER  | ID del usuario que está siendo seguido      |
+| `followed_at`  | TIMESTAMP| Fecha en la que comenzó a seguir            |
 
-| Columna        | Tipo         | Descripción                                |
-|----------------|--------------|--------------------------------------------|
-| `id`           | SERIAL       | Identificador único del mensaje            |
-| `sender_id`    | INTEGER      | ID del usuario que envía el mensaje        |
-| `receiver_id`  | INTEGER      | ID del usuario que recibe el mensaje       |
-| `content`      | TEXT         | Contenido del mensaje                      |
-| `sent_at`      | TIMESTAMP    | Fecha y hora del envío                     |
-| `is_read`      | BOOLEAN      | Estado de lectura del mensaje              |
+### 3. **Posts (`posts`)**
 
-#### 4. **Posts (`posts`)**
+Almacena los posts que los usuarios publican.
 
 | Columna      | Tipo         | Descripción                                |
 |--------------|--------------|--------------------------------------------|
@@ -110,7 +105,9 @@ El proyecto utiliza **PostgreSQL** como base de datos. Aquí tienes la estructur
 | `image`      | VARCHAR(255) | URL de la imagen asociada al post (opcional)|
 | `created_at` | TIMESTAMP    | Fecha y hora de la publicación              |
 
-#### 5. **Likes (`likes`)**
+### 4. **Likes (`likes`)**
+
+Almacena los likes que reciben los posts.
 
 | Columna      | Tipo     | Descripción                                |
 |--------------|----------|--------------------------------------------|
@@ -118,7 +115,9 @@ El proyecto utiliza **PostgreSQL** como base de datos. Aquí tienes la estructur
 | `user_id`    | INTEGER  | ID del usuario que dio el like             |
 | `liked_at`   | TIMESTAMP| Fecha y hora en que se dio el like         |
 
-#### 6. **Comentarios (`comments`)**
+### 5. **Comentarios (`comments`)**
+
+Esta tabla almacena los comentarios en los posts.
 
 | Columna      | Tipo         | Descripción                                |
 |--------------|--------------|--------------------------------------------|
@@ -128,15 +127,48 @@ El proyecto utiliza **PostgreSQL** como base de datos. Aquí tienes la estructur
 | `content`    | TEXT         | Contenido del comentario                   |
 | `created_at` | TIMESTAMP    | Fecha de creación del comentario           |
 
-#### 7. **Citas (`appointments`)**
+### 6. **Citas (`appointments`)**
+
+Tabla para gestionar las citas de los usuarios.
+
+| Columna            | Tipo         | Descripción                                |
+|--------------------|--------------|--------------------------------------------|
+| `id`               | SERIAL       | Identificador único de la cita             |
+| `user_id`          | INTEGER      | ID del usuario que agenda la cita          |
+| `tattoo_artist_id` | INTEGER      | ID del tatuador                            |
+| `date`             | DATE         | Fecha de la cita                           |
+| `time`             | TIME         | Hora de la cita                            |
+| `description`      | TEXT         | Descripción de la cita                     |
+| `status`           | VARCHAR(20)  | Estado de la cita (por ejemplo, 'pending') |
+| `reference_image_url` | TEXT      | URL de la imagen de referencia             |
+
+### 7. **Disponibilidad del Tatuador (`tattoo_artist_availability`)**
+
+Tabla para gestionar la disponibilidad de los tatuadores.
 
 | Columna        | Tipo         | Descripción                                |
 |----------------|--------------|--------------------------------------------|
-| `id`           | SERIAL       | Identificador único de la cita             |
-| `user_id`      | INTEGER      | ID del usuario que agenda la cita          |
-| `date`         | DATE         | Fecha de la cita                           |
-| `time`         | TIME         | Hora de la cita                            |
-| `description`  | TEXT         | Descripción de la cita                     |
+| `id`           | SERIAL       | Identificador único de la disponibilidad   |
+| `tattoo_artist_id` | INTEGER  | ID del tatuador                            |
+| `date`         | DATE         | Fecha de disponibilidad                    |
+| `start_time`   | TIME         | Hora de inicio de la disponibilidad        |
+| `end_time`     | TIME         | Hora de fin de la disponibilidad           |
+| `is_available` | BOOLEAN      | Indica si el tatuador está disponible      |
+| `description`  | TEXT         | Descripción de la disponibilidad           |
+
+### 8. **Aplicaciones de Tatuadores (`tattooist_applications`)**
+
+Tabla para gestionar las aplicaciones de los usuarios para convertirse en tatuadores.
+
+| Columna            | Tipo         | Descripción                                |
+|--------------------|--------------|--------------------------------------------|
+| `id`               | SERIAL       | Identificador único de la aplicación       |
+| `user_id`          | INTEGER      | ID del usuario que aplica                  |
+| `carnet_image`     | VARCHAR(255) | URL de la imagen del carnet                |
+| `antecedentes_image` | VARCHAR(255) | URL de la imagen de antecedentes          |
+| `description`      | TEXT         | Descripción de la aplicación               |
+| `status`           | VARCHAR(20)  | Estado de la aplicación (por ejemplo, 'pending') |
+| `created_at`       | TIMESTAMP    | Fecha de creación de la aplicación         |
 
 ## Uso
 

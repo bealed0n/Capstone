@@ -14,7 +14,6 @@ CREATE TABLE users
     bio TEXT,
     profile_pic VARCHAR(255),
     role VARCHAR(50) NOT NULL DEFAULT 'user',
-    -- Por defecto será 'user'
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -22,12 +21,9 @@ CREATE TABLE users
 INSERT INTO users
     (username, email, password, role)
 VALUES
-    ('user1', 'a@a', '123', 'user'),
-    -- Usuario normal
+    ('cliente', 'a@a', '123', 'user'),
     ('tattoer', 'a@a2', '123', 'tattoo_artist'),
-    -- Tatuador
     ('designer', 'a@a3', '123', 'designer');
--- Designer
 
 -- Crear la tabla de seguidores
 CREATE TABLE followers
@@ -36,17 +32,6 @@ CREATE TABLE followers
     follower_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
     followed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (user_id, follower_id)
-);
-
--- Crear la tabla de mensajes
-CREATE TABLE messages
-(
-    id SERIAL PRIMARY KEY,
-    sender_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
-    receiver_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
-    content TEXT NOT NULL,
-    sent_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    is_read BOOLEAN DEFAULT FALSE
 );
 
 -- Crear la tabla de posts
@@ -83,12 +68,39 @@ CREATE TABLE appointments
 (
     id SERIAL PRIMARY KEY,
     user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+    tattoo_artist_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
     date DATE NOT NULL,
     time TIME NOT NULL,
+    description TEXT,
+    status VARCHAR(20) DEFAULT 'pending',
+    reference_image_url TEXT
+);
+
+-- Crear la tabla de disponibilidad del tatuador
+CREATE TABLE tattoo_artist_availability
+(
+    id SERIAL PRIMARY KEY,
+    tattoo_artist_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+    date DATE NOT NULL,
+    start_time TIME NOT NULL,
+    end_time TIME NOT NULL,
+    is_available BOOLEAN DEFAULT TRUE,
     description TEXT
 );
 
--- Crear la tabla de relación de seguimiento de usuarios (opcional si no se usa la tabla followers)
+-- Crear la tabla de aplicaciones de tatuadores
+CREATE TABLE tattooist_applications
+(
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+    carnet_image VARCHAR(255),
+    antecedentes_image VARCHAR(255),
+    description TEXT,
+    status VARCHAR(20) DEFAULT 'pending',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Crear la tabla de relación de seguimiento de usuarios 
 CREATE TABLE follows
 (
     follower_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
@@ -97,7 +109,6 @@ CREATE TABLE follows
     PRIMARY KEY (follower_id, following_id)
 );
 
--- Confirmar que todo esté funcionando correctamente con algunas consultas de ejemplo
 -- Consultar los usuarios
 SELECT *
 FROM users;
@@ -109,6 +120,3 @@ FROM posts;
 -- Consultar los seguidores
 SELECT *
 FROM followers;
-
---Codigo generado por CHATGPT
-

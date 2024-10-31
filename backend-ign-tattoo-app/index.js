@@ -445,6 +445,96 @@ app.get('/user/:user_id/appointments', async (req, res) => {
     }
 });
 
+//Endpoint para actualizar el estado de una cita
+app.put('/appointments/:id/status', async (req, res) => {
+    const { id } = req.params;
+    const { status, message, sender_id, receiver_id } = req.body;
+
+    try {
+        // Actualizar el estado de la cita
+        const result = await pool.query(
+            'UPDATE appointments SET status = $1 WHERE id = $2 RETURNING *',
+            [status, id]
+        );
+
+        if (result.rows.length > 0) {
+            // Enviar mensaje al cliente
+            await pool.query(
+                'INSERT INTO messages (sender_id, receiver_id, content) VALUES ($1, $2, $3)',
+                [sender_id, receiver_id, message]
+            );
+
+            res.status(200).json({ success: true, appointment: result.rows[0] });
+        } else {
+            res.status(404).json({ success: false, message: 'Appointment not found' });
+        }
+    } catch (error) {
+        console.error('Error updating appointment status:', error);
+        res.status(500).json({ success: false, message: 'Error updating appointment status', error });
+    }
+});
+
+//Comnicacion con entre usuarios
+app.post('/messages', async (req, res) => {
+    const { sender_id, receiver_id, content, image_url } = req.body;
+
+    try {
+        const result = await pool.query(
+            'INSERT INTO messages (sender_id, receiver_id, content, image_url) VALUES ($1, $2, $3, $4) RETURNING *',
+            [sender_id, receiver_id, content, image_url]
+        );
+
+        res.status(201).json({ message: result.rows[0] });
+    } catch (error) {
+        console.error('Error sending message:', error);
+        res.status(500).json({ message: 'Error sending message', error });
+    }
+});
+
+
+// Obtener los mensajes de un usuario
+// Obtener los mensajes de un usuario
+app.get('/user/:id/messages', async (req, res) => {
+    const { id } = req.params;
+
+    try {
+        const result = await pool.query(
+            'SELECT * FROM messages WHERE sender_id = $1 OR receiver_id = $1 ORDER BY sent_at ASC',
+            [id]
+        );
+
+        // Confirma que el filtro y los datos son correctos
+        console.log('Mensajes obtenidos del usuario:', result.rows);
+
+        res.status(200).json({ messages: result.rows });
+    } catch (error) {
+        console.error('Error fetching messages:', error);
+        res.status(500).json({ message: 'Error fetching messages', error });
+    }
+});
+
+
+// Obtener las conversaciones únicas de un usuario
+app.get('/user/:id/conversations', async (req, res) => {
+    const { id } = req.params;
+
+    try {
+        const result = await pool.query(
+            `SELECT DISTINCT ON (LEAST(sender_id, receiver_id), GREATEST(sender_id, receiver_id))
+                id, sender_id, receiver_id, content, image_url, sent_at, is_read
+             FROM messages
+             WHERE sender_id = $1 OR receiver_id = $1
+             ORDER BY LEAST(sender_id, receiver_id), GREATEST(sender_id, receiver_id), sent_at DESC`,
+            [id]
+        );
+
+        res.status(200).json({ conversations: result.rows });
+    } catch (error) {
+        console.error('Error fetching conversations:', error);
+        res.status(500).json({ message: 'Error fetching conversations', error });
+    }
+});
+
 
 
 

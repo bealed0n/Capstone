@@ -2,9 +2,9 @@ import React from 'react';
 import { SafeAreaView, View } from 'react-native';
 import Messages from '@/components/messages';
 
-export default function IndexScreen() {
+export default function InboxScreen() {
     return (
-        <SafeAreaView >
+        <SafeAreaView>
             <View>
                 <Messages />
             </View>
