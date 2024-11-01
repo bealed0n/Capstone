@@ -499,7 +499,15 @@ app.get('/user/:id/messages', async (req, res) => {
 
     try {
         const result = await pool.query(
-            'SELECT * FROM messages WHERE sender_id = $1 OR receiver_id = $1 ORDER BY sent_at ASC',
+            `SELECT 
+                messages.*,
+                sender.username AS sender_username,
+                receiver.username AS receiver_username
+             FROM messages
+             JOIN users AS sender ON messages.sender_id = sender.id
+             JOIN users AS receiver ON messages.receiver_id = receiver.id
+             WHERE messages.sender_id = $1 OR messages.receiver_id = $1
+             ORDER BY messages.sent_at ASC`,
             [id]
         );
 
@@ -514,17 +522,28 @@ app.get('/user/:id/messages', async (req, res) => {
 });
 
 
-// Obtener las conversaciones únicas de un usuario
+
+// Obtener las conversaciones únicas de un usuario con el nombre de usuario
 app.get('/user/:id/conversations', async (req, res) => {
     const { id } = req.params;
 
     try {
         const result = await pool.query(
             `SELECT DISTINCT ON (LEAST(sender_id, receiver_id), GREATEST(sender_id, receiver_id))
-                id, sender_id, receiver_id, content, image_url, sent_at, is_read
+                messages.id,
+                messages.sender_id,
+                sender.username AS sender_username,
+                messages.receiver_id,
+                receiver.username AS receiver_username,
+                messages.content,
+                messages.image_url,
+                messages.sent_at,
+                messages.is_read
              FROM messages
+             JOIN users AS sender ON sender.id = messages.sender_id
+             JOIN users AS receiver ON receiver.id = messages.receiver_id
              WHERE sender_id = $1 OR receiver_id = $1
-             ORDER BY LEAST(sender_id, receiver_id), GREATEST(sender_id, receiver_id), sent_at DESC`,
+             ORDER BY LEAST(sender_id, receiver_id), GREATEST(sender_id, receiver_id), messages.sent_at DESC`,
             [id]
         );
 
