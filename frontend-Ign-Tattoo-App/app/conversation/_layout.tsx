@@ -7,9 +7,14 @@ import {
 } from "@react-navigation/native";
 import { useColorScheme } from "../../components/useColorScheme";
 import { UserProvider } from "../context/userContext";
+import { Pressable } from "react-native";
+import { MaterialIcons } from "@expo/vector-icons";
+import { useNavigation } from "@react-navigation/native";
 
 export default function SettingsLayout() {
   const colorScheme = useColorScheme();
+  const iconColor = colorScheme === "dark" ? "white" : "black";
+  const navigation = useNavigation();
 
   return (
     <UserProvider>
@@ -25,8 +30,19 @@ export default function SettingsLayout() {
         >
           {/* Pantalla principal de configuraciones */}
           <Stack.Screen
-            name="profileConfig"
-            options={{ title: "Settings" }} // Título para la pantalla principal
+            name="ConversationScreen"
+            options={{
+              title: "Chat",
+              headerLeft: () => (
+                <Pressable className="ml-2" onPress={() => navigation.goBack()}>
+                  <MaterialIcons
+                    name="arrow-back-ios"
+                    size={28}
+                    color={iconColor}
+                  />
+                </Pressable>
+              ),
+            }}
           />
         </Stack>
       </ThemeProvider>
