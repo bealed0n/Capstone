@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState, useRef } from 'react';
 import { FlatList, Image } from 'react-native';
 import { Text, View } from '@/components/Themed';
-import { useRoute, RouteProp } from '@react-navigation/native';
+import { useRoute, RouteProp, useNavigation } from '@react-navigation/native';
 import { UserContext } from '@/app/context/userContext';
 import { styled } from 'nativewind';
 
@@ -30,6 +30,7 @@ export default function ConversationScreen() {
     const [messages, setMessages] = useState<Message[]>([]);
     const [conversationUser, setConversationUser] = useState<string>('');
     const flatListRef = useRef<FlatList>(null);
+    const navigation = useNavigation();
 
     useEffect(() => {
         const fetchMessages = async () => {
@@ -46,15 +47,11 @@ export default function ConversationScreen() {
                     setMessages(messagesData);
 
                     // sender username
-
-
-
-
                     if (messagesData.length > 0) {
                         const firstMessage = messagesData[0];
                         const username = firstMessage.sender_id === user.id ? firstMessage.receiver_username : firstMessage.sender_username;
 
-                        console.log("Nombre de usuario dse la conversación:", username);
+                        console.log("Nombre de usuario de la conversación:", username);
                         setConversationUser(username);
                     }
 

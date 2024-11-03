@@ -105,6 +105,26 @@ app.get('/users/:user_id', async (req, res) => {
     }
 });
 
+// Endpoint para buscar usuarios
+app.get('/search/users', async (req, res) => {
+    const { query } = req.query;
+
+    try {
+        const result = await pool.query(
+            `SELECT id, username, profile_pic, role
+             FROM users
+             WHERE username ILIKE $1 AND role IN ('tattoo_artist', 'designer')
+             ORDER BY username ASC`,
+            [`%${query}%`]
+        );
+
+        res.status(200).json({ users: result.rows });
+    } catch (error) {
+        console.error('Error al buscar usuarios:', error);
+        res.status(500).json({ message: 'Error al buscar usuarios', error });
+    }
+});
+
 
 //----------------------------------------------------------------------------------------------------
 //FIN DE APARTADO DE USUARIOS
@@ -185,6 +205,101 @@ app.get('/posts/count/:user_id', async (req, res) => {
         res.status(500).json({ success: false, message: 'Error al contar las publicaciones' });
     }
 });
+
+// Endpoint para dar "like" a un post
+app.post('/posts/:post_id/like', async (req, res) => {
+    const { post_id } = req.params;
+    const { user_id } = req.body;
+
+    try {
+        // Verificar si el usuario ya ha dado "like" al post
+        const existingLike = await pool.query(
+            'SELECT * FROM likes WHERE post_id = $1 AND user_id = $2',
+            [post_id, user_id]
+        );
+
+        if (existingLike.rows.length > 0) {
+            return res.status(400).json({ message: 'Ya has dado like a este post.' });
+        }
+
+        // Insertar el "like" en la base de datos
+        const result = await pool.query(
+            'INSERT INTO likes (post_id, user_id) VALUES ($1, $2) RETURNING *',
+            [post_id, user_id]
+        );
+
+        res.status(201).json({ success: true, like: result.rows[0] });
+    } catch (error) {
+        console.error('Error al dar like al post:', error);
+        res.status(500).json({ success: false, message: 'Error al dar like al post' });
+    }
+});
+
+// Endpoint para quitar "like" a un post
+app.delete('/posts/:post_id/unlike', async (req, res) => {
+    const { post_id } = req.params;
+    const { user_id } = req.body;
+
+    try {
+        // Eliminar el "like" de la base de datos
+        const result = await pool.query(
+            'DELETE FROM likes WHERE post_id = $1 AND user_id = $2 RETURNING *',
+            [post_id, user_id]
+        );
+
+        if (result.rows.length > 0) {
+            res.status(200).json({ success: true, message: 'Like eliminado' });
+        } else {
+            res.status(400).json({ success: false, message: 'No has dado like a este post.' });
+        }
+    } catch (error) {
+        console.error('Error al quitar like al post:', error);
+        res.status(500).json({ success: false, message: 'Error al quitar like al post' });
+    }
+});
+
+// Endpoint para obtener los comentarios de un post
+app.get('/posts/:post_id/comments', async (req, res) => {
+    const { post_id } = req.params;
+
+    try {
+        const result = await pool.query(
+            `SELECT comments.id, comments.post_id, comments.user_id, users.username, comments.content, comments.created_at
+             FROM comments
+             JOIN users ON comments.user_id = users.id
+             WHERE comments.post_id = $1
+             ORDER BY comments.created_at ASC`,
+            [post_id]
+        );
+
+        res.status(200).json({ comments: result.rows });
+    } catch (error) {
+        console.error('Error al obtener los comentarios:', error);
+        res.status(500).json({ message: 'Error al obtener los comentarios', error });
+    }
+});
+
+// Endpoint para agregar un comentario a un post
+app.post('/posts/:post_id/comments', async (req, res) => {
+    const { post_id } = req.params;
+    const { user_id, content } = req.body;
+
+    try {
+        const result = await pool.query(
+            'INSERT INTO comments (post_id, user_id, content) VALUES ($1, $2, $3) RETURNING *',
+            [post_id, user_id, content]
+        );
+
+        res.status(201).json({ success: true, comment: result.rows[0] });
+    } catch (error) {
+        console.error('Error al agregar el comentario:', error);
+        res.status(500).json({ success: false, message: 'Error al agregar el comentario', error });
+    }
+});
+
+
+
+
 //---------------------------------------------------------------------------------------------------- 
 //FIN DE APARTADO DE POSTEOS
 //---------------------------------------------------------------------------------------------------- 

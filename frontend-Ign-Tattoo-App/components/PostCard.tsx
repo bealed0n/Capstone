@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-import { Image, Dimensions, TouchableOpacity } from 'react-native';
+import { Image, Dimensions, TouchableOpacity, Share, Alert } from 'react-native';
 import { Text, View } from './Themed';
 import tailwind from 'twrnc';
 import { formatDistanceToNow, parseISO } from 'date-fns';
 import { MaterialIcons } from '@expo/vector-icons';
 import { Href, router } from 'expo-router';
+import CommentsModal from './CommentsModal';
 
 interface CardExampleProps {
     username: string;
@@ -13,7 +14,7 @@ interface CardExampleProps {
     image: string;
     userId: number;
     createdAt: string;
-
+    postId: number;
 }
 
 interface Post {
@@ -23,8 +24,9 @@ interface Post {
     image: string;
     user_id: number;
     created_at: string;
-
+    id: number;
 }
+
 const beautifyRole = (role: string) => {
     switch (role) {
         case 'tattoo_artist':
@@ -39,10 +41,65 @@ const beautifyRole = (role: string) => {
 const SERVER_URL = 'http://192.168.100.87:3000'; // Cambia esto a la URL de tu servidor
 const { width: SCREEN_WIDTH } = Dimensions.get('window'); // Obtener el ancho de la pantalla
 
-export const CardExample = ({ username, content, role, image, createdAt, userId }: CardExampleProps) => {
+export const CardExample = ({ username, content, role, image, createdAt, userId, postId }: CardExampleProps) => {
     const [isExpanded, setIsExpanded] = useState(false); // Estado para controlar si el texto está expandido
+    const [liked, setLiked] = useState(false); // Estado para controlar si el post ha sido "liked"
+    const [commentsVisible, setCommentsVisible] = useState(false); // Estado para controlar la visibilidad de los comentarios
     const imageUrl = image ? `${SERVER_URL}${image}` : null;
     const timeAgo = formatDistanceToNow(parseISO(createdAt), { addSuffix: true });
+
+    const handleShare = async () => {
+        try {
+            const result = await Share.share({
+                message: `${content}\n\nShared by @${username} on ${beautifyRole(role)}\n\n${imageUrl ? imageUrl : ''}`,
+            });
+            if (result.action === Share.sharedAction) {
+                if (result.activityType) {
+                    // Compartido con actividad específica
+                    console.log('Shared with activity type:', result.activityType);
+                } else {
+                    // Compartido
+                    console.log('Shared successfully');
+                }
+            } else if (result.action === Share.dismissedAction) {
+                // Compartir cancelado
+                console.log('Share dismissed');
+            }
+        } catch (error) {
+            if (error instanceof Error) {
+                console.error('Error sharing:', error.message);
+            } else {
+                console.error('Error sharing:', error);
+            }
+        }
+    };
+
+    const handleLike = async () => {
+        try {
+            const response = await fetch(`${SERVER_URL}/posts/${postId}/${liked ? 'unlike' : 'like'}`, {
+                method: liked ? 'DELETE' : 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ user_id: userId }),
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                setLiked(!liked);
+
+            } else {
+                Alert.alert('Error', result.message);
+            }
+        } catch (error) {
+            if (error instanceof Error) {
+                console.error('Error liking post:', error.message);
+            } else {
+                console.error('Error liking post:', error);
+            }
+        }
+    };
 
     return (
         <View className='w-full bg-neutral-200 dark:bg-neutral-900 mb-1 overflow-hidden'>
@@ -94,18 +151,26 @@ export const CardExample = ({ username, content, role, image, createdAt, userId 
             )}
             {/* Botones de interaccion */}
             <View className="flex-row justify-center p-2">
-                <TouchableOpacity className="flex-row items-center">
-                    <MaterialIcons name="favorite-outline" size={24} color="gray" />
+                <TouchableOpacity className="flex-row items-center" onPress={handleLike}>
+                    <MaterialIcons name={liked ? "favorite" : "favorite-outline"} size={24} color={liked ? "red" : "gray"} />
                 </TouchableOpacity>
 
-                <TouchableOpacity className="flex-row items-center mx-16">
+                <TouchableOpacity className="flex-row items-center mx-16" onPress={() => setCommentsVisible(true)}>
                     <MaterialIcons name="add-comment" size={24} color="gray" />
                 </TouchableOpacity>
 
-                <TouchableOpacity className="flex-row items-center">
+                <TouchableOpacity className="flex-row items-center" onPress={handleShare}>
                     <MaterialIcons name="ios-share" size={24} color="gray" />
                 </TouchableOpacity>
             </View>
+
+            {/* Modal de comentarios */}
+            <CommentsModal
+                postId={postId}
+                userId={userId}
+                visible={commentsVisible}
+                onClose={() => setCommentsVisible(false)}
+            />
         </View>
     );
 };
@@ -119,6 +184,7 @@ export default function PostCard({ post }: { post: Post }) {
             image={post.image}
             createdAt={post.created_at}
             userId={post.user_id}
+            postId={post.id}
         />
     );
 }
