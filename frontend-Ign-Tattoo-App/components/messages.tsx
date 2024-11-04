@@ -1,5 +1,10 @@
 import React, { useContext, useEffect, useState } from "react";
-import { FlatList, Image, TouchableOpacity } from "react-native";
+import {
+  FlatList,
+  Image,
+  TouchableOpacity,
+  RefreshControl,
+} from "react-native";
 import { Text, View } from "../components/Themed";
 import { useRouter } from "expo-router";
 import { UserContext } from "../app/context/userContext";
@@ -31,26 +36,31 @@ interface Conversation {
   is_read: boolean;
 }
 
-export default function Messages() {
+interface MessagesProps {
+  refreshing: boolean;
+  onRefresh: () => void;
+}
+
+export default function Messages({ refreshing, onRefresh }: MessagesProps) {
   const { user } = useContext(UserContext);
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const router = useRouter();
 
-  useEffect(() => {
-    const fetchConversations = async () => {
-      if (user) {
-        try {
-          const response = await fetch(
-            `http://192.168.100.87:3000/user/${user.id}/conversations`
-          );
-          const data = await response.json();
-          setConversations(data.conversations);
-        } catch (error) {
-          console.error("Error fetching conversations:", error);
-        }
+  const fetchConversations = async () => {
+    if (user) {
+      try {
+        const response = await fetch(
+          `http://192.168.100.87:3000/user/${user.id}/conversations`
+        );
+        const data = await response.json();
+        setConversations(data.conversations);
+      } catch (error) {
+        console.error("Error fetching conversations:", error);
       }
-    };
+    }
+  };
 
+  useEffect(() => {
     fetchConversations();
   }, [user]);
 
@@ -96,6 +106,9 @@ export default function Messages() {
             </View>
           </TouchableOpacity>
         )}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
       />
     </View>
   );

@@ -39,6 +39,7 @@
     "i18next": "^23.16.0",
     "i18next-browser-languagedetector": "^8.0.0",
     "i18next-http-backend": "^2.6.2",
+    "lodash.debounce": "^4.0.8",
     "nativewind": "^2.0.11",
     "react": "18.2.0",
     "react-dom": "18.2.0",
@@ -62,6 +63,7 @@
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",
+    "@types/lodash.debounce": "^4.0.9",
     "@types/react": "~18.2.45",
     "eslint-config-expo": "~7.1.2",
     "eslint-config-prettier": "^9.1.0",

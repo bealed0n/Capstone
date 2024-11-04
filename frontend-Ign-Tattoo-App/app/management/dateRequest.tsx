@@ -9,9 +9,9 @@ import {
   useColorScheme,
 } from "react-native";
 import { useRouter } from "expo-router";
-import { View, Text } from "../../../components/Themed";
+import { View, Text } from "../../components/Themed";
 import * as ImagePicker from "expo-image-picker";
-import { UserContext } from "../../context/userContext";
+import { UserContext } from "../context/userContext";
 import { useRoute, RouteProp } from "@react-navigation/native";
 
 interface RouteParams {

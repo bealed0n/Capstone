@@ -6,7 +6,8 @@ import {
   KeyboardAvoidingView,
   Platform,
   View,
-  Keyboard,
+  // Keyboard,
+  useColorScheme,
 } from "react-native";
 import { Text } from "../../components/Themed";
 import { useRoute, RouteProp } from "@react-navigation/native";
@@ -70,9 +71,13 @@ export default function ConversationScreen() {
   }, [user, conversationId]);
 
   useEffect(() => {
-    if (flatListRef.current) {
-      flatListRef.current.scrollToEnd({ animated: false });
-    }
+    const timeout = setTimeout(() => {
+      if (flatListRef.current) {
+        flatListRef.current.scrollToEnd({ animated: false });
+      }
+    }, 100); // Ajusta el tiempo de retraso según sea necesario
+
+    return () => clearTimeout(timeout);
   }, [messages]);
 
   const renderMessage = ({ item }: { item: Message }) => {
@@ -151,11 +156,16 @@ export default function ConversationScreen() {
     return messagesWithSeparators;
   };
 
+  const colorScheme = useColorScheme();
+
+  const sendColor = colorScheme === "dark" ? "white" : "blue";
+
   return (
     <KeyboardAvoidingView
       style={{ flex: 1 }}
       behavior={Platform.OS === "ios" ? "padding" : "height"}
-      keyboardVerticalOffset={Platform.OS === "ios" ? 90 : 0} // Ajusta según sea necesario
+      keyboardVerticalOffset={90} // Ajusta según sea necesario
+      className="bg-white dark:bg-neutral-800"
     >
       <View style={{ flex: 1 }}>
         <FlatList
@@ -167,9 +177,9 @@ export default function ConversationScreen() {
               ? renderDateSeparator(item.date)
               : renderMessage({ item })
           }
-          contentContainerStyle={{ paddingBottom: 80 }} // Ajustar espacio para la barra de envío
+          contentContainerStyle={{ paddingBottom: 20 }} // Ajustar espacio para la barra de envío
         />
-        <View className="bottom-0 bg-white p-3 border-t border-gray-300 flex-row items-center">
+        <View className="bottom-0 ios:mb-5 ios: p-3 border-t bg-white dark:bg-neutral-800 border-neutral-300 dark:border-neutral-500 flex-row items-center">
           <TouchableOpacity className="mr-2">
             <MaterialIcons name="attach-file" size={24} color="gray" />
           </TouchableOpacity>
@@ -180,7 +190,7 @@ export default function ConversationScreen() {
             className="flex-1 bg-gray-100 rounded-full px-4 py-2 text-sm"
           />
           <TouchableOpacity className="ml-2">
-            <MaterialIcons name="send" size={24} color="blue" />
+            <MaterialIcons name="send" size={24} color={sendColor} />
           </TouchableOpacity>
         </View>
       </View>

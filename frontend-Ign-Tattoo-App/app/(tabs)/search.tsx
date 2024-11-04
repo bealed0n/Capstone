@@ -1,11 +1,11 @@
-import { View, Text } from '@/components/Themed';
-import { StyleSheet } from 'react-native';
-import Search from '@/components/search';
+import React from "react";
+import { View } from "../../components/Themed";
+import Search from "../../components/search";
 
 export default function SearchScreen() {
-    return (
-        <View>
-            <Search />
-        </View>
-    )
+  return (
+    <View style={{ flex: 1 }}>
+      <Search />
+    </View>
+  );
 }
