@@ -54,6 +54,17 @@ const Search = () => {
     fetchUsers(searchQuery);
   }, [searchQuery]);
 
+  const beautifyRole = (role: string) => {
+    switch (role) {
+      case "tattoo_artist":
+        return "Tattoo Artist";
+      case "designer":
+        return "Designer";
+      default:
+        return role;
+    }
+  };
+
   return (
     <View style={{ flex: 1, padding: 16 }}>
       {/* Search Bar */}
@@ -144,7 +155,7 @@ const Search = () => {
                 >
                   @{item.username}
                 </Text>
-                <Text style={{ color: "gray" }}>{item.role}</Text>
+                <Text style={{ color: "gray" }}>{beautifyRole(item.role)}</Text>
               </View>
             </View>
           </TouchableOpacity>

@@ -6,7 +6,6 @@ import {
   KeyboardAvoidingView,
   Platform,
   View,
-  // Keyboard,
   useColorScheme,
 } from "react-native";
 import { Text } from "../../components/Themed";
@@ -177,7 +176,10 @@ export default function ConversationScreen() {
               ? renderDateSeparator(item.date)
               : renderMessage({ item })
           }
-          contentContainerStyle={{ paddingBottom: 20 }} // Ajustar espacio para la barra de envío
+          contentContainerStyle={{ paddingBottom: 5 }} // Ajustar espacio para la barra de envío
+          onContentSizeChange={() =>
+            flatListRef.current?.scrollToEnd({ animated: true })
+          }
         />
         <View className="bottom-0 ios:mb-5 ios: p-3 border-t bg-white dark:bg-neutral-800 border-neutral-300 dark:border-neutral-500 flex-row items-center">
           <TouchableOpacity className="mr-2">

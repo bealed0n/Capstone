@@ -113,12 +113,10 @@ app.get("/users/:user_id", async (req, res) => {
     res.json(rows[0]);
   } catch (error) {
     console.error("Error al obtener la información del usuario:", error);
-    res
-      .status(500)
-      .json({
-        success: false,
-        message: "Error al obtener la información del usuario",
-      });
+    res.status(500).json({
+      success: false,
+      message: "Error al obtener la información del usuario",
+    });
   }
 });
 
@@ -284,6 +282,25 @@ app.delete("/posts/:post_id/unlike", async (req, res) => {
   }
 });
 
+app.post("/posts/:postId/isLiked", async (req, res) => {
+  const { postId } = req.params;
+  const { user_id } = req.body;
+
+  try {
+    const result = await pool.query(
+      `SELECT COUNT(*) FROM likes WHERE post_id = $1 AND user_id = $2`,
+      [postId, user_id]
+    );
+
+    const isLiked = result.rows[0].count > 0;
+
+    res.status(200).json({ isLiked });
+  } catch (error) {
+    console.error("Error checking if post is liked:", error);
+    res.status(500).json({ message: "Error checking if post is liked", error });
+  }
+});
+
 // Endpoint para obtener los comentarios de un post
 app.get("/posts/:post_id/comments", async (req, res) => {
   const { post_id } = req.params;
@@ -321,13 +338,11 @@ app.post("/posts/:post_id/comments", async (req, res) => {
     res.status(201).json({ success: true, comment: result.rows[0] });
   } catch (error) {
     console.error("Error al agregar el comentario:", error);
-    res
-      .status(500)
-      .json({
-        success: false,
-        message: "Error al agregar el comentario",
-        error,
-      });
+    res.status(500).json({
+      success: false,
+      message: "Error al agregar el comentario",
+      error,
+    });
   }
 });
 
@@ -411,12 +426,10 @@ app.get("/followers/list/:user_id", async (req, res) => {
     res.json(rows);
   } catch (error) {
     console.error("Error al obtener la lista de seguidores:", error);
-    res
-      .status(500)
-      .json({
-        success: false,
-        message: "Error al obtener la lista de seguidores",
-      });
+    res.status(500).json({
+      success: false,
+      message: "Error al obtener la lista de seguidores",
+    });
   }
 });
 
@@ -460,12 +473,10 @@ app.get("/following/list/:user_id", async (req, res) => {
     res.json(rows);
   } catch (error) {
     console.error("Error al obtener la lista de seguidos:", error);
-    res
-      .status(500)
-      .json({
-        success: false,
-        message: "Error al obtener la lista de seguidos",
-      });
+    res.status(500).json({
+      success: false,
+      message: "Error al obtener la lista de seguidos",
+    });
   }
 });
 //----------------------------------------------------------------------------------------------------
@@ -493,13 +504,11 @@ app.post("/tattoo-artist/:tattoo_artist_id/availability", async (req, res) => {
 
     if (updateResult.rows.length > 0) {
       // Si el `UPDATE` afecta a alguna fila, enviar la fila actualizada como respuesta
-      return res
-        .status(200)
-        .json({
-          success: true,
-          message: "Disponibilidad actualizada",
-          availability: updateResult.rows[0],
-        });
+      return res.status(200).json({
+        success: true,
+        message: "Disponibilidad actualizada",
+        availability: updateResult.rows[0],
+      });
     }
 
     // Si el `UPDATE` no afecta ninguna fila, hacer un `INSERT`
@@ -510,22 +519,18 @@ app.post("/tattoo-artist/:tattoo_artist_id/availability", async (req, res) => {
       [tattoo_artist_id, date, start_time, end_time, is_available, description]
     );
 
-    res
-      .status(201)
-      .json({
-        success: true,
-        message: "Disponibilidad creada",
-        availability: insertResult.rows[0],
-      });
+    res.status(201).json({
+      success: true,
+      message: "Disponibilidad creada",
+      availability: insertResult.rows[0],
+    });
   } catch (error) {
     console.error("Error al agregar o modificar la disponibilidad:", error);
-    res
-      .status(500)
-      .json({
-        success: false,
-        message: "Error al agregar o modificar la disponibilidad",
-        error: error.message,
-      });
+    res.status(500).json({
+      success: false,
+      message: "Error al agregar o modificar la disponibilidad",
+      error: error.message,
+    });
   }
 });
 
@@ -566,12 +571,10 @@ app.post(
       );
 
       if (existingAppointment.rows.length > 0) {
-        return res
-          .status(400)
-          .json({
-            message:
-              "Ya existe una cita en la fecha y hora seleccionadas para este tatuador.",
-          });
+        return res.status(400).json({
+          message:
+            "Ya existe una cita en la fecha y hora seleccionadas para este tatuador.",
+        });
       }
 
       // Verificar disponibilidad del tatuador en la fecha y hora solicitada
@@ -583,12 +586,10 @@ app.post(
       );
 
       if (availability.rows.length === 0) {
-        return res
-          .status(400)
-          .json({
-            message:
-              "El tatuador no está disponible en la fecha y hora seleccionadas.",
-          });
+        return res.status(400).json({
+          message:
+            "El tatuador no está disponible en la fecha y hora seleccionadas.",
+        });
       }
 
       // Crear la cita si no existe ninguna en la fecha y hora solicitadas
@@ -671,13 +672,11 @@ app.put("/appointments/:id/status", async (req, res) => {
     }
   } catch (error) {
     console.error("Error updating appointment status:", error);
-    res
-      .status(500)
-      .json({
-        success: false,
-        message: "Error updating appointment status",
-        error,
-      });
+    res.status(500).json({
+      success: false,
+      message: "Error updating appointment status",
+      error,
+    });
   }
 });
 

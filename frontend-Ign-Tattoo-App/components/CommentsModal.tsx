@@ -1,154 +1,135 @@
-import React, { useState, useEffect } from 'react';
-import { Modal, View, Text, TextInput, TouchableOpacity, FlatList, StyleSheet } from 'react-native';
-import { MaterialIcons } from '@expo/vector-icons';
+import React, { useState, useEffect } from "react";
+import {
+  Modal,
+  TextInput,
+  TouchableOpacity,
+  FlatList,
+  SafeAreaView,
+} from "react-native";
+import { Text, View } from "./Themed";
 
-const SERVER_URL = 'http://192.168.100.87:3000'; // Cambia esto a la URL de tu servidor
+import { MaterialIcons } from "@expo/vector-icons";
+import { StatusBar } from "expo-status-bar";
+import { useColorScheme } from "react-native";
+
+const SERVER_URL = "http://192.168.100.87:3000"; // Cambia esto a la URL de tu servidor
 
 interface Comment {
-    id: number;
-    post_id: number;
-    user_id: number;
-    username: string;
-    content: string;
-    created_at: string;
+  id: number;
+  post_id: number;
+  user_id: number;
+  username: string;
+  content: string;
+  created_at: string;
 }
 
 interface CommentsModalProps {
-    postId: number;
-    userId: number;
-    visible: boolean;
-    onClose: () => void;
+  postId: number;
+  userId: number;
+  visible: boolean;
+  onClose: () => void;
 }
 
-const CommentsModal: React.FC<CommentsModalProps> = ({ postId, userId, visible, onClose }) => {
-    const [comments, setComments] = useState<Comment[]>([]);
-    const [newComment, setNewComment] = useState<string>('');
+const CommentsModal: React.FC<CommentsModalProps> = ({
+  postId,
+  userId,
+  visible,
+  onClose,
+}) => {
+  const [comments, setComments] = useState<Comment[]>([]);
+  const [newComment, setNewComment] = useState<string>("");
 
-    useEffect(() => {
-        if (visible) {
-            fetchComments();
-        }
-    }, [visible]);
+  useEffect(() => {
+    if (visible) {
+      fetchComments();
+    }
+  }, [visible]);
 
-    const fetchComments = async () => {
-        try {
-            const response = await fetch(`${SERVER_URL}/posts/${postId}/comments`);
-            const data = await response.json();
-            setComments(data.comments);
-        } catch (error) {
-            console.error('Error fetching comments:', error);
-        }
-    };
+  const fetchComments = async () => {
+    try {
+      const response = await fetch(`${SERVER_URL}/posts/${postId}/comments`);
+      const data = await response.json();
+      setComments(data.comments);
+    } catch (error) {
+      console.error("Error fetching comments:", error);
+    }
+  };
 
-    const handleAddComment = async () => {
-        if (newComment.trim() === '') return;
+  const handleAddComment = async () => {
+    if (newComment.trim() === "") return;
 
-        try {
-            const response = await fetch(`${SERVER_URL}/posts/${postId}/comments`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ user_id: userId, content: newComment }),
-            });
+    try {
+      const response = await fetch(`${SERVER_URL}/posts/${postId}/comments`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ user_id: userId, content: newComment }),
+      });
 
-            const result = await response.json();
+      const result = await response.json();
 
-            if (result.success) {
-                setComments([...comments, result.comment]);
-                setNewComment('');
-            } else {
-                console.error('Error adding comment:', result.message);
-            }
-        } catch (error) {
-            console.error('Error adding comment:', error);
-        }
-    };
+      if (result.success) {
+        setComments([...comments, result.comment]);
+        setNewComment("");
+      } else {
+        console.error("Error adding comment:", result.message);
+      }
+    } catch (error) {
+      console.error("Error adding comment:", error);
+    }
+  };
 
-    return (
-        <Modal visible={visible} animationType="slide" onRequestClose={onClose}>
-            <View style={styles.container}>
-                <View style={styles.header}>
-                    <Text style={styles.headerText}>Comments</Text>
-                    <TouchableOpacity onPress={onClose}>
-                        <MaterialIcons name="close" size={24} color="black" />
-                    </TouchableOpacity>
-                </View>
-                <FlatList
-                    data={comments}
-                    keyExtractor={(item) => item.id.toString()}
-                    renderItem={({ item }) => (
-                        <View style={styles.commentContainer}>
-                            <Text style={styles.username}>{item.username}</Text>
-                            <Text style={styles.comment}>{item.content}</Text>
-                            <Text style={styles.timestamp}>{new Date(item.created_at).toLocaleString()}</Text>
-                        </View>
-                    )}
-                />
-                <View style={styles.inputContainer}>
-                    <TextInput
-                        style={styles.input}
-                        placeholder="Add a comment..."
-                        value={newComment}
-                        onChangeText={setNewComment}
-                    />
-                    <TouchableOpacity onPress={handleAddComment}>
-                        <MaterialIcons name="send" size={24} color="blue" />
-                    </TouchableOpacity>
-                </View>
-            </View>
-        </Modal>
-    );
+  const colorScheme = useColorScheme();
+  const statusBarStyle = colorScheme === "dark" ? "light" : "dark";
+  const iconColor = colorScheme === "dark" ? "white" : "black";
+  const sendColor = colorScheme === "dark" ? "#90bbfc" : "#007bff";
+
+  return (
+    <Modal
+      className="bg-white dark:bg-neutral-900"
+      visible={visible}
+      animationType="slide"
+      onRequestClose={onClose}
+    >
+      <StatusBar style={statusBarStyle} />
+      <SafeAreaView className="flex-1 bg-white dark:bg-neutral-900">
+        <View className="flex-1">
+          <View className="flex-row justify-between items-center p-4 border-b border-gray-300 dark:border-neutral-600">
+            <Text className="text-lg font-bold">Comments</Text>
+            <TouchableOpacity onPress={onClose}>
+              <MaterialIcons name="close" size={24} color={iconColor} />
+            </TouchableOpacity>
+          </View>
+          <FlatList
+            data={comments}
+            keyExtractor={(item) => item.id.toString()}
+            renderItem={({ item }) => (
+              <View className="p-4 border-b border-gray-300 dark:border-neutral-600">
+                <Text className="font-bold">{item.username}</Text>
+                <Text className="mt-1">{item.content}</Text>
+                <Text className="mt-1 text-xs text-gray-500">
+                  {new Date(item.created_at).toLocaleString()}
+                </Text>
+              </View>
+            )}
+          />
+          <View className="flex-row items-center p-4 border-t border-gray-300 dark:border-neutral-600">
+            <TextInput
+              className="flex-1 p-2 border border-gray-300 dark:border-neutral-600 rounded mr-2"
+              placeholder="Add a comment..."
+              placeholderTextColor={iconColor}
+              value={newComment}
+              onChangeText={setNewComment}
+            />
+            <TouchableOpacity onPress={handleAddComment}>
+              <MaterialIcons name="send" size={24} color={sendColor} />
+            </TouchableOpacity>
+          </View>
+        </View>
+      </SafeAreaView>
+    </Modal>
+  );
 };
-
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: 'white',
-    },
-    header: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        padding: 16,
-        borderBottomWidth: 1,
-        borderBottomColor: '#ddd',
-    },
-    headerText: {
-        fontSize: 18,
-        fontWeight: 'bold',
-    },
-    commentContainer: {
-        padding: 16,
-        borderBottomWidth: 1,
-        borderBottomColor: '#ddd',
-    },
-    username: {
-        fontWeight: 'bold',
-    },
-    comment: {
-        marginTop: 4,
-    },
-    timestamp: {
-        marginTop: 4,
-        fontSize: 12,
-        color: '#888',
-    },
-    inputContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        padding: 16,
-        borderTopWidth: 1,
-        borderTopColor: '#ddd',
-    },
-    input: {
-        flex: 1,
-        padding: 8,
-        borderWidth: 1,
-        borderColor: '#ddd',
-        borderRadius: 4,
-        marginRight: 8,
-    },
-});
 
 export default CommentsModal;

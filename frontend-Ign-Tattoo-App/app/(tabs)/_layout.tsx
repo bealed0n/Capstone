@@ -1,6 +1,6 @@
 import React, { useContext } from "react";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
-import { Tabs, Href, router } from "expo-router";
+import { Tabs, Href, router, Link } from "expo-router";
 import { Pressable } from "react-native";
 import Colors from "../../constants/Colors";
 import { useColorScheme } from "../../components/useColorScheme";
@@ -41,6 +41,22 @@ export default function TabLayout() {
             />
           ),
           tabBarActiveTintColor: activeColor,
+          headerRight: () =>
+            user &&
+            (user.role === "tattoo_artist" || user.role === "Designer") ? (
+              <Link href="/createPost" asChild>
+                <Pressable onPress={() => router.push("/createPost" as Href)}>
+                  {({ pressed }) => (
+                    <FontAwesome5
+                      name="plus"
+                      size={22}
+                      color={Colors[colorScheme ?? "light"].text}
+                      style={{ marginRight: 15, opacity: pressed ? 0.5 : 1 }}
+                    />
+                  )}
+                </Pressable>
+              </Link>
+            ) : null,
         }}
       />
       <Tabs.Screen
