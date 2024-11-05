@@ -1,9 +1,14 @@
 const express = require("express");
 const cors = require("cors");
 const { Pool } = require("pg");
+const http = require("http");
+const socketIo = require("socket.io");
+const multer = require("multer");
+const path = require("path");
+const fs = require("fs");
+
 const app = express();
 const port = 3000;
-const bcrypt = require("bcrypt");
 
 // Configuración de CORS
 app.use(cors());
@@ -11,19 +16,16 @@ app.use(cors());
 // Middleware para parsear JSON
 app.use(express.json());
 
-const multer = require("multer");
+// Asegúrate de que la carpeta 'uploads' exista
+const uploadsDir = path.join(__dirname, "uploads");
+if (!fs.existsSync(uploadsDir)) {
+  fs.mkdirSync(uploadsDir);
+}
 
-const sharp = require("sharp");
-
-const fs = require("fs");
-
-const path = require("path");
-
-const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
-
+// Configuración de Multer
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, "uploads/");
+    cb(null, uploadsDir);
   },
   filename: function (req, file, cb) {
     cb(
@@ -36,7 +38,7 @@ const storage = multer.diskStorage({
 const upload = multer({ storage: storage });
 
 // Servir la carpeta 'uploads' de forma pública
-app.use("/uploads", express.static("uploads"));
+app.use("/uploads", express.static(uploadsDir));
 
 // Configuración de la conexión a PostgreSQL
 const pool = new Pool({
@@ -45,6 +47,76 @@ const pool = new Pool({
   database: "ign-tattoo-test",
   password: "1234",
   port: 5432,
+});
+
+// Crear un servidor HTTP y vincular Socket.IO
+const server = http.createServer(app);
+const io = require("socket.io")(server, {
+  cors: {
+    origin: "*", // Ajusta según sea necesario para tu desarrollo local
+    methods: ["GET", "POST"],
+  },
+});
+
+// Comunicación en tiempo real con Socket.IO
+// En index.js
+
+io.on("connection", (socket) => {
+  console.log("Nuevo cliente conectado");
+
+  socket.on("joinRoom", (userId) => {
+    socket.join(userId);
+    console.log(`Usuario con ID ${userId} se ha unido a su sala personalizada`);
+  });
+
+  socket.on("message", async (messageData) => {
+    console.log("Mensaje recibido en el servidor:", messageData);
+
+    try {
+      // Insertar el mensaje en la base de datos
+      const query = `
+        INSERT INTO messages (sender_id, receiver_id, content, image_url, sent_at, is_read)
+        VALUES ($1, $2, $3, $4, NOW(), false) RETURNING *
+      `;
+      const values = [
+        messageData.sender_id,
+        messageData.receiver_id,
+        messageData.content,
+        messageData.image_url,
+      ];
+
+      const result = await pool.query(query, values);
+      const savedMessage = result.rows[0];
+
+      console.log("Mensaje guardado en la base de datos:", savedMessage);
+
+      // Emitir el mensaje al receptor y al remitente
+      io.to(savedMessage.receiver_id.toString()).emit(
+        "newMessage",
+        savedMessage
+      );
+      io.to(savedMessage.sender_id.toString()).emit("newMessage", savedMessage);
+    } catch (error) {
+      console.error("Error al guardar el mensaje:", error);
+    }
+  });
+
+  socket.on("disconnect", () => {
+    console.log("Cliente desconectado");
+  });
+});
+
+// Manejo de errores de conexión a PostgreSQL
+pool.connect((err) => {
+  if (err) {
+    console.error("Error conectando a la base de datos:", err);
+  } else {
+    console.log("Conectado a la base de datos PostgreSQL");
+  }
+});
+
+app.get("/", (req, res) => {
+  res.send("Hello world");
 });
 
 //----------------------------------------------------------------------------------------------------
@@ -680,7 +752,8 @@ app.put("/appointments/:id/status", async (req, res) => {
   }
 });
 
-//Comnicacion con entre usuarios
+// Endpoints para la API
+// Endpoint para enviar un mensaje
 app.post("/messages", async (req, res) => {
   const { sender_id, receiver_id, content, image_url } = req.body;
 
@@ -690,7 +763,11 @@ app.post("/messages", async (req, res) => {
       [sender_id, receiver_id, content, image_url]
     );
 
-    res.status(201).json({ message: result.rows[0] });
+    const newMessage = result.rows[0];
+    res.status(201).json({ message: newMessage });
+
+    // Emitir el nuevo mensaje a los clientes conectados
+    io.emit("newMessage", newMessage); // Envía a todos los clientes
   } catch (error) {
     console.error("Error sending message:", error);
     res.status(500).json({ message: "Error sending message", error });
@@ -701,6 +778,7 @@ app.post("/messages", async (req, res) => {
 // Obtener los mensajes de un usuario
 app.get("/user/:id/messages", async (req, res) => {
   const { id } = req.params;
+  console.log(`Fetching messages for user ID: ${id}`);
 
   try {
     const result = await pool.query(
@@ -715,9 +793,6 @@ app.get("/user/:id/messages", async (req, res) => {
              ORDER BY messages.sent_at ASC`,
       [id]
     );
-
-    // Confirma que el filtro y los datos son correctos
-    console.log("Mensajes obtenidos del usuario:", result.rows);
 
     res.status(200).json({ messages: result.rows });
   } catch (error) {
@@ -757,10 +832,7 @@ app.get("/user/:id/conversations", async (req, res) => {
   }
 });
 
-app.get("/", (req, res) => {
-  res.send("Hello world");
-});
-
-app.listen(port, () => {
+// Iniciar el servidor
+server.listen(port, () => {
   console.log(`Servidor escuchando en http://localhost:${port}`);
 });
