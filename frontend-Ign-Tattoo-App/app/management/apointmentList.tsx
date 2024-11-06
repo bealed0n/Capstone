@@ -7,12 +7,16 @@ import {
   Alert,
   TextInput,
   Modal,
+  Image as RNImage,
+  View,
+  Text,
 } from "react-native";
-
-import { View, Text } from "../../components/Themed";
 import { UserContext } from "../context/userContext";
 import { format } from "date-fns";
 import { Picker } from "@react-native-picker/picker";
+import { styled } from "nativewind";
+
+const StyledImage = styled(RNImage);
 
 interface Appointment {
   id: number;
@@ -22,6 +26,7 @@ interface Appointment {
   description: string;
   user_id: number;
   status: string;
+  reference_image_url: string | null; // Agregamos este campo
 }
 
 export default function AppointmentsList() {
@@ -35,6 +40,11 @@ export default function AppointmentsList() {
   const [additionalMessage, setAdditionalMessage] = useState<string>("");
   const [pickerVisible, setPickerVisible] = useState<boolean>(false);
   const [pickerValue, setPickerValue] = useState<string>("");
+  const [expandedDescriptions, setExpandedDescriptions] = useState<{
+    [key: number]: boolean;
+  }>({});
+  const [modalVisible, setModalVisible] = useState<boolean>(false);
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchAppointments = async () => {
@@ -50,7 +60,7 @@ export default function AppointmentsList() {
           const response = await fetch(url);
           const data = await response.json();
           if (Array.isArray(data.appointments)) {
-            setAppointments(data.appointments); // Asegúrate de que sea el campo correcto en la respuesta
+            setAppointments(data.appointments);
             console.log("Appointments fetched:", data.appointments);
           } else {
             console.error(
@@ -118,6 +128,13 @@ export default function AppointmentsList() {
     }
   };
 
+  const toggleDescription = (appointmentId: number) => {
+    setExpandedDescriptions((prevState) => ({
+      ...prevState,
+      [appointmentId]: !prevState[appointmentId],
+    }));
+  };
+
   if (loading) {
     return <ActivityIndicator size="large" color="#0000ff" />;
   }
@@ -143,9 +160,53 @@ export default function AppointmentsList() {
             <Text style={{ color: colorScheme === "dark" ? "#fff" : "#000" }}>
               Time: {item.time}
             </Text>
-            <Text style={{ color: colorScheme === "dark" ? "#fff" : "#000" }}>
-              Description: {item.description}
-            </Text>
+
+            {/* Mostrar imagen de referencia si existe */}
+            {item.reference_image_url && (
+              <TouchableOpacity
+                onPress={() => {
+                  setSelectedImage(
+                    `http://192.168.100.87:3000${item.reference_image_url}`
+                  );
+                  setModalVisible(true);
+                }}
+                style={{ marginVertical: 8 }}
+              >
+                <StyledImage
+                  source={{
+                    uri: `http://192.168.100.87:3000${item.reference_image_url}`,
+                  }}
+                  className="w-full h-40 rounded-lg"
+                  resizeMode="cover"
+                />
+              </TouchableOpacity>
+            )}
+
+            {/* Descripción con 'Mostrar más' */}
+            <View>
+              <Text
+                numberOfLines={expandedDescriptions[item.id] ? undefined : 3}
+                ellipsizeMode="tail"
+                style={{ color: colorScheme === "dark" ? "#fff" : "#000" }}
+              >
+                Description: {item.description}
+              </Text>
+              {item.description.length > 100 && (
+                <TouchableOpacity onPress={() => toggleDescription(item.id)}>
+                  <Text
+                    style={{
+                      color: "#007bff",
+                      marginTop: 4,
+                    }}
+                  >
+                    {expandedDescriptions[item.id]
+                      ? "Mostrar menos"
+                      : "Mostrar más"}
+                  </Text>
+                </TouchableOpacity>
+              )}
+            </View>
+
             <Text style={{ color: colorScheme === "dark" ? "#fff" : "#000" }}>
               Status: {item.status}
             </Text>
@@ -181,6 +242,7 @@ export default function AppointmentsList() {
                         borderWidth: 1,
                         padding: 8,
                         marginTop: 8,
+                        color: colorScheme === "dark" ? "#fff" : "#000",
                       }}
                     />
                   )}
@@ -189,6 +251,34 @@ export default function AppointmentsList() {
           </View>
         )}
       />
+
+      {/* Modal para mostrar la imagen en grande */}
+      <Modal
+        visible={modalVisible}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={() => setModalVisible(false)}
+      >
+        <TouchableOpacity
+          style={{
+            flex: 1,
+            backgroundColor: "rgba(0,0,0,0.9)",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+          onPress={() => setModalVisible(false)}
+        >
+          {selectedImage && (
+            <StyledImage
+              source={{ uri: selectedImage }}
+              style={{ width: "90%", height: "70%" }}
+              resizeMode="contain"
+            />
+          )}
+        </TouchableOpacity>
+      </Modal>
+
+      {/* Modal para el Picker de estado */}
       <Modal
         visible={pickerVisible}
         transparent={true}
@@ -208,11 +298,13 @@ export default function AppointmentsList() {
               width: 300,
               borderRadius: 10,
               padding: 20,
+              backgroundColor: colorScheme === "dark" ? "#333333" : "#ffffff",
             }}
           >
             <Picker
               selectedValue={pickerValue}
               onValueChange={(value: string) => setPickerValue(value)}
+              style={{ color: colorScheme === "dark" ? "#fff" : "#000" }}
             >
               <Picker.Item label="Pending" value="pending" />
               <Picker.Item label="Accepted" value="accepted" />

@@ -6,6 +6,7 @@ const socketIo = require("socket.io");
 const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
+const bcrypt = require("bcrypt");
 
 const app = express();
 const port = 3000;
@@ -73,29 +74,37 @@ io.on("connection", (socket) => {
     console.log("Mensaje recibido en el servidor:", messageData);
 
     try {
-      // Insertar el mensaje en la base de datos
-      const query = `
-        INSERT INTO messages (sender_id, receiver_id, content, image_url, sent_at, is_read)
-        VALUES ($1, $2, $3, $4, NOW(), false) RETURNING *
-      `;
-      const values = [
+      let imageUrl = null;
+
+      if (messageData.image) {
+        const base64Data = messageData.image.replace(
+          /^data:image\/\w+;base64,/,
+          ""
+        );
+        const buffer = Buffer.from(base64Data, "base64");
+        const filename = `message-${Date.now()}.png`;
+        const filepath = path.join(uploadsDir, filename);
+
+        fs.writeFileSync(filepath, buffer);
+        imageUrl = `/uploads/${filename}`;
+      }
+
+      const query =
+        "INSERT INTO messages (sender_id, receiver_id, content, image_url, sent_at) VALUES ($1, $2, $3, $4, NOW()) RETURNING *";
+      const result = await pool.query(query, [
         messageData.sender_id,
         messageData.receiver_id,
         messageData.content,
-        messageData.image_url,
-      ];
+        imageUrl,
+      ]);
 
-      const result = await pool.query(query, values);
       const savedMessage = result.rows[0];
 
-      console.log("Mensaje guardado en la base de datos:", savedMessage);
-
-      // Emitir el mensaje al receptor y al remitente
-      io.to(savedMessage.receiver_id.toString()).emit(
+      io.to(messageData.receiver_id.toString()).emit(
         "newMessage",
         savedMessage
       );
-      io.to(savedMessage.sender_id.toString()).emit("newMessage", savedMessage);
+      io.to(messageData.sender_id.toString()).emit("newMessage", savedMessage);
     } catch (error) {
       console.error("Error al guardar el mensaje:", error);
     }
@@ -686,10 +695,10 @@ app.get("/tattoo-artist/:tattoo_artist_id/appointments", async (req, res) => {
   try {
     const result = await pool.query(
       `SELECT appointments.id, users.username,appointments.user_id, appointments.tattoo_artist_id, appointments.date,
-                appointments.time, appointments.description, appointments.status
+                appointments.time, appointments.description, appointments.status, appointments.reference_image_url
                 FROM appointments
                 JOIN users ON appointments.user_id = users.id
-                WHERE tattoo_artist_id = $1 ORDER BY date, time`,
+                WHERE tattoo_artist_id = $1 ORDER BY date DESC, time`,
       [tattoo_artist_id]
     );
     res.status(200).json({ appointments: result.rows });
@@ -705,10 +714,10 @@ app.get("/user/:user_id/appointments", async (req, res) => {
   try {
     const result = await pool.query(
       `SELECT appointments.id, users.username,appointments.user_id, appointments.tattoo_artist_id, appointments.date,
-                appointments.time, appointments.description, appointments.status
+                appointments.time, appointments.description, appointments.status, appointments.reference_image_url
                 FROM appointments
                 JOIN users ON appointments.tattoo_artist_id = users.id
-                WHERE user_id = $1 ORDER BY date, time`,
+                WHERE user_id = $1 ORDER BY date DESC, time`,
       [user_id]
     );
     res.status(200).json({ appointments: result.rows });

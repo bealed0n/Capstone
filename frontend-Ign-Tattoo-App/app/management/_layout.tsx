@@ -88,6 +88,21 @@ export default function ManagementLayout() {
               ),
             }}
           />
+          <Stack.Screen
+            name="availableDesigns"
+            options={{
+              title: "Available Designs",
+              headerLeft: () => (
+                <Pressable className="ml-2" onPress={() => navigation.goBack()}>
+                  <MaterialIcons
+                    name="arrow-back-ios"
+                    size={28}
+                    color={iconColor}
+                  />
+                </Pressable>
+              ),
+            }}
+          />
         </Stack>
       </ThemeProvider>
     </UserProvider>

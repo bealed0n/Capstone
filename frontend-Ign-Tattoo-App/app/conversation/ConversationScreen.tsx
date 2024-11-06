@@ -8,17 +8,20 @@ import {
   View,
   useColorScheme,
   Alert,
+  Keyboard,
+  Image as RNImage,
+  Modal,
 } from "react-native";
 import { Text } from "../../components/Themed";
 import { useRoute, RouteProp } from "@react-navigation/native";
 import { UserContext } from "../context/userContext";
 import { styled } from "nativewind";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
-import { Image } from "react-native";
 import { format, isSameDay, parseISO } from "date-fns";
 import io from "socket.io-client";
+import * as ImagePicker from "expo-image-picker";
 
-const StyledImage = styled(Image);
+const StyledImage = styled(RNImage);
 
 interface Message {
   id: number;
@@ -28,7 +31,8 @@ interface Message {
   image_url: string | null;
   sent_at: string;
   is_read: boolean;
-  tempId?: number; // Añadimos tempId opcional
+  tempId?: number;
+  image?: string;
 }
 
 interface RouteParams {
@@ -42,6 +46,9 @@ export default function ConversationScreen() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState("");
   const [isSending, setIsSending] = useState(false);
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [modalVisible, setModalVisible] = useState<boolean>(false);
+  const [imageToSend, setImageToSend] = useState<string | null>(null);
   const flatListRef = useRef<FlatList>(null);
 
   const socketRef = useRef<any>(null);
@@ -77,10 +84,13 @@ export default function ConversationScreen() {
         ) {
           setMessages((prevMessages) => {
             if (isUserMessage) {
-              // Reemplazar el mensaje temporal con el mensaje real del servidor
+              // Reemplazar el mensaje temporal con el real del servidor
               return prevMessages.map((msg) => {
                 if (msg.tempId && msg.tempId === message.tempId) {
-                  return message;
+                  return {
+                    ...message,
+                    image_url: message.image_url || msg.image_url,
+                  };
                 }
                 return msg;
               });
@@ -130,8 +140,6 @@ export default function ConversationScreen() {
               (a, b) =>
                 new Date(a.sent_at).getTime() - new Date(b.sent_at).getTime()
             );
-
-          console.log("Filtered messages:", messagesData);
           setMessages(messagesData);
         } catch (error) {
           console.error("Error fetching messages:", error);
@@ -142,12 +150,6 @@ export default function ConversationScreen() {
 
     fetchMessages();
   }, [user, conversationId]);
-
-  useEffect(() => {
-    if (flatListRef.current) {
-      flatListRef.current.scrollToEnd({ animated: true });
-    }
-  }, [messages]);
 
   const renderMessage = ({ item }: { item: Message }) => {
     const isUserMessage = Number(item.sender_id) === Number(user?.id);
@@ -160,7 +162,7 @@ export default function ConversationScreen() {
         {!isUserMessage && (
           <StyledImage
             source={require("@/assets/images/user.png")}
-            className="w-8 h-8 rounded-full mr-2"
+            className="w-8 h-8 rounded-full ml-2"
           />
         )}
         <View
@@ -168,7 +170,35 @@ export default function ConversationScreen() {
             isUserMessage ? "bg-blue-500 mr-3" : "bg-neutral-500 ml-3"
           } max-w-[75%]`}
         >
-          <Text className="text-white font-medium">{item.content}</Text>
+          {item.content ? (
+            <Text className="text-white font-medium">{item.content}</Text>
+          ) : null}
+          {item.image_url ? (
+            <TouchableOpacity
+              onPress={() => {
+                if (item.image_url) {
+                  setSelectedImage(
+                    item.image_url.startsWith("data:")
+                      ? item.image_url
+                      : `http://192.168.100.87:3000${item.image_url}`
+                  );
+                  setModalVisible(true);
+                }
+              }}
+            >
+              {item.image_url && (
+                <StyledImage
+                  source={{
+                    uri: item.image_url.startsWith("data:")
+                      ? item.image_url
+                      : `http://192.168.100.87:3000${item.image_url}`,
+                  }}
+                  className="w-64 h-64 rounded-lg mt-2"
+                  resizeMode="cover"
+                />
+              )}
+            </TouchableOpacity>
+          ) : null}
           <Text className="text-xs text-gray-200 mt-1 text-right">
             {new Date(item.sent_at).toLocaleTimeString()}
           </Text>
@@ -176,7 +206,7 @@ export default function ConversationScreen() {
         {isUserMessage && (
           <StyledImage
             source={require("@/assets/images/user.png")}
-            className="w-8 h-8 rounded-full ml-2"
+            className="w-8 h-8 rounded-full mr-1"
           />
         )}
       </View>
@@ -220,28 +250,36 @@ export default function ConversationScreen() {
   const sendColor = colorScheme === "dark" ? "white" : "blue";
 
   const handleSendMessage = async () => {
-    if (newMessage.trim() && !isSending && user) {
+    const messageContent = newMessage;
+    const imageBase64 = imageToSend;
+    if ((messageContent.trim() || imageBase64) && !isSending && user) {
       setIsSending(true);
       const userId = Number(user.id);
       const conversationIdNum = Number(conversationId);
 
-      const tempId = Date.now(); // Genera un ID temporal único
+      const tempId = Date.now();
 
       const messageData: Message = {
-        id: tempId, // Usamos id temporal
+        id: tempId,
         sender_id: userId,
         receiver_id: conversationIdNum,
-        content: newMessage,
+        content: messageContent,
         image_url: null,
         sent_at: new Date().toISOString(),
         is_read: false,
-        tempId: tempId, // Guardamos tempId para referencia
+        tempId: tempId,
       };
 
+      if (imageBase64) {
+        messageData.image = imageBase64;
+        messageData.image_url = imageBase64; // Mostrar la imagen inmediatamente
+      }
+
       try {
-        // Agrega el mensaje temporalmente a la vista
         setMessages((prevMessages) => [...prevMessages, messageData]);
         setNewMessage("");
+        setImageToSend(null);
+        Keyboard.dismiss();
 
         if (socketRef.current) {
           socketRef.current.emit("message", messageData);
@@ -257,14 +295,36 @@ export default function ConversationScreen() {
     }
   };
 
+  const handlePickImage = async () => {
+    const permissionResult =
+      await ImagePicker.requestMediaLibraryPermissionsAsync();
+
+    if (permissionResult.granted === false) {
+      Alert.alert(
+        "Permiso denegado",
+        "Es necesario acceder a tus fotos para enviar imágenes."
+      );
+      return;
+    }
+
+    const pickerResult = await ImagePicker.launchImageLibraryAsync({
+      base64: true,
+      quality: 0.7,
+    });
+
+    if (!pickerResult.canceled) {
+      const base64Image = `data:image/png;base64,${pickerResult.assets[0].base64}`;
+      setImageToSend(base64Image);
+    }
+  };
+
   return (
     <KeyboardAvoidingView
-      style={{ flex: 1 }}
       behavior={Platform.OS === "ios" ? "padding" : "height"}
-      keyboardVerticalOffset={90}
-      className="bg-white dark:bg-neutral-800"
+      keyboardVerticalOffset={100}
+      className="flex-1 bg-white dark:bg-neutral-800"
     >
-      <View style={{ flex: 1 }}>
+      <View className="flex-1">
         <FlatList
           ref={flatListRef}
           data={renderMessagesWithDateSeparators()}
@@ -275,22 +335,69 @@ export default function ConversationScreen() {
               : renderMessage({ item })
           }
           contentContainerStyle={{ paddingBottom: 20 }}
-          initialNumToRender={10}
+          initialNumToRender={5}
+          onContentSizeChange={() =>
+            setTimeout(() => {
+              flatListRef.current?.scrollToEnd({ animated: false });
+            }, 50)
+          }
+          keyboardShouldPersistTaps="handled"
         />
-        <View className="bottom-0 ios:mb-5 ios:p-3 border-t bg-white dark:bg-neutral-800 border-neutral-300 dark:border-neutral-500 flex-row items-center">
-          <TouchableOpacity className="mr-2">
-            <MaterialIcons name="attach-file" size={24} color="gray" />
+
+        {/* Modal para mostrar la imagen en grande */}
+        <Modal
+          visible={modalVisible}
+          transparent={true}
+          onRequestClose={() => setModalVisible(false)}
+        >
+          <TouchableOpacity
+            style={{
+              flex: 1,
+              backgroundColor: "rgba(0,0,0,0.9)",
+              justifyContent: "center",
+              alignItems: "center",
+            }}
+            onPress={() => setModalVisible(false)}
+          >
+            {selectedImage && (
+              <StyledImage
+                source={{ uri: selectedImage }}
+                style={{ width: "90%", height: "70%" }}
+                resizeMode="contain"
+              />
+            )}
           </TouchableOpacity>
-          <TextInput
-            value={newMessage}
-            onChangeText={setNewMessage}
-            placeholder="Escribe un mensaje..."
-            className="flex-1 bg-gray-100 rounded-full px-4 py-2 text-sm"
-            onSubmitEditing={handleSendMessage}
-          />
-          <TouchableOpacity className="ml-2" onPress={handleSendMessage}>
-            <MaterialIcons name="send" size={24} color={sendColor} />
-          </TouchableOpacity>
+        </Modal>
+
+        <View className="bottom-0 ios:mb-5 ios:p-3 border-t pt-3 android:mb-4 bg-white dark:bg-neutral-800 border-neutral-300 dark:border-neutral-500">
+          {imageToSend && (
+            <View className="flex-row items-center mb-2">
+              <StyledImage
+                source={{ uri: imageToSend }}
+                className="w-16 h-16 rounded mr-2"
+              />
+              <Text className="flex-1 text-gray-700">Imagen seleccionada</Text>
+              <TouchableOpacity onPress={() => setImageToSend(null)}>
+                <MaterialIcons name="close" size={24} color="gray" />
+              </TouchableOpacity>
+            </View>
+          )}
+          <View className="flex-row items-center">
+            <TouchableOpacity className="mr-2" onPress={handlePickImage}>
+              <MaterialIcons name="attach-file" size={24} color="gray" />
+            </TouchableOpacity>
+            <TextInput
+              value={newMessage}
+              onChangeText={setNewMessage}
+              placeholder="Escribe un mensaje..."
+              className="flex-1 bg-gray-100 rounded-full px-4 py-2 text-sm"
+              onSubmitEditing={handleSendMessage}
+              returnKeyType="send"
+            />
+            <TouchableOpacity className="ml-2" onPress={handleSendMessage}>
+              <MaterialIcons name="send" size={24} color={sendColor} />
+            </TouchableOpacity>
+          </View>
         </View>
       </View>
     </KeyboardAvoidingView>

@@ -159,6 +159,34 @@ export default function UsersProfile({ userId }: UsersProfileProps) {
           </View>
         </View>
       )}
+      {userProfile?.role === "Designer" && (
+        <View className="mb-3">
+          <View className="flex-row justify-center mt-2">
+            <TouchableOpacity
+              className="flex-1 mx-5"
+              onPress={() => {
+                router.push({
+                  pathname: "/management/availableDates", //cambiar leugo a designs
+                  params: { id: userId }, // Asegúrate que userId sea un valor que representa el ID
+                });
+              }}
+            >
+              <View className="flex-row items-center justify-center bg-gray-200 dark:bg-zinc-700 rounded-md p-3">
+                <FontAwesome5
+                  name="paint-brush"
+                  size={20}
+                  color={iconColor}
+                  style={{ marginRight: 8 }} // Aplicar margen derecho en línea
+                  className="dark:text-white"
+                />
+                <Text className="text-base text-black text-center dark:text-white font-semibold">
+                  Available Designs
+                </Text>
+              </View>
+            </TouchableOpacity>
+          </View>
+        </View>
+      )}
     </View>
   );
 
