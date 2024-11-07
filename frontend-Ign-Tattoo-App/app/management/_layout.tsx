@@ -103,6 +103,36 @@ export default function ManagementLayout() {
               ),
             }}
           />
+          <Stack.Screen
+            name="designerProjects"
+            options={{
+              title: "My projects",
+              headerLeft: () => (
+                <Pressable className="ml-2" onPress={() => navigation.goBack()}>
+                  <MaterialIcons
+                    name="arrow-back-ios"
+                    size={28}
+                    color={iconColor}
+                  />
+                </Pressable>
+              ),
+            }}
+          />
+          <Stack.Screen
+            name="requestDesigns"
+            options={{
+              title: "My Requests",
+              headerLeft: () => (
+                <Pressable className="ml-2" onPress={() => navigation.goBack()}>
+                  <MaterialIcons
+                    name="arrow-back-ios"
+                    size={28}
+                    color={iconColor}
+                  />
+                </Pressable>
+              ),
+            }}
+          />
         </Stack>
       </ThemeProvider>
     </UserProvider>

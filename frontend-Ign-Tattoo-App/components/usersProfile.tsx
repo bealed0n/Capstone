@@ -166,8 +166,8 @@ export default function UsersProfile({ userId }: UsersProfileProps) {
               className="flex-1 mx-5"
               onPress={() => {
                 router.push({
-                  pathname: "/management/availableDates", //cambiar leugo a designs
-                  params: { id: userId }, // Asegúrate que userId sea un valor que representa el ID
+                  pathname: "/management/availableDesigns",
+                  params: { id: userId },
                 });
               }}
             >

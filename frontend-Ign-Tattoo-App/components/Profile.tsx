@@ -117,44 +117,86 @@ export default function Profile() {
       <View>
         <Text className="text-base mt-4 ml-5 opacity-50">Dashboard</Text>
         <View className="flex-row justify-center mt-2">
-          <TouchableOpacity
-            className="flex-1 mx-5"
-            onPress={() => {
-              router.push("/management/calendar" as Href);
-            }}
-          >
-            <View className="flex-row items-center justify-center bg-gray-200 dark:bg-zinc-700 rounded-md p-3">
-              <FontAwesome5
-                name="calendar-alt"
-                size={20}
-                color={iconColor}
-                style={{ marginRight: 8 }} // Aplicar margen derecho en línea
-                className="dark:text-white"
-              />
-              <Text className="text-base text-black text-center dark:text-white font-semibold">
-                Calendar
-              </Text>
-            </View>
-          </TouchableOpacity>
+          {user?.role === "tattoo_artist" ? (
+            <TouchableOpacity
+              className="flex-1 mx-5"
+              onPress={() => {
+                router.push("/management/calendar" as Href);
+              }}
+            >
+              <View className="flex-row items-center justify-center bg-gray-200 dark:bg-zinc-700 rounded-md p-3">
+                <FontAwesome5
+                  name="calendar-alt"
+                  size={20}
+                  color={iconColor}
+                  style={{ marginRight: 8 }} // Aplicar margen derecho en línea
+                  className="dark:text-white"
+                />
+                <Text className="text-base text-black text-center dark:text-white font-semibold">
+                  Calendar
+                </Text>
+              </View>
+            </TouchableOpacity>
+          ) : (
+            <TouchableOpacity
+              className="flex-1 mx-5"
+              onPress={() => {
+                router.push("/management/requestDesigns" as Href);
+              }}
+            >
+              <View className="flex-row items-center justify-center bg-gray-200 dark:bg-zinc-700 rounded-md p-3 ">
+                <FontAwesome5
+                  name="comment-dots"
+                  size={20}
+                  color={iconColor}
+                  style={{ marginRight: 8 }}
+                />
+                <Text className="text-base text-black text-center dark:text-white font-semibold">
+                  Req. Projects
+                </Text>
+              </View>
+            </TouchableOpacity>
+          )}
 
-          <TouchableOpacity
-            className="flex-1 mx-5"
-            onPress={() => {
-              router.push("/management/apointmentList" as Href);
-            }}
-          >
-            <View className="flex-row items-center justify-center bg-gray-200 dark:bg-zinc-700 rounded-md p-3">
-              <FontAwesome5
-                name="tasks"
-                size={20}
-                color={iconColor}
-                style={{ marginRight: 8 }}
-              />
-              <Text className="text-base text-black text-center dark:text-white font-semibold">
-                Appointments
-              </Text>
-            </View>
-          </TouchableOpacity>
+          {user?.role === "tattoo_artist" ? (
+            <TouchableOpacity
+              className="flex-1 mx-5"
+              onPress={() => {
+                router.push("/management/apointmentList" as Href);
+              }}
+            >
+              <View className="flex-row items-center justify-center bg-gray-200 dark:bg-zinc-700 rounded-md p-3">
+                <FontAwesome5
+                  name="tasks"
+                  size={20}
+                  color={iconColor}
+                  style={{ marginRight: 8 }}
+                />
+                <Text className="text-base text-black text-center dark:text-white font-semibold">
+                  Appointments
+                </Text>
+              </View>
+            </TouchableOpacity>
+          ) : (
+            <TouchableOpacity
+              className="flex-1 mx-5"
+              onPress={() => {
+                router.push("/management/designerProjects" as Href);
+              }}
+            >
+              <View className="flex-row items-center justify-center bg-gray-200 dark:bg-zinc-700 rounded-md p-3">
+                <FontAwesome5
+                  name="tasks"
+                  size={20}
+                  color={iconColor}
+                  style={{ marginRight: 8 }}
+                />
+                <Text className="text-base text-black text-center dark:text-white font-semibold">
+                  My projects
+                </Text>
+              </View>
+            </TouchableOpacity>
+          )}
         </View>
       </View>
       <View className="mt-4 h-0.5 border-t-0 bg-neutral-200 dark:bg-white/10" />

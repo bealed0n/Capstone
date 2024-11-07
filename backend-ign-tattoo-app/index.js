@@ -760,8 +760,292 @@ app.put("/appointments/:id/status", async (req, res) => {
     });
   }
 });
+//----------------------------------------------------------------------------------------------------
+//ENDPOINTS PARA LA GESTION DE DISEÑOS
+//----------------------------------------------------------------------------------------------------
 
-// Endpoints para la API
+// Endpoint para crear un diseño
+app.post("/designer/projects", upload.single("image"), async (req, res) => {
+  const { designer_id, title, description, price, currency, is_available } =
+    req.body;
+  const image = req.file ? `/uploads/${req.file.filename}` : null;
+
+  try {
+    const result = await pool.query(
+      "INSERT INTO designer_projects (designer_id, title, description, image, price, currency, is_available) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *",
+      [designer_id, title, description, image, price, currency, is_available]
+    );
+    res.status(201).json(result.rows[0]);
+  } catch (error) {
+    console.error("Error creando el proyecto del diseñador:", error);
+    res.status(500).json({ error: "Error creando el proyecto del diseñador" });
+  }
+});
+
+// Update the endpoint for creating a designer request
+app.post(
+  "/design-requests",
+  upload.single("reference_image"),
+  async (req, res) => {
+    const { buyer_id, designer_id, project_id, status, message } = req.body;
+    const reference_image = req.file ? `/uploads/${req.file.filename}` : null;
+
+    try {
+      const result = await pool.query(
+        `INSERT INTO design_requests (buyer_id, designer_id, project_id, status, message, reference_image) 
+       VALUES ($1, $2, $3, $4, $5, $6) 
+       RETURNING *`,
+        [buyer_id, designer_id, project_id, status, message, reference_image]
+      );
+      res.status(201).json(result.rows[0]);
+    } catch (error) {
+      console.error("Error creando la solicitud de diseño:", error);
+      res.status(500).json({ error: "Error creando la solicitud de diseño" });
+    }
+  }
+);
+
+// Endpoint to update designer's preference to accept custom designs
+app.patch("/users/:designer_id/accepts-custom-designs", async (req, res) => {
+  const { designer_id } = req.params;
+  const { accepts_custom_designs } = req.body;
+
+  try {
+    const result = await pool.query(
+      "UPDATE users SET accepts_custom_designs = $1 WHERE id = $2 AND role = 'designer' RETURNING *",
+      [accepts_custom_designs, designer_id]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: "Designer not found" });
+    }
+
+    res.json(result.rows[0]);
+  } catch (error) {
+    console.error("Error updating designer preference:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+// Endpoint to fetch all available designs
+app.get("/designer-projects", async (req, res) => {
+  try {
+    const result = await pool.query(
+      `SELECT dp.*, u.username
+       FROM designer_projects dp
+       JOIN users u ON dp.designer_id = u.id
+       WHERE dp.is_available = TRUE`
+    );
+    res.json(result.rows);
+  } catch (error) {
+    console.error("Error fetching available designs:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+app.patch("/designer/projects/:project_id/availability", async (req, res) => {
+  const { project_id } = req.params;
+  const { is_available } = req.body;
+
+  try {
+    const result = await pool.query(
+      "UPDATE designer_projects SET is_available = $1 WHERE id = $2 RETURNING *",
+      [is_available, project_id]
+    );
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: "Project not found" });
+    }
+    res.json(result.rows[0]);
+  } catch (error) {
+    console.error("Error updating project availability:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+// Endpoint to create a design request
+app.post("/design-requests", async (req, res) => {
+  const { buyer_id, designer_id, project_id, message } = req.body;
+
+  try {
+    // Start a transaction
+    await pool.query("BEGIN");
+
+    // Insert the design request
+    const requestQuery = `
+      INSERT INTO design_requests (buyer_id, designer_id, project_id, message, status) 
+      VALUES ($1, $2, $3, $4, 'pending') 
+      RETURNING *
+    `;
+    const requestResult = await pool.query(requestQuery, [
+      buyer_id,
+      designer_id,
+      project_id,
+      message,
+    ]);
+
+    // Update the project status
+    const updateProjectQuery = `
+      UPDATE designer_projects 
+      SET status = 'pending' 
+      WHERE id = $1
+    `;
+    await pool.query(updateProjectQuery, [project_id]);
+
+    await pool.query("COMMIT");
+
+    res.status(201).json({
+      success: true,
+      request: requestResult.rows[0],
+    });
+  } catch (error) {
+    await pool.query("ROLLBACK");
+    console.error("Error creating design request:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error creating design request",
+    });
+  }
+});
+
+// Endpoint para obtener las solicitudes de diseño personalizadas
+app.get("/design-requests/custom", async (req, res) => {
+  try {
+    const query = `
+      SELECT dr.*, u.username
+      FROM design_requests dr
+      JOIN users u ON dr.buyer_id = u.id
+      WHERE dr.project_id IS NULL
+      ORDER BY dr.created_at DESC
+    `;
+    const result = await pool.query(query);
+    res.json(result.rows);
+  } catch (error) {
+    console.error(
+      "Error al obtener las solicitudes de diseño personalizado:",
+      error
+    );
+    res.status(500).json({
+      success: false,
+      message: "Error al obtener las solicitudes de diseño personalizado",
+    });
+  }
+});
+
+app.get("/designer/projects/:designer_id", async (req, res) => {
+  const { designer_id } = req.params;
+
+  try {
+    const query = `
+      SELECT dp.*, u.username
+      FROM designer_projects dp
+      JOIN users u ON dp.designer_id = u.id
+      WHERE dp.designer_id = $1 AND dp.is_available = TRUE
+      ORDER BY dp.created_at DESC
+    `;
+    const values = [designer_id];
+    const result = await pool.query(query, values);
+
+    res.json(result.rows);
+  } catch (error) {
+    console.error("Error al obtener los diseños del diseñador:", error);
+    res.status(500).json({ error: "Error interno del servidor" });
+  }
+});
+
+// Endpoint for designers to fetch their design requests
+app.get("/design-requests/designer/:designer_id", async (req, res) => {
+  const { designer_id } = req.params;
+
+  try {
+    const result = await pool.query(
+      `SELECT dr.*, u.username as buyer_username 
+       FROM design_requests dr 
+       JOIN users u ON dr.buyer_id = u.id 
+       WHERE dr.designer_id = $1`,
+      [designer_id]
+    );
+
+    res.json(result.rows);
+  } catch (error) {
+    console.error("Error obteniendo las solicitudes de diseño:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+// Endpoint para actualizar el estado de una solicitud de diseño
+app.put("/design-requests/:request_id/status", async (req, res) => {
+  const { request_id } = req.params;
+  const { status, message } = req.body;
+
+  try {
+    const result = await pool.query(
+      `UPDATE design_requests 
+       SET status = $1, message = $2 
+       WHERE id = $3 
+       RETURNING *`,
+      [status, message, request_id]
+    );
+
+    if (result.rows.length === 0) {
+      return res
+        .status(404)
+        .json({ error: "Solicitud de diseño no encontrada" });
+    }
+
+    res.json(result.rows[0]);
+  } catch (error) {
+    console.error("Error actualizando la solicitud de diseño:", error);
+    res
+      .status(500)
+      .json({ error: "Error actualizando la solicitud de diseño" });
+  }
+});
+
+// Endpoint for designers to send a message to the client
+app.post("/design-requests/:request_id/message", async (req, res) => {
+  const { request_id } = req.params;
+  const { sender_id, message } = req.body;
+
+  try {
+    const result = await pool.query(
+      `INSERT INTO messages (request_id, sender_id, message, created_at)
+       VALUES ($1, $2, $3, NOW())
+       RETURNING *`,
+      [request_id, sender_id, message]
+    );
+
+    res.status(201).json(result.rows[0]);
+  } catch (error) {
+    console.error("Error enviando el mensaje:", error);
+    res.status(500).json({ error: "Error enviando el mensaje" });
+  }
+});
+
+// Endpoint to fetch messages for a design request
+app.get("/design-requests/:request_id/messages", async (req, res) => {
+  const { request_id } = req.params;
+
+  try {
+    const result = await pool.query(
+      `SELECT m.*, u.username as sender_username 
+       FROM messages m 
+       JOIN users u ON m.sender_id = u.id 
+       WHERE m.request_id = $1
+       ORDER BY m.created_at ASC`,
+      [request_id]
+    );
+
+    res.json(result.rows);
+  } catch (error) {
+    console.error("Error obteniendo los mensajes:", error);
+    res.status(500).json({ error: "Error obteniendo los mensajes" });
+  }
+});
+
+//----------------------------------------------------------------------------------------------------
+//APARTADO PARA LA MENSAJERIA
+//----------------------------------------------------------------------------------------------------
+
 // Endpoint para enviar un mensaje
 app.post("/messages", async (req, res) => {
   const { sender_id, receiver_id, content, image_url } = req.body;
@@ -840,6 +1124,9 @@ app.get("/user/:id/conversations", async (req, res) => {
     res.status(500).json({ message: "Error fetching conversations", error });
   }
 });
+//----------------------------------------------------------------------------------------------------
+//FIN DE APARTADO DE MENSAJERIA
+//----------------------------------------------------------------------------------------------------
 
 // Iniciar el servidor
 server.listen(port, () => {

@@ -17,6 +17,7 @@ export default function UserProfile() {
           {user?.username ?? "No encontrado"}
         </Text>
       </View>
+
       <View className="mb-1">
         <Text className="font-bold text-xl text-center mb-4">Dashboard</Text>
         <View className="flex-row justify-center mt-2">
