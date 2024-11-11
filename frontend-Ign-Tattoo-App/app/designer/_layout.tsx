@@ -29,9 +29,9 @@ export default function ManagementLayout() {
           }}
         >
           <Stack.Screen
-            name="apointmentList"
+            name="designerProjects"
             options={{
-              title: "Appointments",
+              title: "My projects",
               headerLeft: () => (
                 <Pressable className="ml-2" onPress={() => navigation.goBack()}>
                   <MaterialIcons
@@ -44,9 +44,9 @@ export default function ManagementLayout() {
             }}
           />
           <Stack.Screen
-            name="availableDates"
+            name="availableDesigns"
             options={{
-              title: "Available Dates",
+              title: "Available designs",
               headerLeft: () => (
                 <Pressable className="ml-2" onPress={() => navigation.goBack()}>
                   <MaterialIcons
@@ -59,24 +59,9 @@ export default function ManagementLayout() {
             }}
           />
           <Stack.Screen
-            name="calendar"
+            name="requestedDesigns"
             options={{
-              title: "Calendar",
-              headerLeft: () => (
-                <Pressable className="ml-2" onPress={() => navigation.goBack()}>
-                  <MaterialIcons
-                    name="arrow-back-ios"
-                    size={28}
-                    color={iconColor}
-                  />
-                </Pressable>
-              ),
-            }}
-          />
-          <Stack.Screen
-            name="dateRequest"
-            options={{
-              title: "Request Date",
+              title: "Requested designs",
               headerLeft: () => (
                 <Pressable className="ml-2" onPress={() => navigation.goBack()}>
                   <MaterialIcons

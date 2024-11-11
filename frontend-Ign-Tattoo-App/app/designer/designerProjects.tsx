@@ -1,7 +1,5 @@
 import React, { useEffect, useState, useContext } from "react";
 import {
-  View,
-  Text,
   FlatList,
   TouchableOpacity,
   Modal,
@@ -11,7 +9,9 @@ import {
   Image,
   StyleSheet,
   useColorScheme,
+  ScrollView,
 } from "react-native";
+import { Text, View } from "../../components/Themed";
 import { UserContext } from "../context/userContext";
 import * as ImagePicker from "expo-image-picker";
 
@@ -23,6 +23,7 @@ interface Project {
   currency: string;
   image?: string;
   is_available: boolean;
+  is_requested: boolean;
 }
 
 const SERVER_URL = "http://192.168.100.87:3000"; // Cambia esto a la IP de tu servidor
@@ -38,6 +39,8 @@ export default function DesignerProjects() {
   const [description, setDescription] = useState<string>("");
   const [price, setPrice] = useState<string>("");
   const [currency, setCurrency] = useState<string>("CLP");
+  const [showCurrencyOptions, setShowCurrencyOptions] =
+    useState<boolean>(false);
   const [imageUri, setImageUri] = useState<string | null>(null);
   const [isAvailable, setIsAvailable] = useState<boolean>(true);
 
@@ -75,7 +78,7 @@ export default function DesignerProjects() {
       const response = await fetch(
         `${SERVER_URL}/designer/projects/${projectId}/availability`,
         {
-          method: "PUT",
+          method: "PATCH",
           headers: {
             "Content-Type": "application/json",
           },
@@ -115,6 +118,7 @@ export default function DesignerProjects() {
     setCurrency("CLP");
     setImageUri(null);
     setIsAvailable(true);
+    setShowCurrencyOptions(false);
   };
 
   const pickImage = async () => {
@@ -206,7 +210,7 @@ export default function DesignerProjects() {
       </Text>
       <Text style={styles.projectDescription}>{item.description}</Text>
       <Text style={styles.projectPrice}>
-        Precio: {item.price} {item.currency}
+        Price: {item.price} {item.currency}
       </Text>
       {item.image && (
         <Image
@@ -223,7 +227,17 @@ export default function DesignerProjects() {
           },
         ]}
       >
-        Estado: {item.is_available ? "Disponible" : "No Disponible"}
+        Status: {item.is_available ? "Available" : "Not available"}
+      </Text>
+      <Text
+        style={[
+          styles.projectStatus,
+          {
+            color: item.is_requested ? "green" : "red",
+          },
+        ]}
+      >
+        Requested: {item.is_requested ? "Yes" : "No"}
       </Text>
       <TouchableOpacity
         onPress={() => toggleAvailability(item.id, item.is_available)}
@@ -235,9 +249,7 @@ export default function DesignerProjects() {
         ]}
       >
         <Text style={styles.buttonText}>
-          {item.is_available
-            ? "Marcar como No Disponible"
-            : "Marcar como Disponible"}
+          {item.is_available ? "Mark as not available" : "Mark as available"}
         </Text>
       </TouchableOpacity>
     </View>
@@ -251,10 +263,12 @@ export default function DesignerProjects() {
     );
   }
 
+  const currencyOptions = ["CLP", "ARS", "EUR", "USD"];
+
   return (
     <View style={styles.container}>
       <TouchableOpacity onPress={openModal} style={styles.addButton}>
-        <Text style={styles.addButtonText}>Agregar Nuevo Proyecto</Text>
+        <Text style={styles.addButtonText}>Add New Project</Text>
       </TouchableOpacity>
 
       {projects.length === 0 ? (
@@ -284,127 +298,160 @@ export default function DesignerProjects() {
               },
             ]}
           >
-            <Text
-              style={[
-                styles.modalTitle,
-                { color: colorScheme === "dark" ? "#ffffff" : "#000000" },
-              ]}
-            >
-              Agregar Nuevo Proyecto
-            </Text>
-
-            <TextInput
-              placeholder="Título"
-              value={title}
-              onChangeText={setTitle}
-              style={[
-                styles.input,
-                {
-                  color: colorScheme === "dark" ? "#ffffff" : "#000000",
-                  borderColor: colorScheme === "dark" ? "#374151" : "#d1d5db",
-                },
-              ]}
-              placeholderTextColor={
-                colorScheme === "dark" ? "#9ca3af" : "#6b7280"
-              }
-            />
-
-            <TextInput
-              placeholder="Descripción"
-              value={description}
-              onChangeText={setDescription}
-              style={[
-                styles.input,
-                styles.textArea,
-                {
-                  color: colorScheme === "dark" ? "#ffffff" : "#000000",
-                  borderColor: colorScheme === "dark" ? "#374151" : "#d1d5db",
-                },
-              ]}
-              placeholderTextColor={
-                colorScheme === "dark" ? "#9ca3af" : "#6b7280"
-              }
-              multiline
-              numberOfLines={4}
-            />
-
-            <TextInput
-              placeholder="Precio"
-              value={price}
-              onChangeText={setPrice}
-              keyboardType="numeric"
-              style={[
-                styles.input,
-                {
-                  color: colorScheme === "dark" ? "#ffffff" : "#000000",
-                  borderColor: colorScheme === "dark" ? "#374151" : "#d1d5db",
-                },
-              ]}
-              placeholderTextColor={
-                colorScheme === "dark" ? "#9ca3af" : "#6b7280"
-              }
-            />
-
-            <TextInput
-              placeholder="Moneda (e.g., CLP)"
-              value={currency}
-              onChangeText={setCurrency}
-              style={[
-                styles.input,
-                {
-                  color: colorScheme === "dark" ? "#ffffff" : "#000000",
-                  borderColor: colorScheme === "dark" ? "#374151" : "#d1d5db",
-                },
-              ]}
-              placeholderTextColor={
-                colorScheme === "dark" ? "#9ca3af" : "#6b7280"
-              }
-            />
-
-            <TouchableOpacity
-              onPress={pickImage}
-              style={styles.pickImageButton}
-            >
-              <Text style={styles.pickImageButtonText}>
-                {imageUri ? "Cambiar Imagen" : "Seleccionar Imagen"}
-              </Text>
-            </TouchableOpacity>
-
-            {imageUri && (
-              <Image
-                source={{ uri: imageUri }}
-                style={styles.selectedImage}
-                resizeMode="cover"
-              />
-            )}
-
-            <View style={styles.availabilityContainer}>
-              <Text style={styles.availabilityText}>Disponible:</Text>
-              <TouchableOpacity
-                onPress={() => setIsAvailable(!isAvailable)}
+            <ScrollView>
+              <Text
                 style={[
-                  styles.toggleButton,
+                  styles.modalTitle,
+                  { color: colorScheme === "dark" ? "#ffffff" : "#000000" },
+                ]}
+              >
+                Add New Project
+              </Text>
+
+              <TextInput
+                placeholder="Ttitle"
+                value={title}
+                onChangeText={setTitle}
+                style={[
+                  styles.input,
                   {
-                    backgroundColor: isAvailable ? "green" : "red",
+                    color: colorScheme === "dark" ? "#ffffff" : "#000000",
+                    borderColor: colorScheme === "dark" ? "#374151" : "#d1d5db",
+                  },
+                ]}
+                placeholderTextColor={
+                  colorScheme === "dark" ? "#9ca3af" : "#6b7280"
+                }
+              />
+
+              <TextInput
+                placeholder="Description"
+                value={description}
+                onChangeText={setDescription}
+                style={[
+                  styles.input,
+                  styles.textArea,
+                  {
+                    color: colorScheme === "dark" ? "#ffffff" : "#000000",
+                    borderColor: colorScheme === "dark" ? "#374151" : "#d1d5db",
+                  },
+                ]}
+                placeholderTextColor={
+                  colorScheme === "dark" ? "#9ca3af" : "#6b7280"
+                }
+                multiline
+                numberOfLines={4}
+              />
+
+              <TextInput
+                placeholder="Price"
+                value={price}
+                onChangeText={setPrice}
+                keyboardType="numeric"
+                style={[
+                  styles.input,
+                  {
+                    color: colorScheme === "dark" ? "#ffffff" : "#000000",
+                    borderColor: colorScheme === "dark" ? "#374151" : "#d1d5db",
+                  },
+                ]}
+                placeholderTextColor={
+                  colorScheme === "dark" ? "#9ca3af" : "#6b7280"
+                }
+              />
+
+              {/* Botón para seleccionar moneda */}
+              <TouchableOpacity
+                onPress={() => setShowCurrencyOptions(!showCurrencyOptions)}
+                style={[
+                  styles.input,
+                  styles.currencyButton,
+                  {
+                    borderColor: colorScheme === "dark" ? "#374151" : "#d1d5db",
                   },
                 ]}
               >
-                <Text style={styles.buttonText}>
-                  {isAvailable ? "Sí" : "No"}
+                <Text
+                  style={{
+                    color: colorScheme === "dark" ? "#ffffff" : "#000000",
+                  }}
+                >
+                  Currency: {currency}
                 </Text>
               </TouchableOpacity>
-            </View>
 
-            <TouchableOpacity
-              onPress={submitProject}
-              style={styles.submitButton}
-            >
-              <Text style={styles.buttonText}>Crear Proyecto</Text>
-            </TouchableOpacity>
+              {/* Mostrar opciones de moneda */}
+              {showCurrencyOptions && (
+                <View
+                  className="dark:bg-slate-600"
+                  style={styles.currencyOptionsContainer}
+                >
+                  {currencyOptions.map((option) => (
+                    <TouchableOpacity
+                      key={option}
+                      onPress={() => {
+                        setCurrency(option);
+                        setShowCurrencyOptions(false);
+                      }}
+                      style={styles.currencyOption}
+                    >
+                      <Text style={styles.currencyOptionText}>{option}</Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              )}
 
-            <TouchableOpacity onPress={closeModal} style={styles.cancelButton}>
-              <Text style={styles.buttonText}>Cancelar</Text>
-            </TouchableOpacity>
+              <TouchableOpacity
+                onPress={pickImage}
+                style={styles.pickImageButton}
+              >
+                <Text style={styles.pickImageButtonText}>
+                  {imageUri ? "Change Image" : "Select Image"}
+                </Text>
+              </TouchableOpacity>
+
+              {imageUri && (
+                <Image
+                  source={{ uri: imageUri }}
+                  style={styles.selectedImage}
+                  resizeMode="cover"
+                />
+              )}
+
+              <View
+                style={styles.availabilityContainer}
+                className="bg-transparent"
+              >
+                <Text style={styles.availabilityText}>Available:</Text>
+                <TouchableOpacity
+                  onPress={() => setIsAvailable(!isAvailable)}
+                  style={[
+                    styles.toggleButton,
+                    {
+                      backgroundColor: isAvailable ? "green" : "red",
+                    },
+                  ]}
+                >
+                  <Text style={styles.buttonText}>
+                    {isAvailable ? "Yes" : "No"}
+                  </Text>
+                </TouchableOpacity>
+              </View>
+
+              <TouchableOpacity
+                onPress={submitProject}
+                style={styles.submitButton}
+              >
+                <Text style={styles.buttonText}>Create Project</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                onPress={closeModal}
+                style={styles.cancelButton}
+              >
+                <Text style={styles.buttonText}>Cancel</Text>
+              </TouchableOpacity>
+            </ScrollView>
           </View>
         </View>
       </Modal>
@@ -495,6 +542,7 @@ const styles = StyleSheet.create({
     width: "90%",
     padding: 20,
     borderRadius: 12,
+    maxHeight: "80%",
   },
   modalTitle: {
     fontSize: 20,
@@ -553,5 +601,22 @@ const styles = StyleSheet.create({
     padding: 12,
     borderRadius: 8,
     marginTop: 8,
+  },
+  currencyButton: {
+    justifyContent: "center",
+  },
+  currencyOptionsContainer: {
+    borderWidth: 1,
+    borderColor: "#d1d5db",
+    borderRadius: 8,
+    marginTop: 10,
+  },
+  currencyOption: {
+    padding: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: "#d1d5db",
+  },
+  currencyOptionText: {
+    fontSize: 16,
   },
 });

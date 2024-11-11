@@ -141,7 +141,7 @@ export default function Profile() {
             <TouchableOpacity
               className="flex-1 mx-5"
               onPress={() => {
-                router.push("/management/requestDesigns" as Href);
+                router.push("/designer/requestedDesigns" as Href);
               }}
             >
               <View className="flex-row items-center justify-center bg-gray-200 dark:bg-zinc-700 rounded-md p-3 ">
@@ -181,7 +181,7 @@ export default function Profile() {
             <TouchableOpacity
               className="flex-1 mx-5"
               onPress={() => {
-                router.push("/management/designerProjects" as Href);
+                router.push("/designer/designerProjects" as Href);
               }}
             >
               <View className="flex-row items-center justify-center bg-gray-200 dark:bg-zinc-700 rounded-md p-3">

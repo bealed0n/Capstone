@@ -6,10 +6,10 @@ module.exports = {
     "./app/**/*.{js,jsx,ts,tsx}",
     "./app/(tabs)/**/*.{js,jsx,ts,tsx}",
     "./app/(auth)/**/*.{js,jsx,ts,tsx}",
+    "./app/designer/**/*.{js,jsx,ts,tsx}",
   ],
   theme: {
     extend: {},
   },
   plugins: [],
-}
-
+};
