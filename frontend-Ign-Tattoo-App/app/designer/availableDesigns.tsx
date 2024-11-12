@@ -98,7 +98,7 @@ const TattooArtistProjects = () => {
 
     return (
       <View
-        className={`p-4 border-b border-gray-300 rounded mb-2 ${
+        className={`p-4 rounded mb-2 ${
           colorScheme === "dark" ? "bg-neutral-800" : "bg-gray-100"
         }`}
       >

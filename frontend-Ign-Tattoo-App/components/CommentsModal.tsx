@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import {
   Modal,
   TextInput,
@@ -11,6 +11,8 @@ import { Text, View } from "./Themed";
 import { MaterialIcons } from "@expo/vector-icons";
 import { StatusBar } from "expo-status-bar";
 import { useColorScheme } from "react-native";
+
+import { UserContext } from "../app/context/userContext";
 
 const SERVER_URL = "http://192.168.100.87:3000"; // Cambia esto a la URL de tu servidor
 
@@ -39,6 +41,8 @@ const CommentsModal: React.FC<CommentsModalProps> = ({
   const [comments, setComments] = useState<Comment[]>([]);
   const [newComment, setNewComment] = useState<string>("");
 
+  const { user } = useContext(UserContext);
+
   useEffect(() => {
     if (visible) {
       fetchComments();
@@ -64,13 +68,17 @@ const CommentsModal: React.FC<CommentsModalProps> = ({
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ user_id: userId, content: newComment }),
+        body: JSON.stringify({ user_id: user.id, content: newComment }),
       });
 
       const result = await response.json();
 
       if (result.success) {
-        setComments([...comments, result.comment]);
+        const NewCommentWithUsername = {
+          ...result.comment,
+          username: user.username,
+        };
+        setComments([...comments, NewCommentWithUsername]);
         setNewComment("");
       } else {
         console.error("Error adding comment:", result.message);

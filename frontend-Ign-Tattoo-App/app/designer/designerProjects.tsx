@@ -192,36 +192,22 @@ export default function DesignerProjects() {
   };
 
   const renderProject = ({ item }: { item: Project }) => (
-    <View
-      style={[
-        styles.projectContainer,
-        {
-          backgroundColor: colorScheme === "dark" ? "#1f2937" : "#ffffff",
-        },
-      ]}
-    >
-      <Text
-        style={[
-          styles.projectTitle,
-          { color: colorScheme === "dark" ? "#ffffff" : "#000000" },
-        ]}
-      >
-        {item.title}
-      </Text>
-      <Text style={styles.projectDescription}>{item.description}</Text>
-      <Text style={styles.projectPrice}>
+    <View className="p-4 rounded-md mb-1 bg-neutral-200 dark:bg-neutral-800">
+      <Text className="text-lg font-semibold">{item.title}</Text>
+      <Text className="mt-2 text-sm">{item.description}</Text>
+      <Text className="mt-2 text-sm">
         Price: {item.price} {item.currency}
       </Text>
       {item.image && (
         <Image
+          className="w-full h-96 mt-2 rounded-md"
           source={{ uri: `${SERVER_URL}${item.image}` }}
-          style={styles.projectImage}
           resizeMode="cover"
         />
       )}
       <Text
+        className="mt-2 text-base "
         style={[
-          styles.projectStatus,
           {
             color: item.is_available ? "green" : "red",
           },
@@ -230,8 +216,8 @@ export default function DesignerProjects() {
         Status: {item.is_available ? "Available" : "Not available"}
       </Text>
       <Text
+        className=" text-base "
         style={[
-          styles.projectStatus,
           {
             color: item.is_requested ? "green" : "red",
           },
@@ -279,6 +265,7 @@ export default function DesignerProjects() {
           keyExtractor={(item) => item.id.toString()}
           renderItem={renderProject}
           contentContainerStyle={styles.flatListContent}
+          showsVerticalScrollIndicator={false}
         />
       )}
 
@@ -484,38 +471,6 @@ const styles = StyleSheet.create({
   },
   flatListContent: {
     paddingBottom: 20,
-  },
-  projectContainer: {
-    padding: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: "#ccc",
-    borderRadius: 8,
-    marginBottom: 12,
-  },
-  projectTitle: {
-    fontSize: 18,
-    fontWeight: "bold",
-  },
-  projectDescription: {
-    marginTop: 8,
-    fontSize: 14,
-    color: "#4b5563",
-  },
-  projectPrice: {
-    marginTop: 8,
-    fontSize: 16,
-    color: "green",
-  },
-  projectImage: {
-    width: "100%",
-    height: 200,
-    marginTop: 8,
-    borderRadius: 8,
-  },
-  projectStatus: {
-    marginTop: 8,
-    fontSize: 16,
-    fontWeight: "500",
   },
   availabilityButton: {
     marginTop: 8,

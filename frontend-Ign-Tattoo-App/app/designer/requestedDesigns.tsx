@@ -1,7 +1,5 @@
 import React, { useContext, useEffect, useState } from "react";
 import {
-  View,
-  Text,
   Image,
   TouchableOpacity,
   Modal,
@@ -9,34 +7,50 @@ import {
   FlatList,
   ActivityIndicator,
   Alert,
+  TextInput,
 } from "react-native";
+import { View, Text } from "../../components/Themed";
 import { UserContext } from "../context/userContext";
 
 interface RequestedDesign {
   id: number;
-  user_id: number;
   designer_id: number;
   project_id: number;
   price: string;
   status: string;
   created_at: string;
   image: string;
+  user_id: number;
+  username: string;
 }
+
 const SERVER_URL = "http://192.168.100.87:3000";
+
+const getFullImageUrl = (imagePath: string) => {
+  if (imagePath.startsWith("http")) {
+    return imagePath;
+  }
+  return `${SERVER_URL}${imagePath}`;
+};
 
 export default function RequestedDesigns() {
   const [designs, setDesigns] = useState<RequestedDesign[]>([]);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [replyMessage, setReplyMessage] = useState("");
   const { user } = useContext(UserContext);
 
   useEffect(() => {
-    fetchRequestedDesigns();
-  }, []);
+    if (user && user.id) {
+      fetchRequestedDesigns();
+    } else {
+      console.log("Usuario no disponible aún", user);
+    }
+  }, [user]);
 
   const fetchRequestedDesigns = async () => {
     if (!user?.id) {
-      console.error("User ID is undefined");
+      console.log("Error: user.id no disponible");
       return;
     }
 
@@ -45,11 +59,13 @@ export default function RequestedDesigns() {
       const response = await fetch(
         `${SERVER_URL}/designer-projects/${user.id}/requests`
       );
+
       if (!response.ok) {
         throw new Error("Failed to fetch designs");
       }
       const data = await response.json();
       setDesigns(data);
+      console.log("Designs fetched:", data);
     } catch (error) {
       console.error("Error fetching designs:", error);
       Alert.alert("Error", "No se pudieron cargar los diseños");
@@ -58,17 +74,64 @@ export default function RequestedDesigns() {
     }
   };
 
+  const sendReply = async (item: RequestedDesign) => {
+    if (!user || !replyMessage) {
+      Alert.alert("Error", "Mensaje vacío o usuario no disponible");
+      return;
+    }
+
+    try {
+      const response = await fetch(`${SERVER_URL}/messages`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          sender_id: user?.id,
+          receiver_id: item.user_id,
+          content: replyMessage,
+        }),
+      });
+
+      if (response.ok) {
+        Alert.alert("Mensaje enviado", "El mensaje fue enviado con éxito.");
+        setReplyMessage(""); // Limpiar el mensaje después de enviarlo
+      } else {
+        throw new Error("Failed to send message");
+      }
+    } catch (error) {
+      console.error("Error sending reply message:", error);
+      Alert.alert("Error", "No se pudo enviar el mensaje");
+    }
+  };
+
+  // Renderizado del diseño
   const renderDesign = ({ item }: { item: RequestedDesign }) => (
-    <View style={styles.card}>
+    <View className="flex-row p-3 bg-neutral-200 dark:bg-neutral-800 rounded-md mb-3 shadow-black dark:shadow-inherit">
       <TouchableOpacity onPress={() => setSelectedImage(item.image)}>
-        <Image source={{ uri: item.image }} style={styles.thumbnail} />
+        <Image
+          className="mt-2"
+          source={{ uri: getFullImageUrl(item.image) }}
+          style={styles.thumbnail}
+        />
       </TouchableOpacity>
 
-      <View style={styles.info}>
-        <Text>Project ID: {item.project_id}</Text>
+      <View className="flex-1 ml-3 bg-neutral-200 dark:bg-neutral-800">
+        <Text>Client: {item.username}</Text>
         <Text>Price: ${parseFloat(item.price).toFixed(2)}</Text>
         <Text>Status: {item.status}</Text>
         <Text>Date: {new Date(item.created_at).toLocaleDateString()}</Text>
+
+        {/* Input y botón de Reply */}
+        <TextInput
+          placeholder="Escribe tu respuesta..."
+          value={replyMessage}
+          onChangeText={(text) => setReplyMessage(text)}
+          style={styles.replyInput}
+        />
+        <TouchableOpacity onPress={() => sendReply(item)}>
+          <Text style={styles.replyButton}>Reply</Text>
+        </TouchableOpacity>
       </View>
     </View>
   );
@@ -100,7 +163,9 @@ export default function RequestedDesigns() {
           onPress={() => setSelectedImage(null)}
         >
           <Image
-            source={{ uri: selectedImage || "" }}
+            source={{
+              uri: selectedImage ? getFullImageUrl(selectedImage) : "",
+            }}
             style={styles.modalImage}
           />
         </TouchableOpacity>
@@ -124,26 +189,10 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     marginBottom: 16,
   },
-  card: {
-    flexDirection: "row",
-    padding: 12,
-    backgroundColor: "#fff",
-    borderRadius: 8,
-    marginBottom: 12,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
   thumbnail: {
     width: 80,
     height: 80,
     borderRadius: 4,
-  },
-  info: {
-    marginLeft: 12,
-    flex: 1,
   },
   modalBackground: {
     flex: 1,
@@ -161,5 +210,18 @@ const styles = StyleSheet.create({
     marginTop: 20,
     fontSize: 16,
     color: "#666",
+  },
+  replyInput: {
+    borderColor: "#ccc",
+    borderWidth: 1,
+    padding: 8,
+    marginTop: 8,
+    borderRadius: 5,
+  },
+  replyButton: {
+    color: "#007bff",
+    fontSize: 16,
+    fontWeight: "bold",
+    marginTop: 8,
   },
 });

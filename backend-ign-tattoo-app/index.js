@@ -850,7 +850,9 @@ app.get("/designer-projects/:designer_id/requests", async (req, res) => {
 
   try {
     const result = await pool.query(
-      `SELECT * FROM requested_design WHERE designer_id = $1`,
+      `SELECT requested_design.*, users.username FROM requested_design
+      JOIN users ON requested_design.user_id = users.id
+      WHERE designer_id = $1`,
       [designer_id]
     );
     res.status(200).json(result.rows);

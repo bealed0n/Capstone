@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useState, useRef } from "react";
 import {
   FlatList,
   Image,
@@ -9,6 +9,9 @@ import { Text, View } from "../components/Themed";
 import { useRouter } from "expo-router";
 import { UserContext } from "../app/context/userContext";
 import { styled } from "nativewind";
+import io from "socket.io-client";
+
+const SERVER_URL = "http://192.168.100.87:3000";
 
 const StyledImage = styled(Image);
 
@@ -45,12 +48,13 @@ export default function Messages({ refreshing, onRefresh }: MessagesProps) {
   const { user } = useContext(UserContext);
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const router = useRouter();
+  const socketRef = useRef<any>(null);
 
   const fetchConversations = async () => {
     if (user) {
       try {
         const response = await fetch(
-          `http://192.168.100.87:3000/user/${user.id}/conversations`
+          `${SERVER_URL}/user/${user.id}/conversations`
         );
         const data = await response.json();
         setConversations(data.conversations);
@@ -62,6 +66,77 @@ export default function Messages({ refreshing, onRefresh }: MessagesProps) {
 
   useEffect(() => {
     fetchConversations();
+
+    if (user) {
+      const socket = io(SERVER_URL, {
+        autoConnect: true,
+      });
+
+      socketRef.current = socket;
+
+      const userId = Number(user.id);
+
+      socket.on("connect", () => {
+        console.log("Socket.IO connected");
+        socket.emit("joinRoom", userId.toString());
+        console.log(`Joined room: ${userId}`);
+      });
+
+      socket.on("disconnect", () => console.log("Socket.IO disconnected"));
+
+      socket.on("newMessage", (message: Message) => {
+        console.log("New message received:", message);
+
+        // Actualizar la lista de conversaciones con el nuevo mensaje
+        setConversations((prevConversations) => {
+          const otherUserId =
+            message.sender_id === userId
+              ? message.receiver_id
+              : message.sender_id;
+
+          const existingIndex = prevConversations.findIndex(
+            (conv) =>
+              (conv.sender_id === otherUserId && conv.receiver_id === userId) ||
+              (conv.receiver_id === otherUserId && conv.sender_id === userId)
+          );
+
+          if (existingIndex > -1) {
+            // Actualizar conversación existente
+            const updatedConversations = [...prevConversations];
+            updatedConversations[existingIndex] = {
+              ...updatedConversations[existingIndex],
+              content: message.content,
+              sent_at: message.sent_at,
+              is_read: message.is_read,
+            };
+            // Mover la conversación actualizada al inicio
+            const updatedConversation = updatedConversations.splice(
+              existingIndex,
+              1
+            )[0];
+            return [updatedConversation, ...updatedConversations];
+          } else {
+            // Agregar nueva conversación
+            const newConversation: Conversation = {
+              id: message.id,
+              sender_id: message.sender_id,
+              sender_username: message.sender_username,
+              receiver_id: message.receiver_id,
+              receiver_username: message.receiver_username,
+              content: message.content,
+              image_url: message.image_url,
+              sent_at: message.sent_at,
+              is_read: message.is_read,
+            };
+            return [newConversation, ...prevConversations];
+          }
+        });
+      });
+
+      return () => {
+        socket.disconnect();
+      };
+    }
   }, [user]);
 
   return (
@@ -87,7 +162,7 @@ export default function Messages({ refreshing, onRefresh }: MessagesProps) {
               });
             }}
           >
-            <View className="flex-row p-2 mx-3 my-2 shadow-lg mb-4 rounded-lg bg-neutral-200 dark:bg-neutral-800">
+            <View className="flex-row p-2 mx-3 my-1 shadow-lg rounded-lg bg-neutral-200 dark:bg-neutral-800">
               <StyledImage
                 source={require("@/assets/images/user.png")}
                 className="w-10 h-10 rounded-full mr-4"
