@@ -124,7 +124,7 @@ const CommentsModal: React.FC<CommentsModalProps> = ({
           />
           <View className="flex-row items-center p-4 border-t border-gray-300 dark:border-neutral-600">
             <TextInput
-              className="flex-1 p-2 border border-gray-300 dark:border-neutral-600 rounded mr-2"
+              className="flex-1 p-2 border border-gray-300 dark:border-neutral-600 rounded mr-2 dark:text-white"
               placeholder="Add a comment..."
               placeholderTextColor={iconColor}
               value={newComment}

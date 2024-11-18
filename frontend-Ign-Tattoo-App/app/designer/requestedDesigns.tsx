@@ -3,14 +3,16 @@ import {
   Image,
   TouchableOpacity,
   Modal,
-  StyleSheet,
   FlatList,
   ActivityIndicator,
   Alert,
   TextInput,
+  useColorScheme,
+  View,
 } from "react-native";
-import { View, Text } from "../../components/Themed";
+import { Text } from "../../components/Themed";
 import { UserContext } from "../context/userContext";
+import RNPickerSelect from "react-native-picker-select";
 
 interface RequestedDesign {
   id: number;
@@ -39,6 +41,10 @@ export default function RequestedDesigns() {
   const [loading, setLoading] = useState(true);
   const [replyMessage, setReplyMessage] = useState("");
   const { user } = useContext(UserContext);
+  const colorScheme = useColorScheme();
+  const isDarkMode = colorScheme === "dark";
+  const isDark = isDarkMode ? "white" : "black";
+  const backgroundPicker = isDarkMode ? "#525252" : "#a1a1aa";
 
   useEffect(() => {
     if (user && user.id) {
@@ -47,6 +53,33 @@ export default function RequestedDesigns() {
       console.log("Usuario no disponible aún", user);
     }
   }, [user]);
+
+  const updateStatus = async (id: number, newStatus: string) => {
+    try {
+      const response = await fetch(
+        `${SERVER_URL}/designer-projects/${id}/status`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ status: newStatus }),
+        }
+      );
+      if (!response.ok) {
+        throw new Error("Failed to update status");
+      }
+      // Actualizar el estado local
+      setDesigns((prevDesigns) =>
+        prevDesigns.map((design) =>
+          design.id === id ? { ...design, status: newStatus } : design
+        )
+      );
+    } catch (error) {
+      console.error("Error updating status:", error);
+      Alert.alert("Error", (error as Error).message);
+    }
+  };
 
   const fetchRequestedDesigns = async () => {
     if (!user?.id) {
@@ -95,7 +128,7 @@ export default function RequestedDesigns() {
 
       if (response.ok) {
         Alert.alert("Mensaje enviado", "El mensaje fue enviado con éxito.");
-        setReplyMessage(""); // Limpiar el mensaje después de enviarlo
+        setReplyMessage("");
       } else {
         throw new Error("Failed to send message");
       }
@@ -105,32 +138,70 @@ export default function RequestedDesigns() {
     }
   };
 
-  // Renderizado del diseño
   const renderDesign = ({ item }: { item: RequestedDesign }) => (
-    <View className="flex-row p-3 bg-neutral-200 dark:bg-neutral-800 rounded-md mb-3 shadow-black dark:shadow-inherit">
+    <View className="flex-row p-3 bg-neutral-200 dark:bg-neutral-800 rounded-md mb-3 shadow">
       <TouchableOpacity onPress={() => setSelectedImage(item.image)}>
         <Image
-          className="mt-2"
+          className="mt-2 w-20 h-20 rounded"
           source={{ uri: getFullImageUrl(item.image) }}
-          style={styles.thumbnail}
         />
       </TouchableOpacity>
 
-      <View className="flex-1 ml-3 bg-neutral-200 dark:bg-neutral-800">
+      <View className="flex-1 ml-3">
         <Text>Client: {item.username}</Text>
         <Text>Price: ${parseFloat(item.price).toFixed(2)}</Text>
-        <Text>Status: {item.status}</Text>
         <Text>Date: {new Date(item.created_at).toLocaleDateString()}</Text>
+
+        {/* Picker de estado */}
+        <View className="flex-row items-center">
+          <Text>Status: </Text>
+          <View style={{ width: 90 }}>
+            <RNPickerSelect
+              onValueChange={(newStatus) => updateStatus(item.id, newStatus)}
+              items={[
+                { label: "Accepted", value: "Accepted" },
+                { label: "Rejected", value: "Rejected" },
+                { label: "Pending", value: "Pending" },
+              ]}
+              value={item.status}
+              style={{
+                inputIOS: {
+                  color: isDark,
+                  backgroundColor: backgroundPicker,
+                  paddingVertical: 5,
+                  paddingHorizontal: 10,
+                  borderRadius: 5,
+                },
+                inputAndroid: {
+                  color: isDark,
+                  backgroundColor: backgroundPicker,
+                  paddingVertical: 5,
+                  paddingHorizontal: 10,
+                  borderRadius: 5,
+                },
+                placeholder: {
+                  color: isDark,
+                },
+                modalViewBottom: {
+                  backgroundColor: backgroundPicker,
+                },
+              }}
+              useNativeAndroidPickerStyle={false}
+              placeholder={{}}
+            />
+          </View>
+        </View>
 
         {/* Input y botón de Reply */}
         <TextInput
           placeholder="Escribe tu respuesta..."
+          placeholderTextColor={isDark}
           value={replyMessage}
           onChangeText={(text) => setReplyMessage(text)}
-          style={styles.replyInput}
+          className="border border-gray-300 p-2 mt-2 rounded text-black dark:text-white"
         />
-        <TouchableOpacity onPress={() => sendReply(item)}>
-          <Text style={styles.replyButton}>Reply</Text>
+        <TouchableOpacity onPress={() => sendReply(item)} className="mt-2">
+          <Text className="text-blue-500 text-base font-bold">Reply</Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -138,90 +209,41 @@ export default function RequestedDesigns() {
 
   if (loading) {
     return (
-      <View style={styles.centered}>
+      <View className="flex-1 justify-center items-center">
         <ActivityIndicator size="large" />
       </View>
     );
   }
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Requested Designs</Text>
+    <View className="flex-1 p-4">
+      <Text className="text-2xl font-bold mb-4">Requested Designs</Text>
 
       <FlatList
         data={designs}
         renderItem={renderDesign}
         keyExtractor={(item) => item.id.toString()}
         ListEmptyComponent={() => (
-          <Text style={styles.emptyText}>No hay diseños solicitados</Text>
+          <Text className="text-center mt-5 text-base text-gray-500">
+            No hay diseños solicitados
+          </Text>
         )}
       />
 
       <Modal visible={!!selectedImage} transparent={true}>
         <TouchableOpacity
-          style={styles.modalBackground}
+          className="flex-1 bg-black bg-opacity-80 justify-center items-center"
           onPress={() => setSelectedImage(null)}
         >
           <Image
             source={{
               uri: selectedImage ? getFullImageUrl(selectedImage) : "",
             }}
-            style={styles.modalImage}
+            className="w-[90%] h-[90%]"
+            style={{ resizeMode: "contain" }}
           />
         </TouchableOpacity>
       </Modal>
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 16,
-  },
-  centered: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: "bold",
-    marginBottom: 16,
-  },
-  thumbnail: {
-    width: 80,
-    height: 80,
-    borderRadius: 4,
-  },
-  modalBackground: {
-    flex: 1,
-    backgroundColor: "rgba(0,0,0,0.8)",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  modalImage: {
-    width: "90%",
-    height: "90%",
-    resizeMode: "contain",
-  },
-  emptyText: {
-    textAlign: "center",
-    marginTop: 20,
-    fontSize: 16,
-    color: "#666",
-  },
-  replyInput: {
-    borderColor: "#ccc",
-    borderWidth: 1,
-    padding: 8,
-    marginTop: 8,
-    borderRadius: 5,
-  },
-  replyButton: {
-    color: "#007bff",
-    fontSize: 16,
-    fontWeight: "bold",
-    marginTop: 8,
-  },
-});

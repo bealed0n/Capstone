@@ -90,27 +90,15 @@ export default function TabLayout() {
       <Tabs.Screen
         name="profile"
         options={{
-          title:
-            user && (user.role === "tattoo_artist" || user.role === "Designer")
-              ? "Profile"
-              : "Managment",
+          title: "Profile",
           tabBarActiveTintColor: activeColor,
-          tabBarIcon:
-            user && (user.role === "tattoo_artist" || user.role === "Designer")
-              ? ({ color, focused }) => (
-                  <FontAwesome5
-                    name="user"
-                    size={24}
-                    color={focused ? activeColor : iconColor}
-                  />
-                )
-              : ({ color, focused }) => (
-                  <FontAwesome5
-                    name="cog"
-                    size={24}
-                    color={focused ? activeColor : iconColor}
-                  />
-                ),
+          tabBarIcon: ({ color, focused }) => (
+            <FontAwesome5
+              name="user"
+              size={24}
+              color={focused ? activeColor : iconColor}
+            />
+          ),
 
           // tabBarIcon: ({ color }) => <FontAwesome5 name="user" size={24} color={iconColor} />,
           headerRight: () => (

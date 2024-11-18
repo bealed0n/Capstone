@@ -222,6 +222,53 @@ app.get("/search/users", async (req, res) => {
   }
 });
 
+// Endpoint para verificar si un usuario sigue a otro
+app.get("/isFollowing", async (req, res) => {
+  const { follower_id, following_id } = req.query;
+  try {
+    const result = await pool.query(
+      "SELECT * FROM follows WHERE follower_id = $1 AND following_id = $2",
+      [follower_id, following_id]
+    );
+    res.status(200).json({ isFollowing: result.rows.length > 0 });
+  } catch (error) {
+    console.error("Error al verificar seguimiento:", error);
+    res.status(500).json({ error: "Error al verificar seguimiento" });
+  }
+});
+
+// Endpoint para seguir a un usuario
+app.post("/follow", async (req, res) => {
+  const { follower_id, following_id } = req.body;
+  try {
+    const result = await pool.query(
+      "INSERT INTO follows (follower_id, following_id, followed_at) VALUES ($1, $2, NOW()) RETURNING *",
+      [follower_id, following_id]
+    );
+    res.status(201).json(result.rows[0]);
+  } catch (error) {
+    console.error("Error al seguir al usuario:", error);
+    res.status(500).json({ error: "Error al seguir al usuario" });
+  }
+});
+
+// Endpoint para dejar de seguir a un usuario
+app.post("/unfollow", async (req, res) => {
+  const { follower_id, following_id } = req.body;
+  try {
+    await pool.query(
+      "DELETE FROM follows WHERE follower_id = $1 AND following_id = $2",
+      [follower_id, following_id]
+    );
+    res
+      .status(200)
+      .json({ message: "Se dejó de seguir al usuario correctamente" });
+  } catch (error) {
+    console.error("Error al dejar de seguir al usuario:", error);
+    res.status(500).json({ error: "Error al dejar de seguir al usuario" });
+  }
+});
+
 //----------------------------------------------------------------------------------------------------
 //FIN DE APARTADO DE USUARIOS
 //----------------------------------------------------------------------------------------------------
@@ -841,6 +888,39 @@ app.put("/designer-projects/:id/is_available", async (req, res) => {
   } catch (error) {
     console.error(error.message);
     res.status(500).json({ error: "Server error" });
+  }
+});
+
+//Endpoint para actualizar el estado de un diseño solicitado
+app.put("/designer-projects/:id/status", async (req, res) => {
+  const { id } = req.params;
+  const { status } = req.body;
+  try {
+    const result = await pool.query(
+      "UPDATE requested_design SET status = $1 WHERE id = $2 RETURNING *",
+      [status, id]
+    );
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: "Requested not found" });
+    }
+    res.json(result.rows[0]);
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).json({ error: "Server error" });
+  }
+});
+//Endpoint para obtener los diseños solicitados por un usuario
+app.get("/requested-designs/:user_id", async (req, res) => {
+  const { user_id } = req.params;
+  try {
+    const result = await pool.query(
+      `SELECT * FROM requested_design WHERE user_id = $1`,
+      [user_id]
+    );
+    res.status(200).json(result.rows);
+  } catch (error) {
+    console.error("Error al obtener los diseños solicitados:", error);
+    res.status(500).json({ error: "Error al obtener los diseños solicitados" });
   }
 });
 

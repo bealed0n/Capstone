@@ -1,15 +1,17 @@
+import React, { useState, useEffect, useContext } from "react";
 import {
   Image,
   RefreshControl,
   TouchableOpacity,
   FlatList,
   useColorScheme,
+  Alert,
+  ActivityIndicator,
 } from "react-native";
-import React, { useState, useEffect } from "react";
 import { Text, View } from "./Themed";
 import PostCard from "./PostCard";
-import { Href, router } from "expo-router";
 import { FontAwesome5 } from "@expo/vector-icons";
+import { UserContext } from "../app/context/userContext";
 
 interface Post {
   id: number;
@@ -21,29 +23,49 @@ interface Post {
   created_at: string;
 }
 
+interface UserProfile {
+  id: number;
+  username: string;
+  full_name: string;
+  email: string;
+  bio: string;
+  role: string;
+  profile_picture: string | null;
+}
+
 interface UsersProfileProps {
-  userId: string | string[] | undefined; // Asegúrate que `userId` se pueda manejar como string
+  userId: string | string[] | undefined;
 }
 
 export default function UsersProfile({ userId }: UsersProfileProps) {
   const [posts, setPosts] = useState<Post[]>([]);
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
-  const [postCount, setPostCount] = useState(0); // Para contar las publicaciones
-  const [followerCount, setFollowerCount] = useState(0); // Para contar los seguidores
-  const [followingCount, setFollowingCount] = useState(0); // Para contar los seguidos
-  const [userProfile, setUserProfile] = useState<any>(null); // Para los datos del perfil del usuario
-  const photo = require("../assets/images/user.png");
+  const [postCount, setPostCount] = useState(0);
+  const [followerCount, setFollowerCount] = useState(0);
+  const [followingCount, setFollowingCount] = useState(0);
+  const [isFollowing, setIsFollowing] = useState<boolean>(false);
+
+  const { user } = useContext(UserContext);
+  const SERVER_URL = "http://192.168.100.87:3000";
+  const colorScheme = useColorScheme();
+  const isDarkMode = colorScheme === "dark";
+  const isDark = isDarkMode ? "white" : "black";
 
   useEffect(() => {
-    fetchProfileAndPosts();
-    fetchUserCounts();
-  }, [userId]); // Re-fetch cuando cambia el ID del usuario
+    if (userId) {
+      fetchProfileAndPosts();
+      fetchUserCounts();
+      checkIfFollowing();
+    }
+  }, [userId]);
 
   const onRefresh = async () => {
     setRefreshing(true);
     await fetchProfileAndPosts();
-    await fetchUserCounts(); // Refrescar conteos también
+    await fetchUserCounts();
+    await checkIfFollowing();
     setRefreshing(false);
   };
 
@@ -52,9 +74,7 @@ export default function UsersProfile({ userId }: UsersProfileProps) {
 
     try {
       // Obtener los datos del perfil del usuario
-      const profileResponse = await fetch(
-        `http://192.168.100.87:3000/users/${userId}`
-      );
+      const profileResponse = await fetch(`${SERVER_URL}/users/${userId}`);
       if (!profileResponse.ok) {
         throw new Error("Error al obtener los datos del perfil");
       }
@@ -62,144 +82,217 @@ export default function UsersProfile({ userId }: UsersProfileProps) {
       setUserProfile(profileData);
 
       // Obtener los posts del usuario
-      const postResponse = await fetch(
-        `http://192.168.100.87:3000/posts/${userId}`
-      );
+      const postResponse = await fetch(`${SERVER_URL}/posts/${userId}`);
       if (!postResponse.ok) {
         throw new Error("Error al obtener los posts");
       }
       const postData = await postResponse.json();
       setPosts(postData);
+      setPostCount(postData.length);
     } catch (error) {
-      console.error(error);
+      console.error("Error fetching profile and posts:", error);
+      Alert.alert("Error", (error as Error).message);
     } finally {
       setLoading(false);
     }
   };
 
   const fetchUserCounts = async () => {
-    if (!userId) return;
-
     try {
-      // Obtener el conteo de publicaciones
-      const postResponse = await fetch(
-        `http://192.168.100.87:3000/posts/count/${userId}`
-      );
-      const postData = await postResponse.json();
-      setPostCount(postData.post_count);
-
       // Obtener el conteo de seguidores
-      const followerResponse = await fetch(
-        `http://192.168.100.87:3000/followers/${userId}`
+      const followersResponse = await fetch(
+        `${SERVER_URL}/followers/${userId}`
       );
-      const followerData = await followerResponse.json();
-      setFollowerCount(followerData.follower_count);
+      if (!followersResponse.ok) {
+        throw new Error(
+          `Error al obtener seguidores: ${followersResponse.status}`
+        );
+      }
+      const followersData = await followersResponse.json();
+      setFollowerCount(followersData.follower_count);
 
       // Obtener el conteo de seguidos
       const followingResponse = await fetch(
-        `http://192.168.100.87:3000/following/${userId}`
+        `${SERVER_URL}/following/${userId}`
       );
+      if (!followingResponse.ok) {
+        throw new Error(
+          `Error al obtener seguidos: ${followingResponse.status}`
+        );
+      }
       const followingData = await followingResponse.json();
       setFollowingCount(followingData.following_count);
+
+      // Obtener el conteo de posts
+      const postsResponse = await fetch(`${SERVER_URL}/posts/count/${userId}`);
+      if (!postsResponse.ok) {
+        throw new Error(`Error al obtener posts: ${postsResponse.status}`);
+      }
+      const postsData = await postsResponse.json();
+      setPostCount(postsData.post_count);
     } catch (error) {
-      console.error(error);
+      console.error("Error fetching user counts:", error);
+      Alert.alert("Error", (error as Error).message);
     }
   };
-  const colorScheme = useColorScheme();
-  const iconColor = colorScheme === "dark" ? "white" : "black";
 
-  const renderHeader = () => (
-    <View>
-      <View className="flex-row">
-        <Image
-          source={photo}
-          className="rounded-full w-20 h-20 items-start mt-4 ml-3"
-        />
-        <View className="flex-col ml-3 mt-4">
-          <Text className="text-xl font-bold">
-            {userProfile?.username ?? "No encontrado"}
-          </Text>
-          <View className="flex-row">
-            <Text className="text-sm mt-1">{postCount} Posts</Text>
-            <Text className="text-sm mt-1 ml-3">{followerCount} Followers</Text>
-            <Text className="text-sm mt-1 ml-3">
-              {followingCount} Following
-            </Text>
-          </View>
-        </View>
+  const checkIfFollowing = async () => {
+    try {
+      const response = await fetch(
+        `${SERVER_URL}/isFollowing?follower_id=${user?.id}&following_id=${userId}`
+      );
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(
+          `Error al verificar seguimiento: ${response.status} - ${errorText}`
+        );
+      }
+      const data = await response.json();
+      setIsFollowing(data.isFollowing);
+    } catch (error) {
+      console.error("Error checking follow status:", error);
+    }
+  };
+
+  const handleFollow = async () => {
+    try {
+      const response = await fetch(`${SERVER_URL}/follow`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          follower_id: user?.id,
+          following_id: Number(userId),
+        }),
+      });
+
+      if (response.ok) {
+        setIsFollowing(true);
+        setFollowerCount((prev) => prev + 1);
+      } else {
+        const errorText = await response.text();
+        throw new Error(
+          `Error al seguir al usuario: ${response.status} - ${errorText}`
+        );
+      }
+    } catch (error) {
+      console.error("Error following user:", error);
+      Alert.alert("Error", (error as Error).message);
+    }
+  };
+
+  const handleUnfollow = async () => {
+    try {
+      const response = await fetch(`${SERVER_URL}/unfollow`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          follower_id: user?.id,
+          following_id: Number(userId),
+        }),
+      });
+
+      if (response.ok) {
+        setIsFollowing(false);
+        setFollowerCount((prev) => prev - 1);
+      } else {
+        const errorText = await response.text();
+        throw new Error(
+          `Error al dejar de seguir al usuario: ${response.status} - ${errorText}`
+        );
+      }
+    } catch (error) {
+      console.error("Error unfollowing user:", error);
+      Alert.alert("Error", (error as Error).message);
+    }
+  };
+
+  if (loading) {
+    return (
+      <View className="flex-1 justify-center items-center">
+        <ActivityIndicator size="large" />
       </View>
-
-      <View className="mt-4 h-0.5 border-t-0 bg-neutral-200 dark:bg-white/10" />
-
-      {userProfile?.role === "tattoo_artist" && (
-        <View className="mb-3">
-          <View className="flex-row justify-center mt-2">
-            <TouchableOpacity
-              className="flex-1 mx-5"
-              onPress={() => {
-                router.push({
-                  pathname: "/management/availableDates",
-                  params: { id: userId }, // Asegúrate que userId sea un valor que representa el ID
-                });
-              }}
-            >
-              <View className="flex-row items-center justify-center bg-gray-200 dark:bg-zinc-700 rounded-md p-3">
-                <FontAwesome5
-                  name="clock"
-                  size={20}
-                  color={iconColor}
-                  style={{ marginRight: 8 }} // Aplicar margen derecho en línea
-                  className="dark:text-white"
-                />
-                <Text className="text-base text-black text-center dark:text-white font-semibold">
-                  Available dates
-                </Text>
-              </View>
-            </TouchableOpacity>
-          </View>
-        </View>
-      )}
-      {userProfile?.role === "Designer" && (
-        <View className="mb-3">
-          <View className="flex-row justify-center mt-2">
-            <TouchableOpacity
-              className="flex-1 mx-5"
-              onPress={() => {
-                router.push({
-                  pathname: "/designer/availableDesigns",
-                  params: { id: userId },
-                });
-              }}
-            >
-              <View className="flex-row items-center justify-center bg-gray-200 dark:bg-zinc-700 rounded-md p-3">
-                <FontAwesome5
-                  name="paint-brush"
-                  size={20}
-                  color={iconColor}
-                  style={{ marginRight: 8 }} // Aplicar margen derecho en línea
-                  className="dark:text-white"
-                />
-                <Text className="text-base text-black text-center dark:text-white font-semibold">
-                  Available Designs
-                </Text>
-              </View>
-            </TouchableOpacity>
-          </View>
-        </View>
-      )}
-    </View>
-  );
+    );
+  }
 
   return (
-    <FlatList
-      data={posts}
-      renderItem={({ item }) => <PostCard post={item} />}
-      keyExtractor={(item) => item.id.toString()}
-      refreshControl={
-        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-      }
-      ListHeaderComponent={renderHeader}
-      contentContainerStyle={{ paddingBottom: 20 }}
-    />
+    <View className="flex-1">
+      <FlatList
+        data={posts}
+        keyExtractor={(item) => item.id.toString()}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
+        ListHeaderComponent={
+          <View className="p-4">
+            <View className="flex-row items-center">
+              <Image
+                source={
+                  userProfile?.profile_picture
+                    ? { uri: `${SERVER_URL}${userProfile.profile_picture}` }
+                    : require("../assets/images/user.png")
+                }
+                className="w-24 h-24 rounded-full"
+              />
+              <View className="ml-4">
+                <Text className="text-xl font-bold">
+                  {userProfile?.username}
+                </Text>
+                <Text className="text-gray-500">{userProfile?.full_name}</Text>
+                <Text className="text-gray-500">{userProfile?.bio}</Text>
+              </View>
+            </View>
+
+            {/* Contadores de publicaciones, seguidores y seguidos */}
+            <View className="flex-row justify-around mt-4">
+              <View className="items-center">
+                <Text className="font-bold">{postCount}</Text>
+                <Text>Publicaciones</Text>
+              </View>
+              <View className="items-center">
+                <Text className="font-bold">{followerCount}</Text>
+                <Text>Seguidores</Text>
+              </View>
+              <View className="items-center">
+                <Text className="font-bold">{followingCount}</Text>
+                <Text>Seguidos</Text>
+              </View>
+            </View>
+
+            {/* Botón de Seguir/Dejar de seguir */}
+            {user && user.id !== Number(userId) && (
+              <TouchableOpacity
+                onPress={isFollowing ? handleUnfollow : handleFollow}
+                className={`mt-4 py-2 px-4 rounded ${
+                  isFollowing ? "bg-gray-300" : "bg-blue-500"
+                }`}
+              >
+                <Text
+                  className={`text-center ${
+                    isFollowing ? "text-black" : "text-white"
+                  }`}
+                >
+                  {isFollowing ? "Dejar de seguir" : "Seguir"}
+                </Text>
+              </TouchableOpacity>
+            )}
+
+            <Text className="mt-6 text-lg font-bold">Publicaciones</Text>
+          </View>
+        }
+        renderItem={({ item }) => <PostCard post={item} />}
+        ListEmptyComponent={() => (
+          <View className="items-center mt-20">
+            <FontAwesome5 name="frown" size={50} color="gray" />
+            <Text className="mt-4 text-lg text-gray-500">
+              No hay publicaciones aún
+            </Text>
+          </View>
+        )}
+      />
+    </View>
   );
 }

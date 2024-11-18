@@ -36,7 +36,6 @@ export default function AppointmentsCalendar() {
           const data = await response.json();
           if (Array.isArray(data.appointments)) {
             setAppointments(data.appointments); // Asegúrate de que sea el campo correcto en la respuesta
-            console.log("Appointments fetched:", data.appointments);
           } else {
             console.error(
               "Appointments data is not an array:",

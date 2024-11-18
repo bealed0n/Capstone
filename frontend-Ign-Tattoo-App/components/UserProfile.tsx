@@ -20,6 +20,9 @@ export default function UserProfile() {
 
       <View className="mb-1">
         <Text className="font-bold text-xl text-center mb-4">Dashboard</Text>
+
+        <Text className="font-bold text-lg text-center">Tattoos</Text>
+
         <View className="flex-row justify-center mt-2">
           <TouchableOpacity
             className="flex-1 mx-5"
@@ -40,6 +43,21 @@ export default function UserProfile() {
           >
             <Text className="text-lg text-neutral-800 p-2 bg-neutral-200 text-center dark:bg-neutral-500 dark:text-neutral-50 rounded-md">
               Appointments
+            </Text>
+          </TouchableOpacity>
+        </View>
+
+        <Text className="font-bold text-lg text-center mt-3">Designs</Text>
+
+        <View className="flex-row justify-center mt-2">
+          <TouchableOpacity
+            className="flex-1 mx-5"
+            onPress={() => {
+              router.push("/designer/userRequested" as Href);
+            }}
+          >
+            <Text className="text-lg text-neutral-800 p-2 bg-neutral-200 text-center dark:bg-neutral-500 dark:text-neutral-50 rounded-md">
+              Requested designs
             </Text>
           </TouchableOpacity>
         </View>
