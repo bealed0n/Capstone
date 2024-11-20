@@ -32,7 +32,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          title: "Home",
+          title: "Inicio",
           tabBarIcon: ({ color, focused }) => (
             <FontAwesome5
               name="home"
@@ -62,7 +62,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="search"
         options={{
-          title: "Search",
+          title: "Buscar",
           tabBarIcon: ({ color, focused }) => (
             <FontAwesome5
               name="search"
@@ -90,7 +90,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="profile"
         options={{
-          title: "Profile",
+          title: "Perfil",
           tabBarActiveTintColor: activeColor,
           tabBarIcon: ({ color, focused }) => (
             <FontAwesome5
@@ -116,9 +116,11 @@ export default function TabLayout() {
         }}
       />
 
+      <Tabs.Screen name="[id]" options={{ title: "Perfil", href: null }} />
+
       <Tabs.Screen
-        name="[id]"
-        options={{ title: "User Profile", href: null }}
+        name="studio/[id]"
+        options={{ title: "Perfil de estudio", href: null }}
       />
     </Tabs>
   );

@@ -8,13 +8,10 @@ import {
 import { Text, View } from "../components/Themed";
 import { useRouter } from "expo-router";
 import { UserContext } from "../app/context/userContext";
-import { styled } from "nativewind";
+
 import io from "socket.io-client";
 
 const SERVER_URL = "http://192.168.100.87:3000";
-
-const StyledImage = styled(Image);
-
 interface Message {
   id: number;
   sender_id: number;
@@ -163,7 +160,7 @@ export default function Messages({ refreshing, onRefresh }: MessagesProps) {
             }}
           >
             <View className="flex-row p-2 mx-3 my-1 shadow-lg rounded-lg bg-neutral-200 dark:bg-neutral-800">
-              <StyledImage
+              <Image
                 source={require("@/assets/images/user.png")}
                 className="w-10 h-10 rounded-full mr-4"
               />

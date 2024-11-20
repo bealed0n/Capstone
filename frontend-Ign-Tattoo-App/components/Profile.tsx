@@ -20,7 +20,10 @@ interface Post {
   role: string;
   image: string;
   created_at: string;
+  profile_pic: string;
 }
+
+const serverUrl = "http://192.168.100.87:3000";
 
 export default function Profile() {
   const [posts, setPosts] = useState<Post[]>([]);
@@ -97,13 +100,23 @@ export default function Profile() {
   const renderHeader = () => (
     <View>
       <View className="flex-row">
+        {/* Mostrar la foto de perfil del usuario si no mostrar foto default */}
+
         <Image
-          source={photo}
+          source={
+            user?.profile_pic
+              ? { uri: `${serverUrl}${user.profile_pic}` }
+              : photo
+          }
           className="rounded-full w-20 h-20 items-start mt-4 ml-3"
         />
         <View className="flex-col ml-3 mt-4">
-          <Text className="text-xl font-bold">
-            {user?.username ?? "No encontrado"}
+          <Text className="text-2xl font-bold mb-1">
+            {user?.name ?? "No encontrado"}
+          </Text>
+
+          <Text className="text-sm ml-2 mb-2">
+            @{user?.username ?? "No encontrado"}
           </Text>
           <View className="flex-row">
             <Text className="text-sm mt-1">{postCount} Posts</Text>

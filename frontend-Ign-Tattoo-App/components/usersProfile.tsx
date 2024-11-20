@@ -21,16 +21,17 @@ interface Post {
   role: string;
   image: string;
   created_at: string;
+  profile_pic: string;
 }
 
 interface UserProfile {
   id: number;
   username: string;
-  full_name: string;
+  name: string;
   email: string;
   bio: string;
   role: string;
-  profile_picture: string | null;
+  profile_pic: string;
 }
 
 interface UsersProfileProps {
@@ -231,23 +232,24 @@ export default function UsersProfile({ userId }: UsersProfileProps) {
             <View className="flex-row items-center">
               <Image
                 source={
-                  userProfile?.profile_picture
-                    ? { uri: `${SERVER_URL}${userProfile.profile_picture}` }
+                  userProfile?.profile_pic
+                    ? { uri: `${SERVER_URL}${userProfile.profile_pic}` }
                     : require("../assets/images/user.png")
                 }
                 className="w-24 h-24 rounded-full"
               />
               <View className="ml-4">
-                <Text className="text-xl font-bold">
-                  {userProfile?.username}
-                </Text>
-                <Text className="text-gray-500">{userProfile?.full_name}</Text>
-                <Text className="text-gray-500">{userProfile?.bio}</Text>
+                <Text className="text-xl font-bold">{userProfile?.name}</Text>
+                <Text className="text-sm mb-1">@{userProfile?.username}</Text>
+
+                <Text className="mt-2 text-gray-500">Biografia</Text>
+
+                <Text className="ml-1">{userProfile?.bio}</Text>
               </View>
             </View>
 
             {/* Contadores de publicaciones, seguidores y seguidos */}
-            <View className="flex-row justify-around mt-4">
+            <View className="flex-row justify-around mt-4 mr-3">
               <View className="items-center">
                 <Text className="font-bold">{postCount}</Text>
                 <Text>Publicaciones</Text>

@@ -1,8 +1,14 @@
-import React, { useContext, useEffect, useState } from 'react';
-import { StyleSheet, SafeAreaView, Text, FlatList, RefreshControl } from 'react-native';
-import { useRouter } from 'expo-router';  // Hook para redirección
-import PostCard from '@/components/PostCard';
-import { UserContext } from '../context/userContext';
+import React, { useContext, useEffect, useState } from "react";
+import {
+  StyleSheet,
+  SafeAreaView,
+  Text,
+  FlatList,
+  RefreshControl,
+} from "react-native";
+import { useRouter } from "expo-router"; // Hook para redirección
+import PostCard from "@/components/PostCard";
+import { UserContext } from "../context/userContext";
 
 interface Post {
   id: number;
@@ -12,26 +18,27 @@ interface Post {
   role: string;
   image: string;
   created_at: string;
+  profile_pic: string;
 }
 
 export default function IndexScreen() {
-  const { isLoggedIn } = useContext(UserContext);  // Aseguramos que solo cargue si está logueado
+  const { isLoggedIn } = useContext(UserContext); // Aseguramos que solo cargue si está logueado
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [layoutMounted, setLayoutMounted] = useState(false); // Estado para verificar si el layout está montado
-  const router = useRouter();  // Hook para redirección
+  const router = useRouter(); // Hook para redirección
 
   useEffect(() => {
     // Este hook simula el montaje del layout
-    setTimeout(() => setLayoutMounted(true), 0);  // Espera un ciclo de render para asegurar el montaje
+    setTimeout(() => setLayoutMounted(true), 0); // Espera un ciclo de render para asegurar el montaje
   }, []);
 
   useEffect(() => {
     if (layoutMounted) {
       if (!isLoggedIn) {
         // Si no está logueado, redirigimos al login
-        router.replace('/(auth)/login');
+        router.replace("/(auth)/login");
       } else {
         // Si está logueado, obtenemos los posts
         fetchPosts();
@@ -41,9 +48,9 @@ export default function IndexScreen() {
 
   const fetchPosts = async () => {
     try {
-      const response = await fetch('http://192.168.100.87:3000/posts');
+      const response = await fetch("http://192.168.100.87:3000/posts");
       if (!response.ok) {
-        throw new Error('Error al obtener los posts');
+        throw new Error("Error al obtener los posts");
       }
       const data = await response.json();
       setPosts(data);
@@ -93,7 +100,7 @@ export default function IndexScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
   },
 });

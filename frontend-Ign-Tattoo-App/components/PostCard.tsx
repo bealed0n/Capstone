@@ -21,6 +21,7 @@ interface CardExampleProps {
   userId: number;
   createdAt: string;
   postId: number;
+  profile_pic: string;
 }
 
 interface Post {
@@ -31,14 +32,15 @@ interface Post {
   user_id: number;
   created_at: string;
   id: number;
+  profile_pic: string;
 }
 
 const beautifyRole = (role: string) => {
   switch (role) {
     case "tattoo_artist":
-      return "Tattoo Artist";
-    case "designer":
-      return "Designer";
+      return "Tatuador";
+    case "Designer":
+      return "Diseñador";
     default:
       return role;
   }
@@ -55,6 +57,7 @@ export const CardExample = ({
   createdAt,
   userId,
   postId,
+  profile_pic,
 }: CardExampleProps) => {
   const { user } = useContext(UserContext);
   const [isExpanded, setIsExpanded] = useState(false); // Estado para controlar si el texto está expandido
@@ -62,6 +65,7 @@ export const CardExample = ({
   const [commentsVisible, setCommentsVisible] = useState(false); // Estado para controlar la visibilidad de los comentarios
   const imageUrl = image ? `${SERVER_URL}${image}` : null;
   const timeAgo = formatDistanceToNow(parseISO(createdAt), { addSuffix: true });
+  const defaultPhoto = require("@/assets/images/user.png");
 
   useEffect(() => {
     const checkIfLiked = async () => {
@@ -159,7 +163,9 @@ export const CardExample = ({
       {/* Header con Avatar, Username, Fecha y Cuadro Diseñador */}
       <View className="flex-row items-center p-3 relative">
         <Image
-          source={require("@/assets/images/user.png")}
+          source={
+            profile_pic ? { uri: `${SERVER_URL}${profile_pic}` } : defaultPhoto
+          }
           className="w-11 h-11 rounded-full mr-3"
         />
         <TouchableOpacity
@@ -249,6 +255,7 @@ export default function PostCard({ post }: { post: Post }) {
   return (
     <CardExample
       username={post.username}
+      profile_pic={post.profile_pic}
       content={post.content}
       role={post.role}
       image={post.image}

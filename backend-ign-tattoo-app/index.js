@@ -7,6 +7,7 @@ const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
 const bcrypt = require("bcrypt");
+const { profile } = require("console");
 
 const app = express();
 const port = 3000;
@@ -143,10 +144,13 @@ app.post("/login", async (req, res) => {
 
     if (rows.length > 0) {
       const user = rows[0];
-      const isValidPassword = await bcrypt.compare(password, user.password); // Compara la contraseña
+      const isValidPassword = await bcrypt.compare(password, user.password);
 
       if (isValidPassword) {
-        // Responde con el usuario
+        // Obtener la URL base del servidor
+        const serverUrl = req.protocol + "://" + req.get("host");
+
+        // Responde con el usuario y la URL completa de la imagen
         res.json({
           success: true,
           user: {
@@ -154,6 +158,9 @@ app.post("/login", async (req, res) => {
             username: user.username,
             email: user.email,
             role: user.role,
+            name: user.name,
+            bio: user.bio,
+            profile_pic: user.profile_pic,
           },
         });
       } else {
@@ -164,6 +171,7 @@ app.post("/login", async (req, res) => {
     }
   } catch (error) {
     console.log(error);
+    res.json({ success: false, message: "Error en el servidor" });
   }
 });
 
@@ -190,7 +198,7 @@ app.get("/users/:user_id", async (req, res) => {
   const { user_id } = req.params;
   try {
     const query =
-      "SELECT id,username,bio,profile_pic,role FROM users WHERE id = $1";
+      "SELECT id,username,bio,profile_pic,role,name FROM users WHERE id = $1";
     const { rows } = await pool.query(query, [user_id]);
     res.json(rows[0]);
   } catch (error) {
@@ -269,6 +277,32 @@ app.post("/unfollow", async (req, res) => {
   }
 });
 
+//Endpoint para actualizar la imagen de perfil de un usuario
+app.put(
+  "/users/:user_id/profile-pic",
+  upload.single("profile_pic"),
+  async (req, res) => {
+    const { user_id } = req.params;
+    const imageUrl = req.file ? `/uploads/${req.file.filename}` : null;
+
+    try {
+      const result = await pool.query(
+        "UPDATE users SET profile_pic = $1 WHERE id = $2 RETURNING *",
+        [imageUrl, user_id]
+      );
+
+      if (result.rows.length === 0) {
+        return res.status(404).json({ error: "User not found" });
+      }
+
+      res.json(result.rows[0]);
+    } catch (error) {
+      console.error("Error updating profile pic:", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  }
+);
+
 //----------------------------------------------------------------------------------------------------
 //FIN DE APARTADO DE USUARIOS
 //----------------------------------------------------------------------------------------------------
@@ -280,7 +314,7 @@ app.post("/unfollow", async (req, res) => {
 // Ruta para obtener los posts
 app.get("/posts", async (req, res) => {
   const query = `
-        SELECT posts.id, posts.user_id, users.username,users.role, posts.content, posts.image, posts.created_at
+        SELECT posts.id, posts.user_id, users.username,users.role, posts.content, posts.image, posts.created_at, users.profile_pic
         FROM posts
         JOIN users ON posts.user_id = users.id
         ORDER BY posts.created_at DESC;
@@ -300,7 +334,7 @@ app.get("/posts", async (req, res) => {
 app.get("/posts/:user_id", async (req, res) => {
   const { user_id } = req.params;
   const query = ` 
-        SELECT posts.id, posts.user_id, users.username,users.role, posts.content, posts.image, posts.created_at
+        SELECT posts.id, posts.user_id, users.username,users.role, posts.content, posts.image, posts.created_at, users.profile_pic
         FROM posts
         JOIN users ON posts.user_id = users.id
         WHERE posts.user_id = $1
@@ -1123,6 +1157,85 @@ app.get("/tattoo-studios", async (req, res) => {
   } catch (error) {
     console.error("Error al obtener los estudios de tatuaje:", error);
     res.status(500).json({ error: "Error al obtener los estudios de tatuaje" });
+  }
+});
+
+//Endpoint para obtener todos los datos sobre un estudio en especifico
+app.get("/tattoo-studios/:id", async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    // Información del estudio
+    const studioQuery = `
+      SELECT 
+        ts.id AS studio_id,
+        ts.name AS studio_name,
+        ts.address,
+        ts.description,
+        ts.image_url,
+        ts.created_at,
+        u.username AS owner_name,
+        u.email AS owner_email,
+        u.id AS owner_id
+      FROM tattoo_studios ts
+      INNER JOIN users u ON ts.owner_id = u.id
+      WHERE ts.id = $1
+    `;
+
+    const studioResult = await pool.query(studioQuery, [id]);
+
+    if (studioResult.rows.length === 0) {
+      return res.status(404).json({ error: "Studio not found" });
+    }
+
+    const studio = studioResult.rows[0];
+
+    // Slots del estudio
+    const slotsQuery = `
+      SELECT 
+        ss.slot_number,
+        ss.is_available,
+        u.username AS assigned_tattoo_artist
+      FROM studio_slots ss
+      LEFT JOIN users u ON ss.assigned_tattoo_artist_id = u.id
+      WHERE ss.studio_id = $1
+    `;
+
+    const slotsResult = await pool.query(slotsQuery, [id]);
+
+    // Tatuadores que trabajan en el estudio, incluyendo al propietario
+    const tattooArtistsQuery = `
+      SELECT DISTINCT 
+        u.id AS artist_id,
+        u.username AS artist_name,
+        u.email AS artist_email,
+        u.profile_pic
+      FROM users u
+      WHERE 
+        (u.role = 'tattoo_artist' AND EXISTS (
+          SELECT 1 FROM studio_slots ss WHERE ss.studio_id = $1 AND ss.assigned_tattoo_artist_id = u.id
+        ))
+        OR u.id = $2
+    `;
+
+    const artistsResult = await pool.query(tattooArtistsQuery, [
+      id,
+      studio.owner_id,
+    ]);
+
+    // Respuesta combinada
+    const response = {
+      studio,
+      slots: slotsResult.rows,
+      tattoo_artists: artistsResult.rows,
+    };
+
+    res.status(200).json(response);
+  } catch (error) {
+    console.error("Error al obtener la información del estudio:", error);
+    res
+      .status(500)
+      .json({ error: "Error al obtener la información del estudio" });
   }
 });
 

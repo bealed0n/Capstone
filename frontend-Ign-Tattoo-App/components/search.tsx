@@ -104,13 +104,7 @@ const Search = () => {
       >
         <Ionicons name="search" size={22} color={iconColor} />
         <TextInput
-          style={{
-            flex: 1,
-            fontSize: 16,
-            fontWeight: "500",
-            marginLeft: 8,
-            color: colorScheme === "dark" ? "#FFF" : "#333",
-          }}
+          className="flex-1 ml-2 px-1 justify-center py-0"
           placeholder="Buscar usuarios"
           placeholderTextColor={colorScheme === "dark" ? "#919191" : "#A0A0A0"}
           value={searchQuery}
@@ -223,9 +217,7 @@ const Search = () => {
                 style={{
                   marginRight: 16,
                 }}
-                onPress={() =>
-                  console.log("Navegar al perfil del estudio:", item.id)
-                }
+                onPress={() => router.push(`/studio/${item.id}` as Href)}
               >
                 <View
                   style={{
