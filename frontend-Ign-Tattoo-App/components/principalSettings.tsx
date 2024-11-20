@@ -3,7 +3,7 @@ import { View, Text, TouchableOpacity } from "react-native";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { useColorScheme } from "./useColorScheme";
 import { UserContext } from "../app/context/userContext";
-import { useRouter } from "expo-router";
+import { Href, useRouter } from "expo-router";
 import { useNavigation } from "@react-navigation/native";
 
 export default function PrincipalSettings({ path }: { path: string }) {
@@ -30,7 +30,7 @@ export default function PrincipalSettings({ path }: { path: string }) {
       {/* Opción: Edit Profile */}
       <TouchableOpacity
         className="flex-row items-center w-full p-4 border-b border-gray-300"
-        onPress={() => console.log("Edit Profile")}
+        onPress={() => router.push(`/editProfile/edit` as Href)}
       >
         <View className="flex-row items-center">
           <FontAwesome name="pencil" size={22} color={iconColor} />

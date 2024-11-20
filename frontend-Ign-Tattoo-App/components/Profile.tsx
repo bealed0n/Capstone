@@ -119,10 +119,12 @@ export default function Profile() {
             @{user?.username ?? "No encontrado"}
           </Text>
           <View className="flex-row">
-            <Text className="text-sm mt-1">{postCount} Posts</Text>
-            <Text className="text-sm mt-1 ml-3">{followerCount} Followers</Text>
+            <Text className="text-sm mt-1">{postCount} Public.</Text>
             <Text className="text-sm mt-1 ml-3">
-              {followingCount} Following
+              {followerCount} Seguidores
+            </Text>
+            <Text className="text-sm mt-1 ml-3">
+              {followingCount} Seguiendo
             </Text>
           </View>
         </View>
@@ -165,7 +167,7 @@ export default function Profile() {
                   style={{ marginRight: 8 }}
                 />
                 <Text className="text-base text-black text-center dark:text-white font-semibold">
-                  Req. Projects
+                  Proyectos Sol.
                 </Text>
               </View>
             </TouchableOpacity>
@@ -205,7 +207,7 @@ export default function Profile() {
                   style={{ marginRight: 8 }}
                 />
                 <Text className="text-base text-black text-center dark:text-white font-semibold">
-                  My projects
+                  Mis proyectos
                 </Text>
               </View>
             </TouchableOpacity>
@@ -226,6 +228,11 @@ export default function Profile() {
       }
       ListHeaderComponent={renderHeader}
       contentContainerStyle={{ paddingBottom: 20 }}
+      ListEmptyComponent={
+        <View className="flex-1 items-center justify-center mt-4">
+          <Text className="text-lg">No has realizado publicaciones aun</Text>
+        </View>
+      }
     />
   );
 }

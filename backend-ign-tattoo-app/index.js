@@ -277,6 +277,9 @@ app.post("/unfollow", async (req, res) => {
   }
 });
 
+//APARTADO PARA LA EDICION DE PERFIL DE USUARIOS
+//
+
 //Endpoint para actualizar la imagen de perfil de un usuario
 app.put(
   "/users/:user_id/profile-pic",
@@ -302,6 +305,45 @@ app.put(
     }
   }
 );
+//Endpoint para actualizar el nombre de usuario
+app.put("/users/:user_id/username", async (req, res) => {
+  const { user_id } = req.params;
+  const { username } = req.body;
+
+  try {
+    const result = await pool.query(
+      "UPDATE users SET username = $1 WHERE id = $2 RETURNING *",
+      [username, user_id]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    res.json(result.rows[0]);
+  } catch (error) {
+    console.error("Error updating username:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+//Endpoint para actualizar el nombre real de un usuario
+app.put("/users/:user_id/name", async (req, res) => {
+  const { user_id } = req.params;
+  const { name } = req.body;
+  try {
+    const result = await pool.query(
+      "UPDATE users SET name = $1 WHERE id = $2 RETURNING *",
+      [name, user_id]
+    );
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: "User not found" });
+    }
+    res.json(result.rows[0]);
+  } catch (error) {
+    console.error("Error updating name:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
 
 //----------------------------------------------------------------------------------------------------
 //FIN DE APARTADO DE USUARIOS
@@ -1136,13 +1178,42 @@ app.post("/tattoo-studios", upload.single("image"), async (req, res) => {
   const image_url = req.file ? `/uploads/${req.file.filename}` : null;
 
   try {
-    const result = await pool.query(
+    // Iniciar una transacción
+    await pool.query("BEGIN");
+
+    // Crear el estudio
+    const studioResult = await pool.query(
       "INSERT INTO tattoo_studios (owner_id, name, address, description, image_url, status) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *",
       [owner_id, name, address, description, image_url, "active"]
     );
-    res.status(201).json(result.rows[0]);
+
+    const studioId = studioResult.rows[0].id;
+
+    // Confirmar la transacción antes de insertar los slots
+    await pool.query("COMMIT");
+
+    // Crear 5 slots automáticamente (fuera de la transacción)
+    const slotsPromises = [];
+    for (let i = 1; i <= 5; i++) {
+      slotsPromises.push(
+        pool.query(
+          "INSERT INTO studio_slots (studio_id, slot_number) VALUES ($1, $2)",
+          [studioId, i]
+        )
+      );
+    }
+    await Promise.all(slotsPromises);
+
+    // Devolver la información del estudio creado
+    res.status(201).json({
+      studio: studioResult.rows[0],
+      message: "Estudio creado con 5 slots automáticamente",
+    });
   } catch (error) {
-    console.error("Error creando el estudio de tatuaje:", error);
+    console.error("Error creando el estudio de tatuaje y sus slots:", error);
+
+    // Revertir la transacción en caso de error
+    await pool.query("ROLLBACK");
     res.status(500).json({ error: "Error creando el estudio de tatuaje" });
   }
 });

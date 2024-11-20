@@ -181,6 +181,13 @@ export default function Messages({ refreshing, onRefresh }: MessagesProps) {
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         }
+        ListEmptyComponent={
+          <View className="flex-1 items-center justify-center">
+            <Text className="text-lg text-gray-500">
+              No tienes conversaciones
+            </Text>
+          </View>
+        }
       />
     </View>
   );

@@ -44,7 +44,7 @@ export default function UsersProfile({ userId }: UsersProfileProps) {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [postCount, setPostCount] = useState(0);
-  const [followerCount, setFollowerCount] = useState(0);
+  const [followerCount, setFollowerCount] = useState<number>(0);
   const [followingCount, setFollowingCount] = useState(0);
   const [isFollowing, setIsFollowing] = useState<boolean>(false);
 
@@ -110,7 +110,7 @@ export default function UsersProfile({ userId }: UsersProfileProps) {
         );
       }
       const followersData = await followersResponse.json();
-      setFollowerCount(followersData.follower_count);
+      setFollowerCount(Number(followersData.follower_count)); // Convertir a número
 
       // Obtener el conteo de seguidos
       const followingResponse = await fetch(
@@ -122,7 +122,7 @@ export default function UsersProfile({ userId }: UsersProfileProps) {
         );
       }
       const followingData = await followingResponse.json();
-      setFollowingCount(followingData.following_count);
+      setFollowingCount(Number(followingData.following_count)); // Convertir a número
 
       // Obtener el conteo de posts
       const postsResponse = await fetch(`${SERVER_URL}/posts/count/${userId}`);
@@ -130,7 +130,7 @@ export default function UsersProfile({ userId }: UsersProfileProps) {
         throw new Error(`Error al obtener posts: ${postsResponse.status}`);
       }
       const postsData = await postsResponse.json();
-      setPostCount(postsData.post_count);
+      setPostCount(Number(postsData.post_count)); // Convertir a número
     } catch (error) {
       console.error("Error fetching user counts:", error);
       Alert.alert("Error", (error as Error).message);
@@ -155,7 +155,25 @@ export default function UsersProfile({ userId }: UsersProfileProps) {
     }
   };
 
-  const handleFollow = async () => {
+  const handleFollowToggle = async () => {
+    try {
+      if (isFollowing) {
+        // Dejar de seguir
+        setIsFollowing(false);
+        setFollowerCount((prevCount) => prevCount - 1);
+        await unfollowUser();
+      } else {
+        // Seguir
+        setIsFollowing(true);
+        setFollowerCount((prevCount) => prevCount + 1);
+        await followUser();
+      }
+    } catch (error) {
+      console.error("Error al seguir/dejar de seguir:", error);
+    }
+  };
+
+  const followUser = async () => {
     try {
       const response = await fetch(`${SERVER_URL}/follow`, {
         method: "POST",
@@ -168,10 +186,7 @@ export default function UsersProfile({ userId }: UsersProfileProps) {
         }),
       });
 
-      if (response.ok) {
-        setIsFollowing(true);
-        setFollowerCount((prev) => prev + 1);
-      } else {
+      if (!response.ok) {
         const errorText = await response.text();
         throw new Error(
           `Error al seguir al usuario: ${response.status} - ${errorText}`
@@ -183,7 +198,7 @@ export default function UsersProfile({ userId }: UsersProfileProps) {
     }
   };
 
-  const handleUnfollow = async () => {
+  const unfollowUser = async () => {
     try {
       const response = await fetch(`${SERVER_URL}/unfollow`, {
         method: "POST",
@@ -196,10 +211,7 @@ export default function UsersProfile({ userId }: UsersProfileProps) {
         }),
       });
 
-      if (response.ok) {
-        setIsFollowing(false);
-        setFollowerCount((prev) => prev - 1);
-      } else {
+      if (!response.ok) {
         const errorText = await response.text();
         throw new Error(
           `Error al dejar de seguir al usuario: ${response.status} - ${errorText}`
@@ -267,7 +279,7 @@ export default function UsersProfile({ userId }: UsersProfileProps) {
             {/* Botón de Seguir/Dejar de seguir */}
             {user && user.id !== Number(userId) && (
               <TouchableOpacity
-                onPress={isFollowing ? handleUnfollow : handleFollow}
+                onPress={handleFollowToggle}
                 className={`mt-4 py-2 px-4 rounded ${
                   isFollowing ? "bg-gray-300" : "bg-blue-500"
                 }`}
