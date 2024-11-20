@@ -1,8 +1,8 @@
 // app/(tabs)/profile/[id].tsx
 import React from "react";
-import { View } from "../../../components/Themed";
+import { View } from "../../components/Themed";
 import { useRoute, RouteProp } from "@react-navigation/native";
-import UsersProfile from "../../../components/usersProfile";
+import UsersProfile from "../../components/usersProfile";
 
 interface RouteParams {
   id: string;

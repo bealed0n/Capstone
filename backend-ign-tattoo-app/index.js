@@ -1093,6 +1093,38 @@ app.get("/user/:id/conversations", async (req, res) => {
 //----------------------------------------------------------------------------------------------------
 //FIN DE APARTADO DE MENSAJERIA
 //----------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------
+//APARTADO DE ESTUDIOS DE TATUAJE
+//----------------------------------------------------------------------------------------------------
+//Endpoint para crear un estudio de tatuaje
+app.post("/tattoo-studios", upload.single("image"), async (req, res) => {
+  const { owner_id, name, address, description } = req.body;
+  const image_url = req.file ? `/uploads/${req.file.filename}` : null;
+
+  try {
+    const result = await pool.query(
+      "INSERT INTO tattoo_studios (owner_id, name, address, description, image_url, status) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *",
+      [owner_id, name, address, description, image_url, "active"]
+    );
+    res.status(201).json(result.rows[0]);
+  } catch (error) {
+    console.error("Error creando el estudio de tatuaje:", error);
+    res.status(500).json({ error: "Error creando el estudio de tatuaje" });
+  }
+});
+
+//Endpoint para obtener todos los estudios de tatuaje en orden random
+app.get("/tattoo-studios", async (req, res) => {
+  try {
+    const result = await pool.query(
+      `SELECT * FROM tattoo_studios ORDER BY RANDOM()`
+    );
+    res.status(200).json(result.rows);
+  } catch (error) {
+    console.error("Error al obtener los estudios de tatuaje:", error);
+    res.status(500).json({ error: "Error al obtener los estudios de tatuaje" });
+  }
+});
 
 // Iniciar el servidor
 server.listen(port, () => {

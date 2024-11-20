@@ -116,25 +116,9 @@ export default function TabLayout() {
         }}
       />
 
-      {/* Ruta dinámica para el perfil de usuario */}
       <Tabs.Screen
-        name="profile/[id]"
-        options={({ navigation }) => ({
-          title: "User Profile",
-          tabBarButton: () => null, // Oculta el tab para esta ruta
-          headerShown: true,
-          headerLeft: () => {
-            return (
-              <Pressable className="ml-2" onPress={() => navigation.goBack()}>
-                <MaterialIcons
-                  name="arrow-back-ios"
-                  size={28}
-                  color={iconColor}
-                />
-              </Pressable>
-            );
-          },
-        })}
+        name="[id]"
+        options={{ title: "User Profile", href: null }}
       />
     </Tabs>
   );

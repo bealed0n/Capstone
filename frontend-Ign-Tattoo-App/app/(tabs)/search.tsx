@@ -1,5 +1,5 @@
 import React from "react";
-import { View } from "../../components/Themed";
+import { View, Text } from "../../components/Themed";
 import Search from "../../components/search";
 
 export default function SearchScreen() {

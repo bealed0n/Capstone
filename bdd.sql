@@ -109,6 +109,46 @@ CREATE TABLE follows
     PRIMARY KEY (follower_id, following_id)
 );
 
+-- Crear la tabla de mensajes
+CREATE TABLE messages
+(
+    id SERIAL PRIMARY KEY,
+    sender_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+    receiver_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+    content TEXT NOT NULL,
+    image_url TEXT,
+    sent_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    is_read BOOLEAN DEFAULT FALSE
+);
+
+-- Crear la tabla de proyectos de diseño
+CREATE TABLE designer_projects
+(
+    id SERIAL PRIMARY KEY,
+    designer_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+    title VARCHAR(255) NOT NULL,
+    description TEXT,
+    image VARCHAR(255),
+    price DECIMAL(10, 2),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    currency VARCHAR(10),
+    is_available BOOLEAN DEFAULT TRUE,
+    is_requested BOOLEAN DEFAULT FALSE
+);
+
+-- Crear la tabla de diseños solicitados
+CREATE TABLE requested_design
+(
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+    designer_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+    project_id INTEGER REFERENCES designer_projects(id) ON DELETE CASCADE,
+    price DECIMAL(10, 2),
+    status VARCHAR(20) DEFAULT 'pending',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    image VARCHAR(255)
+);
+
 -- Consultar los usuarios
 SELECT *
 FROM users;
