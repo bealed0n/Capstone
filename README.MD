@@ -216,6 +216,48 @@ Tabla para gestionar los diseños solicitados por los usuarios.
 | created_at  | TIMESTAMP     | Fecha de creación del diseño solicitado               |
 | image       | VARCHAR(255)  | URL de la imagen del diseño solicitado                |
 
+### 12. Invitaciones de Estudio (studio_invitations)
+
+Tabla para gestionar las invitaciones de estudio.
+
+| Columna          | Tipo        | Descripción                                      |
+| ---------------- | ----------- | ------------------------------------------------ |
+| id               | SERIAL      | Identificador único de la invitación             |
+| studio_id        | INTEGER     | ID del estudio                                   |
+| slot_id          | INTEGER     | ID del slot                                      |
+| tattoo_artist_id | INTEGER     | ID del tatuador                                  |
+| status           | VARCHAR(20) | Estado de la invitación (por ejemplo, 'pending') |
+| created_at       | TIMESTAMP   | Fecha de creación de la invitación               |
+| updated_at       | TIMESTAMP   | Fecha de actualización de la invitación          |
+
+### 13. Slots de Estudio (studio_slots)
+
+Tabla para gestionar los slots de estudio.
+
+| Columna                   | Tipo      | Descripción                       |
+| ------------------------- | --------- | --------------------------------- |
+| id                        | SERIAL    | Identificador único del slot      |
+| studio_id                 | INTEGER   | ID del estudio                    |
+| slot_number               | INTEGER   | Número del slot                   |
+| assigned_tattoo_artist_id | INTEGER   | ID del tatuador asignado al slot  |
+| is_available              | BOOLEAN   | Indica si el slot está disponible |
+| created_at                | TIMESTAMP | Fecha de creación del slot        |
+
+### 14. Estudios de Tatuajes (tattoo_studios)
+
+Tabla para gestionar los estudios de tatuajes.
+
+| Columna     | Tipo         | Descripción                                |
+| ----------- | ------------ | ------------------------------------------ |
+| id          | SERIAL       | Identificador único del estudio            |
+| owner_id    | INTEGER      | ID del propietario del estudio             |
+| name        | VARCHAR(255) | Nombre del estudio                         |
+| address     | VARCHAR(255) | Dirección del estudio                      |
+| description | TEXT         | Descripción del estudio                    |
+| image_url   | VARCHAR(255) | URL de la imagen del estudio               |
+| created_at  | TIMESTAMP    | Fecha de creación del estudio              |
+| status      | VARCHAR(20)  | Estado del estudio (por ejemplo, 'active') |
+
 ## Uso
 
 Cuando los dos servidores estén ejecutando, puedes abrir el proyecto con android studio o en tu dispositivo móvil mediante la app de **Expo Go** escaneando el código QR.

@@ -26,12 +26,12 @@ VALUES
     ('designer', 'a@a3', '123', 'designer');
 
 -- Crear la tabla de seguidores
-CREATE TABLE followers
+CREATE TABLE follows
 (
-    user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
     follower_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+    following_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
     followed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    PRIMARY KEY (user_id, follower_id)
+    PRIMARY KEY (follower_id, following_id)
 );
 
 -- Crear la tabla de posts
@@ -100,15 +100,6 @@ CREATE TABLE tattooist_applications
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- Crear la tabla de relación de seguimiento de usuarios 
-CREATE TABLE follows
-(
-    follower_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
-    following_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
-    followed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    PRIMARY KEY (follower_id, following_id)
-);
-
 -- Crear la tabla de mensajes
 CREATE TABLE messages
 (
@@ -149,6 +140,42 @@ CREATE TABLE requested_design
     image VARCHAR(255)
 );
 
+-- Crear la tabla de invitaciones de estudio
+CREATE TABLE studio_invitations
+(
+    id SERIAL PRIMARY KEY,
+    studio_id INTEGER REFERENCES tattoo_studios(id) ON DELETE CASCADE,
+    slot_id INTEGER,
+    tattoo_artist_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+    status VARCHAR(20) DEFAULT 'pending',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Crear la tabla de slots de estudio
+CREATE TABLE studio_slots
+(
+    id SERIAL PRIMARY KEY,
+    studio_id INTEGER REFERENCES tattoo_studios(id) ON DELETE CASCADE,
+    slot_number INTEGER,
+    assigned_tattoo_artist_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+    is_available BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Crear la tabla de estudios de tatuajes
+CREATE TABLE tattoo_studios
+(
+    id SERIAL PRIMARY KEY,
+    owner_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+    name VARCHAR(255) NOT NULL,
+    address VARCHAR(255),
+    description TEXT,
+    image_url VARCHAR(255),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    status VARCHAR(20) DEFAULT 'active'
+);
+
 -- Consultar los usuarios
 SELECT *
 FROM users;
@@ -159,4 +186,4 @@ FROM posts;
 
 -- Consultar los seguidores
 SELECT *
-FROM followers;
+FROM follows;
