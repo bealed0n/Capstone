@@ -1371,6 +1371,98 @@ app.get("/tattoo-studios/:id", async (req, res) => {
   }
 });
 
+//Endpoint para actualizar nombre de un estudio
+app.put("/tattoo-studios/:id/name", async (req, res) => {
+  const { id } = req.params;
+  const { name } = req.body;
+
+  try {
+    const result = await pool.query(
+      "UPDATE tattoo_studios SET name = $1 WHERE id = $2 RETURNING *",
+      [name, id]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: "Studio not found" });
+    }
+
+    res.json(result.rows[0]);
+  } catch (error) {
+    console.error("Error updating studio name:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+//Endpoint para actualizar la dirección de un estudio
+app.put("/tattoo-studios/:id/address", async (req, res) => {
+  const { id } = req.params;
+  const { address } = req.body;
+
+  try {
+    const result = await pool.query(
+      "UPDATE tattoo_studios SET address = $1 WHERE id = $2 RETURNING *",
+      [address, id]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: "Studio not found" });
+    }
+
+    res.json(result.rows[0]);
+  } catch (error) {
+    console.error("Error updating studio address:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+//Endpoint para actualizar la descripción de un estudio
+app.put("/tattoo-studios/:id/description", async (req, res) => {
+  const { id } = req.params;
+  const { description } = req.body;
+
+  try {
+    const result = await pool.query(
+      "UPDATE tattoo_studios SET description = $1 WHERE id = $2 RETURNING *",
+      [description, id]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: "Studio not found" });
+    }
+
+    res.json(result.rows[0]);
+  } catch (error) {
+    console.error("Error updating studio description:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+//Endpoint para actualizar la imagen de un estudio
+app.put(
+  "/tattoo-studios/:id/image",
+  upload.single("image"),
+  async (req, res) => {
+    const { id } = req.params;
+    const image_url = req.file ? `/uploads/${req.file.filename}` : null;
+
+    try {
+      const result = await pool.query(
+        "UPDATE tattoo_studios SET image_url = $1 WHERE id = $2 RETURNING *",
+        [image_url, id]
+      );
+
+      if (result.rows.length === 0) {
+        return res.status(404).json({ error: "Studio not found" });
+      }
+
+      res.json(result.rows[0]);
+    } catch (error) {
+      console.error("Error updating studio image:", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  }
+);
+
 // Iniciar el servidor
 server.listen(port, () => {
   console.log(`Servidor escuchando en http://localhost:${port}`);
