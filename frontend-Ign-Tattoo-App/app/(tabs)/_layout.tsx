@@ -106,19 +106,21 @@ export default function TabLayout() {
           // tabBarIcon: ({ color }) => <FontAwesome5 name="user" size={24} color={iconColor} />,
           headerRight: () => (
             <View style={{ flexDirection: "row", alignItems: "center" }}>
-              <Pressable
-                onPress={() => navigation.navigate("notifications" as never)}
-                className="mr-5"
-              >
-                {({ pressed }) => (
-                  <MaterialIcons
-                    name="notifications"
-                    size={30}
-                    color={iconColor}
-                    style={{ opacity: pressed ? 0.5 : 1 }}
-                  />
-                )}
-              </Pressable>
+              {user?.role === "tattoo_artist" && (
+                <Pressable
+                  onPress={() => navigation.navigate("notifications" as never)}
+                  className="mr-5"
+                >
+                  {({ pressed }) => (
+                    <MaterialIcons
+                      name="notifications"
+                      size={30}
+                      color={iconColor}
+                      style={{ opacity: pressed ? 0.5 : 1 }}
+                    />
+                  )}
+                </Pressable>
+              )}
               <Pressable
                 onPress={() => router.push("/profileConfig" as Href)}
                 className="mr-4"

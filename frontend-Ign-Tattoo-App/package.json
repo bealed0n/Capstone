@@ -69,6 +69,7 @@
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",
+    "@types/axios": "^0.9.36",
     "@types/lodash.debounce": "^4.0.9",
     "@types/react": "~18.3.12",
     "@types/react-native-keyboard-spacer": "^0.4.6",

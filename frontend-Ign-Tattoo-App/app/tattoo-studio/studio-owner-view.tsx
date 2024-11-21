@@ -170,7 +170,12 @@ export default function StudioOwnerView() {
           {/* Botón de Administrar miembros arriba */}
           <TouchableOpacity className="flex-row justify-center bg-blue-500 mb-4 px-4 py-1 rounded-md">
             <Text
-              onPress={() => console.log("Administrar miembros")}
+              onPress={() =>
+                router.push({
+                  pathname: `/tattoo-studio/studio-admin`,
+                  params: { studioId },
+                })
+              }
               className="text-white text-base"
             >
               Administrar miembros

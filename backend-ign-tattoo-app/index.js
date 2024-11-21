@@ -1255,7 +1255,6 @@ app.get("/tattoo-studios/is-member/:user_id", async (req, res) => {
   try {
     const result = await pool.query(
       `
-      -- Verificar si el usuario está asignado a algún slot
       SELECT 
         ss.studio_id, 
         ts.name AS studio_name
@@ -1685,11 +1684,9 @@ app.put(
       );
 
       if (slotsResult.rows.length === 0) {
-        return res
-          .status(400)
-          .json({
-            error: "El tatuador no está asignado a ningún slot en este estudio",
-          });
+        return res.status(400).json({
+          error: "El tatuador no está asignado a ningún slot en este estudio",
+        });
       }
 
       // Obtener los IDs de los slots asignados al tatuador
@@ -1708,6 +1705,37 @@ app.put(
     }
   }
 );
+// Endpoint para buscar usuarios con el rol de tatuador
+app.get("/search/tattoer-studio", async (req, res) => {
+  const { query } = req.query;
+  const searchQuery = query ? `%${query}%` : "%";
+
+  try {
+    const result = await pool.query(
+      `
+      SELECT u.id, u.username, u.profile_pic, u.role
+      FROM users u
+      WHERE u.username ILIKE $1 
+        AND u.role = 'tattoo_artist'
+        AND u.id NOT IN (
+          SELECT owner_id FROM tattoo_studios
+        )
+        AND u.id NOT IN (
+          SELECT assigned_tattoo_artist_id 
+          FROM studio_slots 
+          WHERE assigned_tattoo_artist_id IS NOT NULL
+        )
+      ORDER BY u.username ASC
+      `,
+      [searchQuery]
+    );
+
+    res.status(200).json({ users: result.rows });
+  } catch (error) {
+    console.error("Error al buscar usuarios:", error);
+    res.status(500).json({ message: "Error al buscar usuarios", error });
+  }
+});
 
 // Iniciar el servidor
 server.listen(port, () => {
