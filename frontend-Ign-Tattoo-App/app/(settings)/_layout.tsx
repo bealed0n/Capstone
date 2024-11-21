@@ -34,7 +34,7 @@ export default function SettingsLayout() {
           <Stack.Screen
             name="profileConfig"
             options={({ navigation }) => ({
-              title: "Settings",
+              title: "Configuración",
               headerLeft: () => (
                 <Pressable
                   style={{ marginLeft: 3, marginRight: 20 }}

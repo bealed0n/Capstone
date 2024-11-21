@@ -1218,6 +1218,67 @@ app.post("/tattoo-studios", upload.single("image"), async (req, res) => {
   }
 });
 
+//Endpoint para verificar si un usuario es propietario de un estudio
+app.get("/tattoo-studios/is-owner/:user_id", async (req, res) => {
+  const { user_id } = req.params;
+
+  try {
+    const result = await pool.query(
+      "SELECT COUNT(*) FROM tattoo_studios WHERE owner_id = $1",
+      [user_id]
+    );
+
+    const isOwner = result.rows[0].count > 0;
+
+    res.status(200).json({ isOwner });
+  } catch (error) {
+    console.error(
+      "Error verificando si el usuario es propietario de un estudio:",
+      error
+    );
+    res.status(500).json({
+      error: "Error verificando si el usuario es propietario de un estudio",
+    });
+  }
+});
+
+app.get("/tattoo-studios/is-member/:user_id", async (req, res) => {
+  const { user_id } = req.params;
+
+  try {
+    // Verificar si el usuario es el propietario o está asignado a un slot
+    const result = await pool.query(
+      `
+      -- Verificar si el usuario es propietario de algún estudio
+      SELECT COUNT(*) 
+      FROM tattoo_studios 
+      WHERE owner_id = $1
+      UNION ALL
+      -- Verificar si el usuario está asignado a algún slot
+      SELECT COUNT(*) 
+      FROM studio_slots 
+      WHERE assigned_tattoo_artist_id = $1
+      `,
+      [user_id]
+    );
+
+    // Sumar las respuestas de ambas consultas
+    const isMember =
+      parseInt(result.rows[0].count) > 0 || parseInt(result.rows[1].count) > 0;
+
+    // Devolver la respuesta
+    res.status(200).json({ isMember });
+  } catch (error) {
+    console.error(
+      "Error verificando si el usuario pertenece a algún estudio:",
+      error
+    );
+    res.status(500).json({
+      error: "Error verificando si el usuario pertenece a algún estudio",
+    });
+  }
+});
+
 //Endpoint para obtener todos los estudios de tatuaje en orden random
 app.get("/tattoo-studios", async (req, res) => {
   try {

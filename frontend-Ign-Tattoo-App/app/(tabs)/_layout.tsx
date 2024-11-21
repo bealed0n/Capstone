@@ -8,6 +8,8 @@ import { useClientOnlyValue } from "../../components/useClientOnlyValue";
 import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
 import { UserContext } from "../context/userContext";
 import { MaterialIcons } from "@expo/vector-icons";
+import { View } from "../../components/Themed";
+import { useNavigation } from "@react-navigation/native";
 
 // function TabBarIcon(props: {
 //   name: React.ComponentProps<typeof FontAwesome>["name"];
@@ -21,6 +23,7 @@ export default function TabLayout() {
   const iconColor = colorScheme === "dark" ? "white" : "black";
   const { user } = useContext(UserContext);
   const activeColor = colorScheme === "dark" ? "#faf7a5" : "#b09010";
+  const navigation = useNavigation();
 
   return (
     <Tabs
@@ -102,16 +105,34 @@ export default function TabLayout() {
 
           // tabBarIcon: ({ color }) => <FontAwesome5 name="user" size={24} color={iconColor} />,
           headerRight: () => (
-            <Pressable onPress={() => router.push("/profileConfig" as Href)}>
-              {({ pressed }) => (
-                <FontAwesome
-                  name="bars"
-                  size={25}
-                  color={Colors[colorScheme ?? "light"].text}
-                  style={{ marginRight: 15, opacity: pressed ? 0.5 : 1 }}
-                />
-              )}
-            </Pressable>
+            <View style={{ flexDirection: "row", alignItems: "center" }}>
+              <Pressable
+                onPress={() => navigation.navigate("notifications" as never)}
+                className="mr-5"
+              >
+                {({ pressed }) => (
+                  <MaterialIcons
+                    name="notifications"
+                    size={30}
+                    color={iconColor}
+                    style={{ opacity: pressed ? 0.5 : 1 }}
+                  />
+                )}
+              </Pressable>
+              <Pressable
+                onPress={() => router.push("/profileConfig" as Href)}
+                className="mr-4"
+              >
+                {({ pressed }) => (
+                  <FontAwesome
+                    name="bars"
+                    size={25}
+                    color={Colors[colorScheme ?? "light"].text}
+                    style={{ opacity: pressed ? 0.5 : 1 }}
+                  />
+                )}
+              </Pressable>
+            </View>
           ),
         }}
       />
