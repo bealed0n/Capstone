@@ -9,19 +9,17 @@ import {
   useColorScheme,
   Alert,
   Keyboard,
+  Image,
   Image as RNImage,
   Modal,
 } from "react-native";
 import { Text } from "../../components/Themed";
 import { useRoute, RouteProp } from "@react-navigation/native";
 import { UserContext } from "../context/userContext";
-import { styled } from "nativewind";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { format, isSameDay, parseISO } from "date-fns";
 import io from "socket.io-client";
 import * as ImagePicker from "expo-image-picker";
-
-const StyledImage = styled(RNImage);
 
 interface Message {
   id: number;
@@ -33,6 +31,9 @@ interface Message {
   is_read: boolean;
   tempId?: number;
   image?: string;
+  profile_image?: string;
+  sender_profile_pic?: string;
+  receiver_profile_pic?: string;
 }
 
 interface RouteParams {
@@ -160,8 +161,10 @@ export default function ConversationScreen() {
         }`}
       >
         {!isUserMessage && (
-          <StyledImage
-            source={require("@/assets/images/user.png")}
+          <Image
+            source={{
+              uri: `http://192.168.100.87:3000${item.sender_profile_pic}`,
+            }}
             className="w-8 h-8 rounded-full ml-2"
           />
         )}
@@ -187,7 +190,7 @@ export default function ConversationScreen() {
               }}
             >
               {item.image_url && (
-                <StyledImage
+                <Image
                   source={{
                     uri: item.image_url.startsWith("data:")
                       ? item.image_url
@@ -204,8 +207,10 @@ export default function ConversationScreen() {
           </Text>
         </View>
         {isUserMessage && (
-          <StyledImage
-            source={require("@/assets/images/user.png")}
+          <Image
+            source={{
+              uri: `http://192.168.100.87:3000${item.sender_profile_pic}`,
+            }}
             className="w-8 h-8 rounded-full mr-1"
           />
         )}
@@ -360,7 +365,7 @@ export default function ConversationScreen() {
             onPress={() => setModalVisible(false)}
           >
             {selectedImage && (
-              <StyledImage
+              <Image
                 source={{ uri: selectedImage }}
                 style={{ width: "90%", height: "70%" }}
                 resizeMode="contain"
@@ -372,7 +377,7 @@ export default function ConversationScreen() {
         <View className="bottom-0 ios:mb-5 ios:p-3 border-t pt-3 android:mb-4 bg-white dark:bg-neutral-800 border-neutral-300 dark:border-neutral-500">
           {imageToSend && (
             <View className="flex-row items-center mb-2">
-              <StyledImage
+              <Image
                 source={{ uri: imageToSend }}
                 className="w-16 h-16 rounded mr-2"
               />

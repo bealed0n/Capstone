@@ -1120,7 +1120,9 @@ app.get("/user/:id/messages", async (req, res) => {
       `SELECT 
                 messages.*,
                 sender.username AS sender_username,
-                receiver.username AS receiver_username
+                sender.profile_pic AS sender_profile_pic,
+                receiver.username AS receiver_username,
+                receiver.profile_pic AS receiver_profile_pic
              FROM messages
              JOIN users AS sender ON messages.sender_id = sender.id
              JOIN users AS receiver ON messages.receiver_id = receiver.id
@@ -1146,8 +1148,10 @@ app.get("/user/:id/conversations", async (req, res) => {
                 messages.id,
                 messages.sender_id,
                 sender.username AS sender_username,
+                sender.profile_pic AS sender_profile_pic,
                 messages.receiver_id,
                 receiver.username AS receiver_username,
+                receiver.profile_pic AS receiver_profile_pic,
                 messages.content,
                 messages.image_url,
                 messages.sent_at,

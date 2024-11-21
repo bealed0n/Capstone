@@ -22,6 +22,8 @@ interface Message {
   image_url: string | null;
   sent_at: string;
   is_read: boolean;
+  sender_profile_pic?: string;
+  receiver_profile_pic?: string;
 }
 
 interface Conversation {
@@ -34,6 +36,8 @@ interface Conversation {
   image_url: string | null;
   sent_at: string;
   is_read: boolean;
+  sender_profile_pic?: string;
+  receiver_profile_pic?: string;
 }
 
 interface MessagesProps {
@@ -124,6 +128,8 @@ export default function Messages({ refreshing, onRefresh }: MessagesProps) {
               image_url: message.image_url,
               sent_at: message.sent_at,
               is_read: message.is_read,
+              sender_profile_pic: message.sender_profile_pic,
+              receiver_profile_pic: message.receiver_profile_pic,
             };
             return [newConversation, ...prevConversations];
           }
@@ -161,7 +167,13 @@ export default function Messages({ refreshing, onRefresh }: MessagesProps) {
           >
             <View className="flex-row p-2 mx-3 my-1 shadow-lg rounded-lg bg-neutral-200 dark:bg-neutral-800">
               <Image
-                source={require("@/assets/images/user.png")}
+                source={{
+                  uri:
+                    SERVER_URL +
+                    (item.sender_id === user.id
+                      ? item.receiver_profile_pic
+                      : item.sender_profile_pic),
+                }}
                 className="w-10 h-10 rounded-full mr-4"
               />
               <View className="flex-1 bg-neutral-200 dark:bg-neutral-800">
