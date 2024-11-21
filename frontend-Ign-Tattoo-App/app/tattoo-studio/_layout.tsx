@@ -88,6 +88,36 @@ export default function ManageStudioLayout() {
               ),
             }}
           />
+          <Stack.Screen
+            name="studio-edit/[id]"
+            options={{
+              title: "Editar estudio",
+              headerLeft: () => (
+                <Pressable className="pr-2" onPress={() => navigation.goBack()}>
+                  <MaterialIcons
+                    name="arrow-back-ios"
+                    size={28}
+                    color={iconColor}
+                  />
+                </Pressable>
+              ),
+            }}
+          />
+          <Stack.Screen
+            name="studio-admin"
+            options={{
+              title: "Administracion de miembros",
+              headerLeft: () => (
+                <Pressable className="pr-2" onPress={() => navigation.goBack()}>
+                  <MaterialIcons
+                    name="arrow-back-ios"
+                    size={28}
+                    color={iconColor}
+                  />
+                </Pressable>
+              ),
+            }}
+          />
         </Stack>
       </ThemeProvider>
     </UserProvider>

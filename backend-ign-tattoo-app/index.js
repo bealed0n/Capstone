@@ -1224,13 +1224,20 @@ app.get("/tattoo-studios/is-owner/:user_id", async (req, res) => {
 
   try {
     const result = await pool.query(
-      "SELECT COUNT(*) FROM tattoo_studios WHERE owner_id = $1",
+      "SELECT id, COUNT(*) AS studio_count FROM tattoo_studios WHERE owner_id = $1 GROUP BY id",
       [user_id]
     );
 
-    const isOwner = result.rows[0].count > 0;
+    // Verificar si hay algún estudio
+    const isOwner = result.rows.length > 0;
 
-    res.status(200).json({ isOwner });
+    // Devolver el id del estudio y el conteo
+    const studios = result.rows.map((row) => ({
+      id: row.id,
+      studio_count: parseInt(row.studio_count, 10),
+    }));
+
+    res.status(200).json({ isOwner, studios });
   } catch (error) {
     console.error(
       "Error verificando si el usuario es propietario de un estudio:",
@@ -1246,28 +1253,27 @@ app.get("/tattoo-studios/is-member/:user_id", async (req, res) => {
   const { user_id } = req.params;
 
   try {
-    // Verificar si el usuario es el propietario o está asignado a un slot
     const result = await pool.query(
       `
-      -- Verificar si el usuario es propietario de algún estudio
-      SELECT COUNT(*) 
-      FROM tattoo_studios 
-      WHERE owner_id = $1
-      UNION ALL
       -- Verificar si el usuario está asignado a algún slot
-      SELECT COUNT(*) 
-      FROM studio_slots 
-      WHERE assigned_tattoo_artist_id = $1
+      SELECT 
+        ss.studio_id, 
+        ts.name AS studio_name
+      FROM studio_slots ss
+      INNER JOIN tattoo_studios ts ON ss.studio_id = ts.id
+      WHERE ss.assigned_tattoo_artist_id = $1
       `,
       [user_id]
     );
 
-    // Sumar las respuestas de ambas consultas
-    const isMember =
-      parseInt(result.rows[0].count) > 0 || parseInt(result.rows[1].count) > 0;
+    // Verificar si el usuario pertenece a algún estudio
+    const isMember = result.rows.length > 0;
+    const studios = result.rows.map((row) => ({
+      studio_id: row.studio_id,
+      studio_name: row.studio_name,
+    }));
 
-    // Devolver la respuesta
-    res.status(200).json({ isMember });
+    res.status(200).json({ isMember, studios });
   } catch (error) {
     console.error(
       "Error verificando si el usuario pertenece a algún estudio:",
@@ -1459,6 +1465,246 @@ app.put(
     } catch (error) {
       console.error("Error updating studio image:", error);
       res.status(500).json({ error: "Internal server error" });
+    }
+  }
+);
+
+//endpoint para salir de un slot
+app.put("/studio-slots/:id/leave", async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const result = await pool.query(
+      "UPDATE studio_slots SET assigned_tattoo_artist_id = NULL, is_available = TRUE WHERE id = $1 RETURNING *",
+      [id]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: "Slot not found" });
+    }
+
+    res.json(result.rows[0]);
+  } catch (error) {
+    console.error("Error leaving slot:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+//Endpoint para obtener id de slot de un tatuador
+app.get("/tattoo-artist/:tattoo_artist_id/slot", async (req, res) => {
+  const { tattoo_artist_id } = req.params;
+
+  try {
+    const result = await pool.query(
+      "SELECT id FROM studio_slots WHERE assigned_tattoo_artist_id = $1",
+      [tattoo_artist_id]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: "Slot not found" });
+    }
+
+    res.json(result.rows[0]);
+  } catch (error) {
+    console.error("Error fetching slot:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+//----------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------
+//SECCION DE INVITACIONES A TATUTADORESSS//
+//----------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------
+//Endpoint para enviar una invitacion a un tatuador
+app.post("/studio-invitations", async (req, res) => {
+  const { studio_id, slot_id, tattoo_artist_id } = req.body;
+
+  try {
+    // Verificar que el slot pertenece al estudio y está disponible
+    const slotResult = await pool.query(
+      "SELECT * FROM studio_slots WHERE id = $1 AND studio_id = $2 AND is_available = TRUE",
+      [slot_id, studio_id]
+    );
+
+    if (slotResult.rows.length === 0) {
+      return res
+        .status(400)
+        .json({ error: "El slot no es válido o no está disponible" });
+    }
+
+    // Crear la invitación
+    const invitationResult = await pool.query(
+      "INSERT INTO studio_invitations (studio_id, slot_id, tattoo_artist_id) VALUES ($1, $2, $3) RETURNING *",
+      [studio_id, slot_id, tattoo_artist_id]
+    );
+
+    res.status(201).json(invitationResult.rows[0]);
+  } catch (error) {
+    console.error("Error al crear la invitación:", error);
+    res.status(500).json({ error: "Error al crear la invitación" });
+  }
+});
+
+//Endpoint para aceptar una invitación a un estudio
+app.put("/studio-invitations/:id/accept", async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    // Obtener la invitación
+    const invitationResult = await pool.query(
+      "SELECT * FROM studio_invitations WHERE id = $1",
+      [id]
+    );
+
+    if (invitationResult.rows.length === 0) {
+      return res.status(404).json({ error: "Invitación no encontrada" });
+    }
+
+    const invitation = invitationResult.rows[0];
+
+    if (invitation.status !== "Pending") {
+      return res
+        .status(400)
+        .json({ error: "La invitación ya ha sido procesada" });
+    }
+
+    // Actualizar el slot asignándolo al tatuador
+    await pool.query(
+      "UPDATE studio_slots SET assigned_tattoo_artist_id = $1, is_available = FALSE WHERE id = $2",
+      [invitation.tattoo_artist_id, invitation.slot_id]
+    );
+
+    // Actualizar el estado de la invitación a 'Accepted'
+    const updatedInvitationResult = await pool.query(
+      "UPDATE studio_invitations SET status = 'Accepted', updated_at = NOW() WHERE id = $1 RETURNING *",
+      [id]
+    );
+
+    res.json(updatedInvitationResult.rows[0]);
+  } catch (error) {
+    console.error("Error al aceptar la invitación:", error);
+    res.status(500).json({ error: "Error al aceptar la invitación" });
+  }
+});
+
+//Endpoint para rechazar una invitación a un estudio
+app.put("/studio-invitations/:id/reject", async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    // Obtener la invitación
+    const invitationResult = await pool.query(
+      "SELECT * FROM studio_invitations WHERE id = $1",
+      [id]
+    );
+
+    if (invitationResult.rows.length === 0) {
+      return res.status(404).json({ error: "Invitación no encontrada" });
+    }
+
+    const invitation = invitationResult.rows[0];
+
+    if (invitation.status !== "Pending") {
+      return res
+        .status(400)
+        .json({ error: "La invitación ya ha sido procesada" });
+    }
+
+    // Actualizar el estado de la invitación a 'Rejected'
+    const updatedInvitationResult = await pool.query(
+      "UPDATE studio_invitations SET status = 'Rejected', updated_at = NOW() WHERE id = $1 RETURNING *",
+      [id]
+    );
+
+    res.json(updatedInvitationResult.rows[0]);
+  } catch (error) {
+    console.error("Error al rechazar la invitación:", error);
+    res.status(500).json({ error: "Error al rechazar la invitación" });
+  }
+});
+
+//Endpoint para obtener las invitaciones de un tatuador
+app.get("/tattoo-artist/:tattoo_artist_id/invitations", async (req, res) => {
+  const { tattoo_artist_id } = req.params;
+
+  try {
+    const result = await pool.query(
+      `
+      SELECT si.*, ts.name AS studio_name, ss.slot_number
+      FROM studio_invitations si
+      INNER JOIN tattoo_studios ts ON si.studio_id = ts.id
+      INNER JOIN studio_slots ss ON si.slot_id = ss.id
+      WHERE si.tattoo_artist_id = $1 AND si.status = 'Pending'
+      `,
+      [tattoo_artist_id]
+    );
+
+    res.json(result.rows);
+  } catch (error) {
+    console.error("Error al obtener las invitaciones:", error);
+    res.status(500).json({ error: "Error al obtener las invitaciones" });
+  }
+});
+
+//Endpoint para obtener todas las invitaciones de un esutudio para administrador
+app.get("/tattoo-studios/:studio_id/invitations", async (req, res) => {
+  const { studio_id } = req.params;
+
+  try {
+    const result = await pool.query(
+      `
+      SELECT si.*, u.username AS tattoo_artist_name
+      FROM studio_invitations si
+      INNER JOIN users u ON si.tattoo_artist_id = u.id
+      WHERE si.studio_id = $1
+      `,
+      [studio_id]
+    );
+
+    res.json(result.rows);
+  } catch (error) {
+    console.error("Error al obtener las invitaciones del estudio:", error);
+    res
+      .status(500)
+      .json({ error: "Error al obtener las invitaciones del estudio" });
+  }
+});
+
+//Endpoint para expulsar a tatuador de un estudio para administrador de estudio
+app.put(
+  "/tattoo-studios/:studio_id/remove-artist/:tattoo_artist_id",
+  async (req, res) => {
+    const { studio_id, tattoo_artist_id } = req.params;
+
+    try {
+      // Verificar que el tatuador está asignado a algún slot en el estudio
+      const slotsResult = await pool.query(
+        "SELECT * FROM studio_slots WHERE studio_id = $1 AND assigned_tattoo_artist_id = $2",
+        [studio_id, tattoo_artist_id]
+      );
+
+      if (slotsResult.rows.length === 0) {
+        return res
+          .status(400)
+          .json({
+            error: "El tatuador no está asignado a ningún slot en este estudio",
+          });
+      }
+
+      // Obtener los IDs de los slots asignados al tatuador
+      const slotIds = slotsResult.rows.map((slot) => slot.id);
+
+      // Actualizar los slots para liberar al tatuador
+      await pool.query(
+        "UPDATE studio_slots SET assigned_tattoo_artist_id = NULL, is_available = TRUE WHERE id = ANY($1::int[])",
+        [slotIds]
+      );
+
+      res.json({ message: "El tatuador ha sido expulsado del estudio" });
+    } catch (error) {
+      console.error("Error al expulsar al tatuador del estudio:", error);
+      res.status(500).json({ error: "Error interno del servidor" });
     }
   }
 );

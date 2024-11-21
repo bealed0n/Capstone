@@ -1,19 +1,18 @@
 import React, { useEffect, useState, useContext } from "react";
-
-import { View, Text } from "../../components/Themed";
+import { View, Text, TouchableOpacity } from "react-native";
 import { useColorScheme } from "../../components/useColorScheme";
-import { Href, router, useNavigation } from "expo-router";
+import { Href, router } from "expo-router";
 import { UserContext } from "../context/userContext";
-import { Button, TouchableOpacity } from "react-native";
 import { FontAwesome5 } from "@expo/vector-icons";
 
 export default function StudioManagment() {
   const SERVER_URL = "http://192.168.100.87:3000";
   const colorScheme = useColorScheme();
-  const navigation = useNavigation();
   const { user } = useContext(UserContext);
-  const [isOwner, setIsOwner] = useState<boolean>(false);
-  const [isMember, setIsMember] = useState<boolean>(false);
+  const [isOwner, setIsOwner] = useState(false);
+  const [isMember, setIsMember] = useState(false);
+  const [studioId, setStudioId] = useState<number | null>(null);
+  const [memberStudios, setMemberStudios] = useState([]);
   const isDark = colorScheme === "dark";
 
   useEffect(() => {
@@ -24,48 +23,46 @@ export default function StudioManagment() {
 
   const checkUserStatus = async () => {
     try {
-      // Verificar si el usuario es propietario
       const ownerResponse = await fetch(
         `${SERVER_URL}/tattoo-studios/is-owner/${user.id}`
       );
       const ownerData = await ownerResponse.json();
+
       setIsOwner(ownerData.isOwner);
 
-      // Si no es propietario, verificar si es miembro
-      if (!ownerData.isOwner) {
+      if (ownerData.isOwner && ownerData.studios.length > 0) {
+        setStudioId(ownerData.studios[0].id);
+      } else {
         const memberResponse = await fetch(
           `${SERVER_URL}/tattoo-studios/is-member/${user.id}`
         );
         const memberData = await memberResponse.json();
+
         setIsMember(memberData.isMember);
+
+        if (memberData.isMember && memberData.studios.length > 0) {
+          setMemberStudios(memberData.studios);
+          console.log(memberData.studios);
+          console.log(memberData.studios[0].studio_id);
+
+          setStudioId(memberData.studios[0].studio_id);
+        }
       }
     } catch (error) {
       console.error("Error al verificar el estado del usuario:", error);
     }
   };
 
-  const handleManageStudio = () => {
-    router.push("/studio-owner-view");
-    // Aquí iría la lógica para gestionar el estudio
-  };
-
-  const handleViewStudio = () => {
-    console.log("Ver estudio");
-    // Aquí iría la lógica para ver el estudio
-  };
-
-  const handleCreateStudio = () => {
-    console.log("Crear un estudio");
-    // Aquí iría la lógica para crear un nuevo estudio
-  };
-
   return (
-    <View className="flex-1  p-4">
+    <View className="flex-1 p-4">
       <View className="flex-1 justify-center items-center">
         {isOwner ? (
           <TouchableOpacity
             onPress={() =>
-              router.push(`/tattoo-studio/studio-owner-view` as Href)
+              router.push({
+                pathname: `/tattoo-studio/studio-owner-view`,
+                params: { studioId },
+              })
             }
             className="w-full max-w-sm bg-gray-200 dark:bg-gray-800 rounded-xl shadow-lg p-6 mb-4"
           >
@@ -86,11 +83,14 @@ export default function StudioManagment() {
         ) : isMember ? (
           <TouchableOpacity
             onPress={() =>
-              router.push(`/tattoo-studio/studio-member-view` as Href)
+              router.push({
+                pathname: `/tattoo-studio/studio-member-view`,
+                params: { studioId },
+              })
             }
             className="w-full max-w-sm bg-white dark:bg-gray-900 rounded-xl shadow-lg p-6 mb-4"
           >
-            <View className="items-center bg-transparent ">
+            <View className="items-center bg-transparent">
               <FontAwesome5
                 name="user-circle"
                 size={50}
