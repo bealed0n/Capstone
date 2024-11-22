@@ -88,7 +88,7 @@ export default function AppointmentsCalendar() {
           marginBottom: 16,
         }}
       >
-        Appointments Calendar
+        Calendario de citas
       </Text>
       <Calendar
         markingType={"multi-dot"}
@@ -115,7 +115,7 @@ export default function AppointmentsCalendar() {
       />
       <View style={{ marginTop: 20 }}>
         <Text style={{ fontWeight: "bold", fontSize: 18 }}>
-          Appointments for Selected Day
+          Citas para el día seleccionado
         </Text>
         {selectedAppointments.length > 0 ? (
           <FlatList
@@ -157,7 +157,7 @@ export default function AppointmentsCalendar() {
           />
         ) : (
           <Text style={{ color: colorScheme === "dark" ? "#fff" : "#000" }}>
-            No appointments for this day.
+            No hay citas para este día
           </Text>
         )}
       </View>

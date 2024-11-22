@@ -78,6 +78,11 @@ export default function AvailableDates() {
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         }
+        ListEmptyComponent={
+          <Text className="text-center text-lg text-gray-500">
+            El tatuador no ha publicado citas
+          </Text>
+        }
       />
     </View>
   );

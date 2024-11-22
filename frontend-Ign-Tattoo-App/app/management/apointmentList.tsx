@@ -96,8 +96,8 @@ export default function AppointmentsList() {
             status: newStatus,
             message:
               newStatus === "accepted"
-                ? `Your appointment has been accepted. ${additionalMessage}`
-                : `Your appointment has been ${newStatus}.`,
+                ? `Tu cita ha sido aceptada. ${additionalMessage}`
+                : `Tu cita ha sido: ${newStatus}.`,
             sender_id: user.id,
             receiver_id: userId,
           }),
@@ -105,7 +105,10 @@ export default function AppointmentsList() {
       );
 
       if (response.ok) {
-        Alert.alert("Success", "Appointment status updated and message sent.");
+        Alert.alert(
+          "Exitoso",
+          "Estado de la cita actualizado y se ha mensaje enviado."
+        );
         // Actualizar la lista de citas
         setAppointments((prevAppointments) =>
           prevAppointments.map((appointment) =>

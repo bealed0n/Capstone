@@ -31,7 +31,7 @@ export default function ManagementLayout() {
           <Stack.Screen
             name="apointmentList"
             options={{
-              title: "Appointments",
+              title: "Citas",
               headerLeft: () => (
                 <Pressable className="ml-2" onPress={() => navigation.goBack()}>
                   <MaterialIcons
@@ -46,7 +46,7 @@ export default function ManagementLayout() {
           <Stack.Screen
             name="availableDates"
             options={{
-              title: "Available Dates",
+              title: "Citas disponibles",
               headerLeft: () => (
                 <Pressable className="ml-2" onPress={() => navigation.goBack()}>
                   <MaterialIcons
@@ -61,7 +61,7 @@ export default function ManagementLayout() {
           <Stack.Screen
             name="calendar"
             options={{
-              title: "Calendar",
+              title: "Calendario",
               headerLeft: () => (
                 <Pressable className="ml-2" onPress={() => navigation.goBack()}>
                   <MaterialIcons
@@ -76,7 +76,7 @@ export default function ManagementLayout() {
           <Stack.Screen
             name="dateRequest"
             options={{
-              title: "Request Date",
+              title: "Solicitar Cita",
               headerLeft: () => (
                 <Pressable className="ml-2" onPress={() => navigation.goBack()}>
                   <MaterialIcons

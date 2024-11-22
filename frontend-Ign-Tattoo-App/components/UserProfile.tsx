@@ -47,7 +47,7 @@ export default function UserProfile() {
             }}
           >
             <Text className="text-lg text-neutral-800 p-2 bg-neutral-200 text-center dark:bg-neutral-500 dark:text-neutral-50 rounded-md">
-              Calendar
+              Calendario
             </Text>
           </TouchableOpacity>
 
@@ -58,12 +58,12 @@ export default function UserProfile() {
             }}
           >
             <Text className="text-lg text-neutral-800 p-2 bg-neutral-200 text-center dark:bg-neutral-500 dark:text-neutral-50 rounded-md">
-              Appointments
+              Citas
             </Text>
           </TouchableOpacity>
         </View>
 
-        <Text className="font-bold text-lg text-center mt-3">Designs</Text>
+        <Text className="font-bold text-lg text-center mt-3">Diseños</Text>
 
         <View className="flex-row justify-center mt-2">
           <TouchableOpacity
@@ -73,7 +73,7 @@ export default function UserProfile() {
             }}
           >
             <Text className="text-lg text-neutral-800 p-2 bg-neutral-200 text-center dark:bg-neutral-500 dark:text-neutral-50 rounded-md">
-              Requested designs
+              Diseños solicitados
             </Text>
           </TouchableOpacity>
         </View>
