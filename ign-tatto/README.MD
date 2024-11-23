@@ -1,3 +1,0 @@
-### Rama web
-
-# -npm install
