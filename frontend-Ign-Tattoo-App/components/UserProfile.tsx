@@ -1,9 +1,8 @@
 import React, { useContext } from "react";
-import { TouchableOpacity, Image, ScrollView } from "react-native";
-import { View, Text } from "./Themed"; // Asegúrate de que este componente esté bien configurado
+import { TouchableOpacity, Image, FlatList } from "react-native";
+import { View, Text } from "./Themed";
 import { useNavigation } from "@react-navigation/native";
 import { Href, router } from "expo-router";
-import EditScreenInfo from "./clientReview";
 import { UserContext } from "../app/context/userContext";
 import ClientReviews from "./clientReview";
 
@@ -14,9 +13,11 @@ export default function UserProfile() {
   const { user } = useContext(UserContext);
   const photo = require("../assets/images/user.png");
 
-  return (
-    <ScrollView>
-      <View>
+  // Crear un array de datos para el FlatList
+  const data = [
+    {
+      key: "header",
+      content: (
         <View className="flex-row items-center ml-5 mt-4">
           <Image
             source={
@@ -35,7 +36,11 @@ export default function UserProfile() {
             </Text>
           </View>
         </View>
-
+      ),
+    },
+    {
+      key: "dashboard",
+      content: (
         <View className="mb-1">
           <Text className="font-bold text-xl text-center mb-4">Dashboard</Text>
 
@@ -43,23 +48,23 @@ export default function UserProfile() {
 
           <View className="flex-row justify-center mt-2">
             <TouchableOpacity
-              className="flex-1 mx-5"
+              className="flex-1 mx-5 bg-yellow-600 rounded-md"
               onPress={() => {
                 router.push("/management/calendar" as Href);
               }}
             >
-              <Text className="text-lg text-neutral-800 p-2 bg-neutral-200 text-center dark:bg-neutral-500 dark:text-neutral-50 rounded-md">
+              <Text className="text-lg p-2 text-center font-semibold text-white">
                 Calendario
               </Text>
             </TouchableOpacity>
 
             <TouchableOpacity
-              className="flex-1 mx-5"
+              className="flex-1 mx-5 bg-yellow-600 rounded-md"
               onPress={() => {
                 router.push("/management/apointmentList" as Href);
               }}
             >
-              <Text className="text-lg text-neutral-800 p-2 bg-neutral-200 text-center dark:bg-neutral-500 dark:text-neutral-50 rounded-md">
+              <Text className="text-lg p-2 text-center text-white font-semibold dark:text-neutral-50">
                 Citas
               </Text>
             </TouchableOpacity>
@@ -69,22 +74,31 @@ export default function UserProfile() {
 
           <View className="flex-row justify-center mt-2">
             <TouchableOpacity
-              className="flex-1 mx-5"
+              className="flex-1 mx-5 bg-indigo-500 rounded-md"
               onPress={() => {
                 router.push("/designer/userRequested" as Href);
               }}
             >
-              <Text className="text-lg text-neutral-800 p-2 bg-neutral-200 text-center dark:bg-neutral-500 dark:text-neutral-50 rounded-md">
+              <Text className="text-lg text-white font-semibold p-2 text-center dark:text-neutral-50 rounded-md">
                 Diseños solicitados
               </Text>
             </TouchableOpacity>
           </View>
         </View>
-        <View className=" mt-4 mb-2 h-0.5 border-t-0 bg-neutral-200 dark:bg-white/10" />
-        <View>
-          <ClientReviews />
-        </View>
-      </View>
-    </ScrollView>
+      ),
+    },
+    {
+      key: "clientReviews",
+      content: <ClientReviews />,
+    },
+  ];
+
+  return (
+    <FlatList
+      data={data}
+      renderItem={({ item }) => <View>{item.content}</View>}
+      keyExtractor={(item) => item.key}
+      contentContainerStyle={{ paddingBottom: 20 }} // Para agregar un poco de espacio en la parte inferior
+    />
   );
 }

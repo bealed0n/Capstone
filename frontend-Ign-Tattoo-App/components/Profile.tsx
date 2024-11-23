@@ -134,21 +134,21 @@ export default function Profile() {
         <View className="flex-row justify-center mt-2">
           {user?.role === "tattoo_artist" ? (
             <TouchableOpacity
-              className="flex-1 mx-5"
+              className="flex-1 mx-5 "
               onPress={() => {
                 router.push("/management/calendar" as Href);
               }}
             >
-              <View className="flex-row items-center justify-center bg-gray-200 dark:bg-zinc-700 rounded-md p-3">
+              <View className="flex-row items-center justify-center p-3 bg-yellow-600 rounded-md">
                 <FontAwesome5
                   name="calendar-alt"
                   size={20}
-                  color={iconColor}
+                  color={"white"}
                   style={{ marginRight: 8 }} // Aplicar margen derecho en línea
                   className="dark:text-white"
                 />
-                <Text className="text-base text-black text-center dark:text-white font-semibold">
-                  Calendar
+                <Text className="text-base text-white text-center font-semibold">
+                  Calendario
                 </Text>
               </View>
             </TouchableOpacity>
@@ -159,14 +159,14 @@ export default function Profile() {
                 router.push("/designer/requestedDesigns" as Href);
               }}
             >
-              <View className="flex-row items-center justify-center bg-gray-200 dark:bg-zinc-700 rounded-md p-3 ">
+              <View className="flex-row items-center justify-center bg-indigo-500 rounded-md p-3 ">
                 <FontAwesome5
                   name="comment-dots"
                   size={20}
-                  color={iconColor}
+                  color={"white"}
                   style={{ marginRight: 8 }}
                 />
-                <Text className="text-base text-black text-center dark:text-white font-semibold">
+                <Text className="text-base text-white text-center  font-semibold">
                   Proyectos Sol.
                 </Text>
               </View>
@@ -180,15 +180,15 @@ export default function Profile() {
                 router.push("/management/apointmentList" as Href);
               }}
             >
-              <View className="flex-row items-center justify-center bg-gray-200 dark:bg-zinc-700 rounded-md p-3">
+              <View className="flex-row items-center justify-center  bg-yellow-600 rounded-md p-3">
                 <FontAwesome5
                   name="tasks"
                   size={20}
-                  color={iconColor}
+                  color={"white"}
                   style={{ marginRight: 8 }}
                 />
-                <Text className="text-base text-black text-center dark:text-white font-semibold">
-                  Appointments
+                <Text className="text-base text-white text-center font-semibold">
+                  Citas
                 </Text>
               </View>
             </TouchableOpacity>
@@ -199,14 +199,14 @@ export default function Profile() {
                 router.push("/designer/designerProjects" as Href);
               }}
             >
-              <View className="flex-row items-center justify-center bg-gray-200 dark:bg-zinc-700 rounded-md p-3">
+              <View className="flex-row items-center justify-center bg-indigo-500 rounded-md p-3">
                 <FontAwesome5
                   name="tasks"
                   size={20}
-                  color={iconColor}
+                  color={"white"}
                   style={{ marginRight: 8 }}
                 />
-                <Text className="text-base text-black text-center dark:text-white font-semibold">
+                <Text className="text-base text-white text-center font-semibold">
                   Mis proyectos
                 </Text>
               </View>

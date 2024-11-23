@@ -126,7 +126,7 @@ export default function ClientReviews() {
           setIsReviewModalVisible(true);
         }
       }}
-      className="bg-white dark:bg-gray-800 p-4 mb-4 rounded-lg shadow"
+      className="bg-white dark:bg-neutral-800 p-4 mb-4 rounded-lg shadow"
     >
       <Text className="text-lg font-bold text-gray-800 dark:text-white mb-1">
         {item.tattoo_artist_name}
@@ -139,7 +139,7 @@ export default function ClientReviews() {
           <Text className="text-gray-800 dark:text-white mb-2">
             {item.review_text}
           </Text>
-          <View className="flex-row mb-2">
+          <View className="flex-row mb-2 dark:bg-neutral-800">
             {[1, 2, 3, 4, 5].map((star) => (
               <FontAwesome5
                 key={star}
@@ -199,6 +199,7 @@ export default function ClientReviews() {
         renderItem={renderReviewItem}
         keyExtractor={(item) => item.id.toString()}
         contentContainerStyle={{ flexGrow: 1 }}
+        nestedScrollEnabled={true}
       />
 
       <Modal

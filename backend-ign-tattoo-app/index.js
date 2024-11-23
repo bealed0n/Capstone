@@ -695,16 +695,16 @@ app.get("/following/list/:user_id", async (req, res) => {
 // Ruta para registrar horarios de disponibilidad de un tatuador
 app.post("/tattoo-artist/:tattoo_artist_id/availability", async (req, res) => {
   const { tattoo_artist_id } = req.params;
-  const { date, start_time, end_time, is_available, description } = req.body;
+  const { date, start_time, is_available, description } = req.body;
 
   try {
     // Intentar hacer un `UPDATE` primero
     const updateResult = await pool.query(
       `UPDATE tattoo_artist_availability
-             SET start_time = $3, end_time = $4, is_available = $5, description = $6
+             SET start_time = $3, is_available = $4, description = $5
              WHERE tattoo_artist_id = $1 AND date = $2
              RETURNING *`,
-      [tattoo_artist_id, date, start_time, end_time, is_available, description]
+      [tattoo_artist_id, date, start_time, is_available, description]
     );
 
     if (updateResult.rows.length > 0) {
@@ -718,10 +718,10 @@ app.post("/tattoo-artist/:tattoo_artist_id/availability", async (req, res) => {
 
     // Si el `UPDATE` no afecta ninguna fila, hacer un `INSERT`
     const insertResult = await pool.query(
-      `INSERT INTO tattoo_artist_availability (tattoo_artist_id, date, start_time, end_time, is_available, description)
-             VALUES ($1, $2, $3, $4, $5, $6)
+      `INSERT INTO tattoo_artist_availability (tattoo_artist_id, date, start_time, is_available, description)
+             VALUES ($1, $2, $3, $4, $5)
              RETURNING *`,
-      [tattoo_artist_id, date, start_time, end_time, is_available, description]
+      [tattoo_artist_id, date, start_time, is_available, description]
     );
 
     res.status(201).json({
@@ -786,7 +786,7 @@ app.post(
       const availability = await pool.query(
         `SELECT * FROM tattoo_artist_availability 
              WHERE tattoo_artist_id = $1 AND date = $2 AND is_available = TRUE 
-             AND start_time <= $3 AND end_time >= $3`,
+             AND start_time <= $3`,
         [tattoo_artist_id, date, time]
       );
 
@@ -804,6 +804,15 @@ app.post(
         [user_id, tattoo_artist_id, date, time, description, referenceImageUrl]
       );
 
+      // Actualizar la disponibilidad del tatuador
+      await pool.query(
+        `UPDATE tattoo_artist_availability 
+         SET is_available = FALSE 
+         WHERE tattoo_artist_id = $1 AND date = $2 
+           AND start_time <= $3`,
+        [tattoo_artist_id, date, time]
+      );
+
       res.status(201).json({ appointment: result.rows[0] });
     } catch (error) {
       console.error("Error al crear la cita:", error);
@@ -811,7 +820,6 @@ app.post(
     }
   }
 );
-
 // Ruta para obtener las citas de un tatuador
 app.get("/tattoo-artist/:tattoo_artist_id/appointments", async (req, res) => {
   const { tattoo_artist_id } = req.params;
@@ -1002,7 +1010,7 @@ app.get("/user/:user_id/reviews", async (req, res) => {
        JOIN appointments ON reviews.appointment_id = appointments.id
        JOIN users ON reviews.tattoo_artist_id = users.id
        WHERE appointments.user_id = $1
-       ORDER BY reviews.created_at DESC`,
+       ORDER BY reviews.created_at ASC`,
       [user_id]
     );
 

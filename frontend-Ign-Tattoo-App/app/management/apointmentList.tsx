@@ -10,11 +10,13 @@ import {
   Image as RNImage,
   View,
   Text,
+  ScrollView,
 } from "react-native";
 import { UserContext } from "../context/userContext";
 import { format } from "date-fns";
 import { Picker } from "@react-native-picker/picker";
 import { styled } from "nativewind";
+import DateTimePicker from "@react-native-community/datetimepicker";
 
 const serverUrl = "http://192.168.100.87:3000";
 
@@ -28,7 +30,7 @@ interface Appointment {
   description: string;
   user_id: number;
   status: string;
-  reference_image_url: string | null; // Agregamos este campo
+  reference_image_url: string | null;
 }
 
 export default function AppointmentsList() {
@@ -48,15 +50,30 @@ export default function AppointmentsList() {
   const [modalVisible, setModalVisible] = useState<boolean>(false);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
+  // New state for availability modal
+  const [availabilityModalVisible, setAvailabilityModalVisible] =
+    useState<boolean>(false);
+  const [availabilityDate, setAvailabilityDate] = useState<Date>(new Date());
+  const [availabilityStartTime, setAvailabilityStartTime] = useState<Date>(
+    new Date()
+  );
+
+  const [showTimePicker, setShowTimePicker] = useState(false);
+  const [showDatePicker, setShowDatePicker] = useState(false);
+
+  const [availabilityDescription, setAvailabilityDescription] =
+    useState<string>("");
+  const [isAvailable, setIsAvailable] = useState<boolean>(true);
+
   useEffect(() => {
     const fetchAppointments = async () => {
       if (user && isLoggedIn) {
         try {
           let url = "";
           if (user.role === "tattoo_artist") {
-            url = `http://192.168.100.87:3000/tattoo-artist/${user.id}/appointments`;
+            url = `${serverUrl}/tattoo-artist/${user.id}/appointments`;
           } else if (user.role === "user") {
-            url = `http://192.168.100.87:3000/user/${user.id}/appointments`;
+            url = `${serverUrl}/user/${user.id}/appointments`;
           }
 
           const response = await fetch(url);
@@ -88,7 +105,7 @@ export default function AppointmentsList() {
   ) => {
     try {
       const response = await fetch(
-        `http://192.168.100.87:3000/appointments/${appointmentId}/status`,
+        `${serverUrl}/appointments/${appointmentId}/status`,
         {
           method: "PUT",
           headers: {
@@ -111,7 +128,6 @@ export default function AppointmentsList() {
           "Exitoso",
           "Estado de la cita actualizado y se ha mensaje enviado."
         );
-        // Actualizar la lista de citas
         setAppointments((prevAppointments) =>
           prevAppointments.map((appointment) =>
             appointment.id === appointmentId
@@ -136,7 +152,7 @@ export default function AppointmentsList() {
   const completeAppointment = async (appointmentId: number) => {
     try {
       const response = await fetch(
-        `http://192.168.100.87:3000/appointments/${appointmentId}/complete`,
+        `${serverUrl}/appointments/${appointmentId}/complete`,
         {
           method: "PUT",
           headers: {
@@ -147,7 +163,6 @@ export default function AppointmentsList() {
       const data = await response.json();
       if (data.success) {
         Alert.alert("Éxito", "El servicio ha sido finalizado.");
-        // Actualizar el estado localmente
         setAppointments((prevAppointments) =>
           prevAppointments.map((appointment) =>
             appointment.id === appointmentId
@@ -171,6 +186,47 @@ export default function AppointmentsList() {
     }));
   };
 
+  const handleRegisterAvailability = async () => {
+    if (!user || user.role !== "tattoo_artist") {
+      Alert.alert("Error", "Only tattoo artists can register availability.");
+      return;
+    }
+
+    try {
+      const response = await fetch(
+        `${serverUrl}/tattoo-artist/${user.id}/availability`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            date: format(availabilityDate, "yyyy-MM-dd"),
+            start_time: format(availabilityStartTime, "HH:mm:ss"),
+            is_available: isAvailable,
+            description: availabilityDescription,
+          }),
+        }
+      );
+
+      const data = await response.json();
+
+      if (data.success) {
+        Alert.alert("Success", "Availability registered successfully.");
+        setAvailabilityModalVisible(false);
+        // You might want to refresh the appointments list here
+      } else {
+        Alert.alert(
+          "Error",
+          data.message || "Failed to register availability."
+        );
+      }
+    } catch (error) {
+      console.error("Error registering availability:", error);
+      Alert.alert("Error", "An error occurred while registering availability.");
+    }
+  };
+
   if (loading) {
     return <ActivityIndicator size="large" color="#0000ff" />;
   }
@@ -180,6 +236,16 @@ export default function AppointmentsList() {
       <Text className="font-bold text-2xl dark:text-white mt-1 mb-2">
         Appointments List
       </Text>
+      {user?.role === "tattoo_artist" && (
+        <TouchableOpacity
+          onPress={() => setAvailabilityModalVisible(true)}
+          className="bg-blue-500 p-2 rounded-md mb-4"
+        >
+          <Text className="text-white text-center font-bold">
+            Registrar Disponibilidad
+          </Text>
+        </TouchableOpacity>
+      )}
       <FlatList
         data={appointments}
         keyExtractor={(item) => item.id.toString()}
@@ -197,20 +263,17 @@ export default function AppointmentsList() {
               Hora: {item.time}
             </Text>
 
-            {/* Mostrar imagen de referencia si existe */}
             {item.reference_image_url && (
               <TouchableOpacity
                 onPress={() => {
-                  setSelectedImage(
-                    `http://192.168.100.87:3000${item.reference_image_url}`
-                  );
+                  setSelectedImage(`${serverUrl}${item.reference_image_url}`);
                   setModalVisible(true);
                 }}
                 style={{ marginVertical: 8 }}
               >
                 <StyledImage
                   source={{
-                    uri: `http://192.168.100.87:3000${item.reference_image_url}`,
+                    uri: `${serverUrl}${item.reference_image_url}`,
                   }}
                   className="w-full h-40 rounded-lg"
                   resizeMode="cover"
@@ -218,7 +281,6 @@ export default function AppointmentsList() {
               </TouchableOpacity>
             )}
 
-            {/* Descripción con 'Mostrar más' */}
             <View>
               <Text
                 numberOfLines={expandedDescriptions[item.id] ? undefined : 3}
@@ -323,7 +385,7 @@ export default function AppointmentsList() {
         )}
       />
 
-      {/* Modal para mostrar la imagen en grande */}
+      {/* Modal for showing the image in full size */}
       <Modal
         visible={modalVisible}
         transparent={true}
@@ -349,7 +411,7 @@ export default function AppointmentsList() {
         </TouchableOpacity>
       </Modal>
 
-      {/* Modal para el Picker de estado */}
+      {/* Modal for the status Picker */}
       <Modal
         visible={pickerVisible}
         transparent={true}
@@ -415,6 +477,103 @@ export default function AppointmentsList() {
             >
               <Text style={{ color: "#000", textAlign: "center" }}>Cancel</Text>
             </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+
+      {/* New Modal for Registering Availability */}
+      <Modal
+        visible={availabilityModalVisible}
+        transparent={true}
+        animationType="slide"
+        onRequestClose={() => setAvailabilityModalVisible(false)}
+      >
+        <View className="flex-1 justify-center items-center bg-black bg-opacity-50">
+          <View className="bg-white dark:bg-gray-800 p-4 rounded-lg w-4/5">
+            <Text className="text-xl font-bold mb-4 text-gray-800 dark:text-white">
+              Register Availability
+            </Text>
+            <ScrollView>
+              <Text className="text-gray-800 dark:text-white mb-2">Date:</Text>
+              <TouchableOpacity onPress={() => setShowDatePicker(true)}>
+                <Text className="border border-gray-300 dark:border-gray-600 rounded p-2 mb-4 text-gray-800 dark:text-white">
+                  {format(availabilityDate, "dd/MM/yyyy")}
+                </Text>
+              </TouchableOpacity>
+              {showDatePicker && (
+                <DateTimePicker
+                  value={availabilityDate}
+                  mode="date"
+                  display="default"
+                  onChange={(event, selectedDate) => {
+                    if (event.type === "set") {
+                      const currentDate = selectedDate || availabilityDate;
+                      setAvailabilityDate(currentDate);
+                    }
+                    // Cerrar el DatePicker después de seleccionar
+                    setShowDatePicker(false);
+                  }}
+                />
+              )}
+              <Text className="text-gray-800 dark:text-white mb-2 mt-4">
+                Start Time:
+              </Text>
+              <TouchableOpacity onPress={() => setShowTimePicker(true)}>
+                <Text className="border border-gray-300 dark:border-gray-600 rounded p-2 mb-4 text-gray-800 dark:text-white">
+                  {format(availabilityStartTime, "hh:mm a")}
+                </Text>
+              </TouchableOpacity>
+              {showTimePicker && (
+                <DateTimePicker
+                  value={availabilityStartTime}
+                  mode="time"
+                  is24Hour={true}
+                  display="default"
+                  onChange={(event, selectedTime) => {
+                    if (event.type === "set") {
+                      const currentTime = selectedTime || availabilityStartTime;
+                      setAvailabilityStartTime(currentTime);
+                    }
+                    // Cerrar el TimePicker después de seleccionar
+                    setShowTimePicker(false);
+                  }}
+                />
+              )}
+              <TextInput
+                className="border border-gray-300 dark:border-gray-600 rounded p-2 mb-4 text-gray-800 dark:text-white mt-4"
+                placeholder="Description"
+                value={availabilityDescription}
+                onChangeText={setAvailabilityDescription}
+                multiline
+              />
+              <View className="flex-row items-center mb-4">
+                <Text className="text-gray-800 dark:text-white mr-2">
+                  Available:
+                </Text>
+                <TouchableOpacity
+                  onPress={() => setIsAvailable(!isAvailable)}
+                  className={`p-2 rounded-md ${isAvailable ? "bg-green-500" : "bg-red-500"}`}
+                >
+                  <Text className="text-white font-bold">
+                    {isAvailable ? "Yes" : "No"}
+                  </Text>
+                </TouchableOpacity>
+              </View>
+              <TouchableOpacity
+                className="bg-blue-500 p-2 rounded-md mb-2"
+                onPress={handleRegisterAvailability}
+              >
+                <Text className="text-white text-center font-bold">
+                  Register
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                className="bg-gray-500 p-2 rounded-md"
+                onPress={() => setAvailabilityModalVisible(false)}
+              >
+                <Text className="text-white text-center font-bold">Cancel</Text>
+              </TouchableOpacity>
+            </ScrollView>
           </View>
         </View>
       </Modal>

@@ -361,7 +361,7 @@ export default function UsersProfile({ userId }: UsersProfileProps) {
                       );
                     } else {
                       router.push({
-                        pathname: "/management/availableDates",
+                        pathname: "/designer/availableDesigns",
                         params: { id: userId },
                       });
                     }
