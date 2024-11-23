@@ -10,7 +10,7 @@ import {
 } from "react-native";
 import { Text, View } from "./Themed";
 import PostCard from "./PostCard";
-import { FontAwesome5 } from "@expo/vector-icons";
+import { FontAwesome5, MaterialIcons } from "@expo/vector-icons";
 import { UserContext } from "../app/context/userContext";
 import { useRouter } from "expo-router";
 
@@ -258,6 +258,23 @@ export default function UsersProfile({ userId }: UsersProfileProps) {
               </View>
             </View>
 
+            {userProfile?.role === "tattoo_artist" && (
+              <TouchableOpacity
+                onPress={() =>
+                  router.push({
+                    pathname: `/(tabs)/reviews/reviewsView`,
+                    params: { userId: userId },
+                  })
+                }
+                className="absolute right-2.5 top-2.5 bg-yellow-400 px-2 py-0.5 rounded p"
+              >
+                <View className="flex-row items-center justify-center bg-yellow-400">
+                  <MaterialIcons name="star" size={24} color="black" />
+                  <Text className="text-black font-bold">Reseñas</Text>
+                </View>
+              </TouchableOpacity>
+            )}
+
             <View className="flex-row justify-around mt-6 bg-gray-200 dark:bg-gray-700 rounded-full py-2">
               <View className="items-center bg-gray-200 ">
                 <Text className="font-bold text-gray-800 dark:text-white">
@@ -282,7 +299,6 @@ export default function UsersProfile({ userId }: UsersProfileProps) {
                 </Text>
               </View>
             </View>
-
             {user && user.id !== Number(userId) && (
               <TouchableOpacity
                 onPress={handleFollowToggle}
@@ -299,7 +315,6 @@ export default function UsersProfile({ userId }: UsersProfileProps) {
                 </Text>
               </TouchableOpacity>
             )}
-
             {userProfile?.role === "tattoo_artist" && (
               <View className="mt-4">
                 <TouchableOpacity
@@ -332,7 +347,6 @@ export default function UsersProfile({ userId }: UsersProfileProps) {
                 </TouchableOpacity>
               </View>
             )}
-
             {userProfile?.role === "Designer" && (
               <View className="mt-4">
                 <TouchableOpacity
@@ -365,7 +379,6 @@ export default function UsersProfile({ userId }: UsersProfileProps) {
                 </TouchableOpacity>
               </View>
             )}
-
             <Text className="mt-6 text-lg font-bold text-gray-800 dark:text-white">
               Posts
             </Text>

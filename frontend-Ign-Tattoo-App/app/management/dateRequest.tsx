@@ -75,14 +75,12 @@ export default function DateRequest() {
       formData.append("date", date);
       formData.append("time", time);
       formData.append("description", description);
-
       if (imageUri) {
         const image = {
           uri: imageUri,
           name: "reference-image.jpg",
           type: "image/jpeg",
         } as any;
-
         formData.append("reference_image", image); // Adjuntar la imagen como un archivo
       }
 

@@ -16,6 +16,8 @@ import { format } from "date-fns";
 import { Picker } from "@react-native-picker/picker";
 import { styled } from "nativewind";
 
+const serverUrl = "http://192.168.100.87:3000";
+
 const StyledImage = styled(RNImage);
 
 interface Appointment {
@@ -131,6 +133,37 @@ export default function AppointmentsList() {
     }
   };
 
+  const completeAppointment = async (appointmentId: number) => {
+    try {
+      const response = await fetch(
+        `http://192.168.100.87:3000/appointments/${appointmentId}/complete`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      const data = await response.json();
+      if (data.success) {
+        Alert.alert("Éxito", "El servicio ha sido finalizado.");
+        // Actualizar el estado localmente
+        setAppointments((prevAppointments) =>
+          prevAppointments.map((appointment) =>
+            appointment.id === appointmentId
+              ? { ...appointment, status: "Completed" }
+              : appointment
+          )
+        );
+      } else {
+        Alert.alert("Error", data.message);
+      }
+    } catch (error) {
+      console.error("Error completing appointment:", error);
+      Alert.alert("Error", "Ocurrió un error al finalizar el servicio.");
+    }
+  };
+
   const toggleDescription = (appointmentId: number) => {
     setExpandedDescriptions((prevState) => ({
       ...prevState,
@@ -153,15 +186,15 @@ export default function AppointmentsList() {
         renderItem={({ item }) => (
           <View className="p-2 bg-neutral-200 dark:bg-neutral-900 m-2 rounded-xl">
             <Text style={{ color: colorScheme === "dark" ? "#fff" : "#000" }}>
-              Date: {format(new Date(item.date), "dd/MMM/yyyy")}
+              Fecha: {format(new Date(item.date), "dd/MMM/yyyy")}
             </Text>
             <Text style={{ color: colorScheme === "dark" ? "#fff" : "#000" }}>
               {user?.role === "user"
-                ? `Tattoo artist: ${item.username}`
-                : `Client: ${item.username}`}
+                ? `Tatuador: ${item.username}`
+                : `Cliente: ${item.username}`}
             </Text>
             <Text style={{ color: colorScheme === "dark" ? "#fff" : "#000" }}>
-              Time: {item.time}
+              Hora: {item.time}
             </Text>
 
             {/* Mostrar imagen de referencia si existe */}
@@ -192,7 +225,7 @@ export default function AppointmentsList() {
                 ellipsizeMode="tail"
                 style={{ color: colorScheme === "dark" ? "#fff" : "#000" }}
               >
-                Description: {item.description}
+                Descripcion: {item.description}
               </Text>
               {item.description.length > 100 && (
                 <TouchableOpacity onPress={() => toggleDescription(item.id)}>
@@ -211,9 +244,9 @@ export default function AppointmentsList() {
             </View>
 
             <Text style={{ color: colorScheme === "dark" ? "#fff" : "#000" }}>
-              Status: {item.status}
+              Estado: {item.status}
             </Text>
-            {user?.role === "tattoo_artist" && (
+            {user?.role === "tattoo_artist" && item.status !== "Completed" && (
               <View className="bg-neutral-200 dark:bg-neutral-900">
                 <TouchableOpacity
                   onPress={() => {
@@ -249,6 +282,41 @@ export default function AppointmentsList() {
                       }}
                     />
                   )}
+                <TouchableOpacity
+                  className="bg-blue-500"
+                  style={{
+                    padding: 10,
+                    borderRadius: 5,
+                    marginTop: 10,
+                  }}
+                  onPress={() => {
+                    Alert.alert(
+                      "Confirmación",
+                      "¿Está seguro de que desea finalizar el servicio?",
+                      [
+                        {
+                          text: "Cancelar",
+                          style: "cancel",
+                        },
+                        {
+                          text: "Aceptar",
+                          onPress: () => completeAppointment(item.id),
+                        },
+                      ],
+                      { cancelable: false }
+                    );
+                  }}
+                >
+                  <Text
+                    style={{
+                      color: "white",
+                      textAlign: "center",
+                      fontWeight: "bold",
+                    }}
+                  >
+                    FINALIZAR SERVICIO
+                  </Text>
+                </TouchableOpacity>
               </View>
             )}
           </View>

@@ -139,11 +139,21 @@ export default function TabLayout() {
         }}
       />
 
-      <Tabs.Screen name="[id]" options={{ title: "Perfil", href: null }} />
+      <Tabs.Screen
+        name="[id]"
+        options={{
+          title: "Perfil",
+          href: null,
+        }}
+      />
 
       <Tabs.Screen
         name="studio/[id]"
         options={{ title: "Perfil de estudio", href: null }}
+      />
+      <Tabs.Screen
+        name="reviews/reviewsView"
+        options={{ title: "Reseñas", href: null }}
       />
     </Tabs>
   );

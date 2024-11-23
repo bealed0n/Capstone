@@ -745,7 +745,7 @@ app.get("/tattoo-artist/:tattoo_artist_id/availability", async (req, res) => {
 
   try {
     const result = await pool.query(
-      `SELECT * FROM tattoo_artist_availability WHERE tattoo_artist_id = $1 AND is_available = TRUE ORDER BY date`,
+      `SELECT * FROM tattoo_artist_availability WHERE tattoo_artist_id = $1 AND is_available = TRUE ORDER BY date DESC`, //ASD/ASDASD ASJDBASHJD SJANDJASND JANSDJ
       [tattoo_artist_id]
     );
     res.status(200).json({ availability: result.rows });
@@ -884,6 +884,183 @@ app.put("/appointments/:id/status", async (req, res) => {
     });
   }
 });
+
+//Endpoint para cerrar un servicio cita
+app.put("/appointments/:id/complete", async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    // Obtener el ID del tatuador y el username del cliente desde la cita
+    const appointmentResult = await pool.query(
+      `SELECT 
+         appointments.tattoo_artist_id, 
+         users.username AS client_username 
+       FROM appointments 
+       JOIN users ON appointments.user_id = users.id 
+       WHERE appointments.id = $1`,
+      [id]
+    );
+
+    if (appointmentResult.rows.length === 0) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Appointment not found" });
+    }
+
+    const { tattoo_artist_id, client_username } = appointmentResult.rows[0];
+
+    // Actualizar el estado de la cita a "Completed"
+    await pool.query(
+      "UPDATE appointments SET status = 'Completed' WHERE id = $1",
+      [id]
+    );
+
+    // Crear la reseña asociada con is_published = false
+    await pool.query(
+      `INSERT INTO reviews (appointment_id, tattoo_artist_id, client_username, is_published) 
+       VALUES ($1, $2, $3, FALSE)`,
+      [id, tattoo_artist_id, client_username]
+    );
+
+    res.status(200).json({
+      success: true,
+      message: "Appointment completed. Review created but not yet published.",
+    });
+  } catch (error) {
+    console.error("Error completing appointment:", error);
+    res
+      .status(500)
+      .json({ success: false, message: "Error completing appointment", error });
+  }
+});
+
+// Endpoint para subir una reseña
+app.put("/reviews/:id", upload.single("tattoo_image"), async (req, res) => {
+  const { id } = req.params; // ID de la reseña
+  const { review_text, rating } = req.body; // El cliente envía solo texto y calificación
+  let tattooImageUrl = null;
+
+  // Manejo de la imagen
+  if (req.file) {
+    tattooImageUrl = `/uploads/${req.file.filename}`;
+  }
+
+  try {
+    // Actualizar la reseña y forzar `is_published` a true
+    const result = await pool.query(
+      `UPDATE reviews 
+         SET review_text = $1, rating = $2, is_published = TRUE, tattoo_image_url = $3 
+         WHERE id = $4 RETURNING *`,
+      [review_text, rating, tattooImageUrl, id]
+    );
+
+    if (result.rows.length === 0) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Review not found" });
+    }
+
+    res.status(200).json({ success: true, review: result.rows[0] });
+  } catch (error) {
+    console.error("Error updating review:", error);
+    res
+      .status(500)
+      .json({ success: false, message: "Error updating review", error });
+  }
+});
+
+// Endpoint para obtener reseñas de un tatuador
+app.get("/tattoo-artist/:tattoo_artist_id/reviews", async (req, res) => {
+  const { tattoo_artist_id } = req.params;
+
+  try {
+    const result = await pool.query(
+      `SELECT review_text, rating, client_username, created_at
+       FROM reviews
+       WHERE tattoo_artist_id = $1 and is_published = TRUE
+       ORDER BY created_at DESC`,
+      [tattoo_artist_id]
+    );
+
+    res.status(200).json({ reviews: result.rows });
+  } catch (error) {
+    console.error("Error fetching reviews:", error);
+    res.status(500).json({ message: "Error fetching reviews", error });
+  }
+});
+
+// Endpoint para obtener las reseñas de un cliente
+app.get("/user/:user_id/reviews", async (req, res) => {
+  const { user_id } = req.params;
+
+  try {
+    const result = await pool.query(
+      `SELECT reviews.id, reviews.review_text, reviews.rating, 
+              reviews.is_published, reviews.tattoo_image_url, 
+              reviews.created_at, users.username AS tattoo_artist_name
+       FROM reviews
+       JOIN appointments ON reviews.appointment_id = appointments.id
+       JOIN users ON reviews.tattoo_artist_id = users.id
+       WHERE appointments.user_id = $1
+       ORDER BY reviews.created_at DESC`,
+      [user_id]
+    );
+
+    const published = result.rows.filter((review) => review.is_published);
+    const notPublished = result.rows.filter((review) => !review.is_published);
+
+    res.status(200).json({
+      success: true,
+      reviews: {
+        published,
+        notPublished,
+      },
+    });
+  } catch (error) {
+    console.error("Error fetching user reviews:", error);
+    res
+      .status(500)
+      .json({ success: false, message: "Error fetching user reviews", error });
+  }
+});
+
+//Endpoint para obtener las reseñas de un tatuador
+app.get("/tattoo-artist/:tattoo_artist_id/reviews", async (req, res) => {
+  const { tattoo_artist_id } = req.params;
+
+  try {
+    const result = await pool.query(
+      `SELECT reviews.id, reviews.review_text, reviews.rating, 
+              reviews.is_published, reviews.tattoo_image_url, 
+              reviews.created_at, users.username AS client_username
+       FROM reviews
+       JOIN appointments ON reviews.appointment_id = appointments.id
+       JOIN users ON reviews.user_id = users.id
+       WHERE appointments.tattoo_artist_id = $1
+       ORDER BY reviews.created_at DESC`,
+      [tattoo_artist_id]
+    );
+
+    const published = result.rows.filter((review) => review.is_published);
+    const notPublished = result.rows.filter((review) => !review.is_published);
+
+    res.status(200).json({
+      success: true,
+      reviews: {
+        published,
+        notPublished,
+      },
+    });
+  } catch (error) {
+    console.error("Error fetching tattoo artist reviews:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error fetching tattoo artist reviews",
+      error,
+    });
+  }
+});
+
 //----------------------------------------------------------------------------------------------------
 //ENDPOINTS PARA LA GESTION DE DISEÑOS PARA DISEÑADOR VISTAS
 //----------------------------------------------------------------------------------------------------
