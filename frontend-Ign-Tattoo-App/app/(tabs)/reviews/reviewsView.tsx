@@ -75,9 +75,9 @@ export default function ReviewsView() {
             <FontAwesome5
               key={star}
               name="star"
-              solid={star <= item.rating / 2}
+              solid={star <= item.rating} // Cambiado para usar item.rating directamente
               size={16}
-              color={star <= item.rating / 2 ? "#FFC107" : "#E0E0E0"}
+              color={star <= item.rating ? "#FFC107" : "#E0E0E0"}
               style={{ marginLeft: 2 }}
             />
           ))}

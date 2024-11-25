@@ -684,6 +684,33 @@ app.get("/following/list/:user_id", async (req, res) => {
     });
   }
 });
+
+//Endpoint todos los artistas en en aleatoriamente
+app.get("/tattoo-artist/random", async (req, res) => {
+  try {
+    const result = await pool.query(
+      `SELECT * FROM users WHERE role = 'tattoo_artist' ORDER BY RANDOM()`
+    );
+    res.status(200).json({ tattoo_artists: result.rows });
+  } catch (error) {
+    res.status(500).json({ message: "Error al obtener los tatuadores", error });
+  }
+});
+
+//Endpoiont para obtener todos los diseñadores en aleatorio
+app.get("/designer/random", async (req, res) => {
+  try {
+    const result = await pool.query(
+      `SELECT * FROM users WHERE role = 'Designer' ORDER BY RANDOM()`
+    );
+    res.status(200).json({ designers: result.rows });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Error al obtener los diseñadores", error });
+  }
+});
+
 //----------------------------------------------------------------------------------------------------
 //FIN DE APARTADO DE SEGUIDORES Y SEGUIDOS
 //----------------------------------------------------------------------------------------------------

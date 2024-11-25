@@ -143,7 +143,8 @@ export default function ClientReviews() {
             {[1, 2, 3, 4, 5].map((star) => (
               <FontAwesome5
                 key={star}
-                name={star <= (item.rating || 0) ? "star" : "f005"}
+                name="star"
+                solid={star <= (item.rating || 0)} // Cambiado para usar item.rating directamente
                 size={16}
                 color={star <= (item.rating || 0) ? "#FFC107" : "#E0E0E0"}
                 style={{ marginRight: 4 }}
@@ -227,7 +228,8 @@ export default function ClientReviews() {
                   onPress={() => setReviewRating(star)}
                 >
                   <FontAwesome5
-                    name={star <= reviewRating ? "star" : "f005"}
+                    name="star"
+                    solid={star <= reviewRating} // Cambiado para usar reviewRating directamente
                     size={32}
                     color="#FFC107"
                     style={{ marginRight: 8 }}

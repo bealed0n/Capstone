@@ -31,6 +31,7 @@
     "axios": "^1.7.7",
     "date-fns": "^4.1.0",
     "expo": "~52.0.9",
+    "expo-blur": "^14.0.1",
     "expo-font": "~13.0.1",
     "expo-image-picker": "~16.0.2",
     "expo-linear-gradient": "~14.0.1",

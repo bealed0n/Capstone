@@ -163,7 +163,9 @@ export default function ConversationScreen() {
         {!isUserMessage && (
           <Image
             source={{
-              uri: `http://192.168.100.87:3000${item.sender_profile_pic}`,
+              uri: item.sender_profile_pic
+                ? `http://192.168.100.87:3000${item.sender_profile_pic}`
+                : "https://via.placeholder.com/40",
             }}
             className="w-8 h-8 rounded-full ml-2"
           />
@@ -189,17 +191,15 @@ export default function ConversationScreen() {
                 }
               }}
             >
-              {item.image_url && (
-                <Image
-                  source={{
-                    uri: item.image_url.startsWith("data:")
-                      ? item.image_url
-                      : `http://192.168.100.87:3000${item.image_url}`,
-                  }}
-                  className="w-64 h-64 rounded-lg mt-2"
-                  resizeMode="cover"
-                />
-              )}
+              <Image
+                source={{
+                  uri: item.image_url.startsWith("data:")
+                    ? item.image_url
+                    : `http://192.168.100.87:3000${item.image_url}`,
+                }}
+                className="w-64 h-64 rounded-lg mt-2"
+                resizeMode="cover"
+              />
             </TouchableOpacity>
           ) : null}
           <Text className="text-xs text-gray-200 mt-1 text-right">
@@ -209,7 +209,9 @@ export default function ConversationScreen() {
         {isUserMessage && (
           <Image
             source={{
-              uri: `http://192.168.100.87:3000${item.sender_profile_pic}`,
+              uri: item.sender_profile_pic
+                ? `http://192.168.100.87:3000${item.sender_profile_pic}`
+                : "https://via.placeholder.com/40",
             }}
             className="w-8 h-8 rounded-full mr-1"
           />
