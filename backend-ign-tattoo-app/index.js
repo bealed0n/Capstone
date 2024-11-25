@@ -225,7 +225,9 @@ app.post("/postulaciones", upload.single("requisitos"), async (req, res) => {
 //Endpoint para obtener todas las postulaciones
 app.get("/postulaciones", async (req, res) => {
   try {
-    const result = await pool.query(`SELECT * FROM postulaciones`);
+    const result = await pool.query(
+      `SELECT * FROM postulaciones where aprobado = FALSE`
+    );
     res.status(200).json({ postulaciones: result.rows });
   } catch (error) {
     res
