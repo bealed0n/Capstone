@@ -76,10 +76,10 @@ export default function Login() {
       </View>
 
       <View className="flex-row dark:bg-neutral-900">
-        <Text className="text-xl">Welcome to </Text>
+        <Text className="text-xl">Bienvenido a </Text>
         <Text className="font-bold text-xl">IGN Tattoo</Text>
       </View>
-      <Text className="mt-4">Email Address</Text>
+      <Text className="mt-4">Correo</Text>
       <TextInput
         className="dark:text-white my-2 border border-gray-500 p-2 rounded"
         placeholder="you@example.com"
@@ -87,10 +87,10 @@ export default function Login() {
         value={email}
         onChangeText={setEmail}
       />
-      <Text className="mt-2">Password</Text>
+      <Text className="mt-2">Contraseña</Text>
       <TextInput
         className="dark:text-white my-2 border border-gray-500 p-2 rounded"
-        placeholder="Enter your password"
+        placeholder="Ingrese su contraseña"
         placeholderTextColor={colorScheme === "dark" ? "gray" : "gray"}
         value={password}
         onChangeText={setPassword}
@@ -113,9 +113,9 @@ export default function Login() {
         </Text>
       </TouchableOpacity>
       <View className="flex-row mt-4 justify-center mr-4 dark:bg-neutral-900">
-        <Text>New to IGN Tattoo </Text>
+        <Text>¿Nuevo en IGN Tattoo? </Text>
         <TouchableOpacity onPress={() => router.push("/(auth)/register")}>
-          <Text className="font-bold dark:text-white">Sign up</Text>
+          <Text className="font-bold dark:text-white">Registrate</Text>
         </TouchableOpacity>
       </View>
     </KeyboardAvoidingView>

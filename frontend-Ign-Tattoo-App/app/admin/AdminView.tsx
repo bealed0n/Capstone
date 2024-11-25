@@ -1,7 +1,7 @@
 // app/admin/AdminView.tsx
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { View, Text, Button, StyleSheet } from "react-native";
+import { View, Text, Button, TextInput, StyleSheet } from "react-native";
 
 interface Postulacion {
   id: number;
@@ -14,15 +14,19 @@ const serverUrl = "http://192.168.100.87:3000";
 
 export default function AdminView() {
   const [postulaciones, setPostulaciones] = useState<Postulacion[]>([]);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [password, setPassword] = useState("");
 
   useEffect(() => {
-    fetchPostulaciones();
-  }, []);
+    if (isAuthenticated) {
+      fetchPostulaciones();
+    }
+  }, [isAuthenticated]);
 
   const fetchPostulaciones = async () => {
     try {
       const response = await axios.get<{ postulaciones: Postulacion[] }>(
-        "http://192.168.100.87:3000/postulaciones"
+        `${serverUrl}/postulaciones`
       );
       setPostulaciones(response.data.postulaciones);
     } catch (error) {
@@ -47,6 +51,30 @@ export default function AdminView() {
       console.error("Error al rechazar la postulación:", error);
     }
   };
+
+  const handleLogin = () => {
+    if (password === "123") {
+      setIsAuthenticated(true);
+    } else {
+      alert("Contraseña incorrecta");
+    }
+  };
+
+  if (!isAuthenticated) {
+    return (
+      <View style={styles.container}>
+        <Text style={styles.title}>Admin Login</Text>
+        <TextInput
+          style={styles.input}
+          placeholder="Enter password"
+          secureTextEntry
+          value={password}
+          onChangeText={setPassword}
+        />
+        <Button title="Login" onPress={handleLogin} />
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
@@ -87,5 +115,12 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "#ccc",
     borderRadius: 5,
+  },
+  input: {
+    height: 40,
+    borderColor: "gray",
+    borderWidth: 1,
+    marginBottom: 20,
+    paddingHorizontal: 10,
   },
 });
