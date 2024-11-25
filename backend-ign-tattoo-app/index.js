@@ -642,6 +642,80 @@ app.post("/posts/:post_id/comments", async (req, res) => {
     });
   }
 });
+//----------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------
+
+//Endpoint para actualizar un post
+app.put("/posts/:post_id", async (req, res) => {
+  const { post_id } = req.params;
+  const { content, user_id } = req.body;
+
+  try {
+    // Verificar que el post pertenece al usuario
+    const postResult = await pool.query(
+      "SELECT * FROM posts WHERE id = $1 AND user_id = $2",
+      [post_id, user_id]
+    );
+
+    if (postResult.rows.length === 0) {
+      return res
+        .status(404)
+        .json({ error: "Post not found or user not authorized" });
+    }
+
+    // Actualizar el contenido del post
+    const result = await pool.query(
+      "UPDATE posts SET content = $1 WHERE id = $2 RETURNING *",
+      [content, post_id]
+    );
+
+    res.json(result.rows[0]);
+  } catch (error) {
+    console.error("Error updating post:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+//Endpoint para eliminar un post
+app.delete("/posts/:post_id", async (req, res) => {
+  const { post_id } = req.params;
+  const { user_id } = req.body;
+
+  try {
+    // Verificar que el post pertenece al usuario
+    const postResult = await pool.query(
+      "SELECT * FROM posts WHERE id = $1 AND user_id = $2",
+      [post_id, user_id]
+    );
+
+    if (postResult.rows.length === 0) {
+      return res
+        .status(404)
+        .json({ error: "Post not found or user not authorized" });
+    }
+
+    // Eliminar el post
+    const result = await pool.query(
+      "DELETE FROM posts WHERE id = $1 RETURNING *",
+      [post_id]
+    );
+
+    res.json({
+      success: true,
+      message: "Post deleted successfully",
+      post: result.rows[0],
+    });
+  } catch (error) {
+    console.error("Error deleting post:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
 
 //----------------------------------------------------------------------------------------------------
 //FIN DE APARTADO DE POSTEOS

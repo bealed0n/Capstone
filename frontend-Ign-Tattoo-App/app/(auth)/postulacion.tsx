@@ -1,17 +1,20 @@
 import React, { useState } from "react";
 import {
-  View,
-  Text,
   TextInput,
   TouchableOpacity,
   Image,
   ScrollView,
   Alert,
   Platform,
+  StyleSheet,
 } from "react-native";
+
+import { View, Text } from "../../components/Themed";
 import { Picker } from "@react-native-picker/picker";
 import * as ImagePicker from "expo-image-picker";
 import { useNavigation } from "@react-navigation/native";
+import { useColorScheme } from "@/components/useColorScheme.web";
+import { router } from "expo-router";
 
 export default function PostulacionesScreen() {
   const [username, setUsername] = useState("");
@@ -93,7 +96,7 @@ export default function PostulacionesScreen() {
   };
 
   return (
-    <ScrollView className="flex-1 bg-white dark:bg-gray-900">
+    <ScrollView className="flex-1 bg-white dark:bg-gray-900 ios:mt-12">
       <View className="p-4">
         <Text className="text-2xl font-bold mb-4 text-gray-800 dark:text-white">
           Postulación
@@ -132,7 +135,7 @@ export default function PostulacionesScreen() {
             <Picker
               selectedValue={role}
               onValueChange={(itemValue) => setRole(itemValue)}
-              style={{ color: Platform.OS === "ios" ? "#000" : "#fff" }}
+              style={{ color: useColorScheme() === "dark" ? "white" : "black" }}
             >
               <Picker.Item label="Tatuador" value="tattoo_artist" />
               <Picker.Item label="Diseñador" value="Designer" />
@@ -183,6 +186,18 @@ export default function PostulacionesScreen() {
             {isLoading ? "Enviando..." : "Enviar postulación"}
           </Text>
         </TouchableOpacity>
+        <View className="flex-row mt-4 justify-center mr-4 ">
+          <Text>¿Tienes cuenta? </Text>
+          <TouchableOpacity onPress={() => router.push("/(auth)/login")}>
+            <Text className="font-bold dark:text-white">Log In</Text>
+          </TouchableOpacity>
+        </View>
+        <View className="flex-row mt-4 justify-center mr-4 ">
+          <Text>¿Nuevo en IGN Tattoo? </Text>
+          <TouchableOpacity onPress={() => router.push("/(auth)/register")}>
+            <Text className="font-bold dark:text-white">Registrate</Text>
+          </TouchableOpacity>
+        </View>
       </View>
     </ScrollView>
   );

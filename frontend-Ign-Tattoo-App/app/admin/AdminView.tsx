@@ -1,13 +1,14 @@
 // app/admin/AdminView.tsx
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { View, Text, Button, TextInput, StyleSheet } from "react-native";
+import { View, Text, Button, TextInput, StyleSheet, Image } from "react-native";
 
 interface Postulacion {
   id: number;
   username: string;
   email: string;
   role: string;
+  requisitos: string; // Añade el campo requisitos
 }
 
 const serverUrl = "http://192.168.100.87:3000";
@@ -85,6 +86,12 @@ export default function AdminView() {
           <Text>Username: {postulacion.username}</Text>
           <Text>Email: {postulacion.email}</Text>
           <Text>Role: {postulacion.role}</Text>
+          {postulacion.requisitos && (
+            <Image
+              source={{ uri: `${serverUrl}${postulacion.requisitos}` }}
+              style={styles.image}
+            />
+          )}
           <Button
             title="Aprobar"
             onPress={() => aprobarPostulacion(postulacion.id)}
@@ -122,5 +129,10 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     marginBottom: 20,
     paddingHorizontal: 10,
+  },
+  image: {
+    width: 100,
+    height: 100,
+    marginBottom: 10,
   },
 });
