@@ -193,6 +193,96 @@ app.post("/register", async (req, res) => {
   }
 });
 
+//PARA POSTULACIONES DE ROL TATUADOR Y DISEÑADOR
+
+//Endpoint para postular a rol
+app.post("/postulaciones", upload.single("requisitos"), async (req, res) => {
+  const { username, email, role, password } = req.body;
+  let requisitos = null;
+
+  if (req.file) {
+    requisitos = `/uploads/${req.file.filename}`;
+  }
+
+  try {
+    // Hashear la contraseña antes de guardarla
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // Insertar la postulación en la tabla de postulaciones
+    const result = await pool.query(
+      `INSERT INTO postulaciones (username, email, role, password, requisitos, aprobado) 
+       VALUES ($1, $2, $3, $4, $5, FALSE) RETURNING *`,
+      [username, email, role, hashedPassword, requisitos]
+    );
+
+    res.status(201).json({ postulacion: result.rows[0] });
+  } catch (error) {
+    console.error("Error al crear la postulación:", error);
+    res.status(500).json({ message: "Error al crear la postulación", error });
+  }
+});
+
+//Endpoint para obtener todas las postulaciones
+app.get("/postulaciones", async (req, res) => {
+  try {
+    const result = await pool.query(`SELECT * FROM postulaciones`);
+    res.status(200).json({ postulaciones: result.rows });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Error al obtener las postulaciones", error });
+  }
+});
+
+//Endpoint para aprobar una postulacion y mover los datos a la tabla de users
+app.post("/postulaciones/:id/aprobar", async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    // Obtener la postulación por ID
+    const postulacionResult = await pool.query(
+      `SELECT * FROM postulaciones WHERE id = $1`,
+      [id]
+    );
+
+    if (postulacionResult.rows.length === 0) {
+      return res.status(404).json({ message: "Postulación no encontrada" });
+    }
+
+    const postulacion = postulacionResult.rows[0];
+
+    // Definir valores predeterminados
+    const bio = postulacion.role === "tattoo_artist" ? "Tatuador" : "Diseñador";
+    const profilePic = "/assets/images/user.png";
+    const name = postulacion.username;
+
+    // Insertar los datos en la tabla de users
+    await pool.query(
+      `INSERT INTO users (username, email, role, password, bio, profile_pic, name) 
+       VALUES ($1, $2, $3, $4, $5, $6, $7)`,
+      [
+        postulacion.username,
+        postulacion.email,
+        postulacion.role,
+        postulacion.password,
+        bio,
+        profilePic,
+        name,
+      ]
+    );
+
+    // Actualizar la postulación como aprobada
+    await pool.query(`UPDATE postulaciones SET aprobado = TRUE WHERE id = $1`, [
+      id,
+    ]);
+
+    res.status(200).json({ message: "Postulación aprobada y usuario creado" });
+  } catch (error) {
+    console.error("Error al aprobar la postulación:", error);
+    res.status(500).json({ message: "Error al aprobar la postulación", error });
+  }
+});
+
 //Obtener informacion de usuario
 app.get("/users/:user_id", async (req, res) => {
   const { user_id } = req.params;
