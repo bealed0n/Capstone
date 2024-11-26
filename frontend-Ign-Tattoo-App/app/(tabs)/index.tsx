@@ -6,7 +6,7 @@ import {
   FlatList,
   RefreshControl,
 } from "react-native";
-import { useRouter } from "expo-router"; // Hook para redirección
+import { useRouter } from "expo-router";
 import PostCard from "@/components/PostCard";
 import { UserContext } from "../context/userContext";
 
@@ -22,25 +22,22 @@ interface Post {
 }
 
 export default function IndexScreen() {
-  const { isLoggedIn } = useContext(UserContext); // Aseguramos que solo cargue si está logueado
+  const { isLoggedIn, user } = useContext(UserContext);
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
-  const [layoutMounted, setLayoutMounted] = useState(false); // Estado para verificar si el layout está montado
-  const router = useRouter(); // Hook para redirección
+  const [layoutMounted, setLayoutMounted] = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
-    // Este hook simula el montaje del layout
-    setTimeout(() => setLayoutMounted(true), 0); // Espera un ciclo de render para asegurar el montaje
+    setTimeout(() => setLayoutMounted(true), 0);
   }, []);
 
   useEffect(() => {
     if (layoutMounted) {
       if (!isLoggedIn) {
-        // Si no está logueado, redirigimos al login
         router.replace("/(auth)/login");
       } else {
-        // Si está logueado, obtenemos los posts
         fetchPosts();
       }
     }
@@ -48,14 +45,13 @@ export default function IndexScreen() {
 
   const fetchPosts = async () => {
     try {
-      const response = await fetch("http://192.168.100.87:3000/posts");
-      if (!response.ok) {
-        throw new Error("Error al obtener los posts");
-      }
+      const response = await fetch(
+        `http://192.168.100.87:3000/posts/following/${user.id}`
+      );
       const data = await response.json();
-      setPosts(data);
+      setPosts(data.posts);
     } catch (error) {
-      console.error(error);
+      console.error("Error fetching posts:", error);
     } finally {
       setLoading(false);
     }
@@ -67,15 +63,34 @@ export default function IndexScreen() {
     setRefreshing(false);
   };
 
-  const renderItem = ({ item }: { item: Post }) => <PostCard post={item} />;
+  const handlePostUpdate = (updatedPost: Post) => {
+    setPosts((currentPosts) =>
+      currentPosts.map((post) =>
+        post.id === updatedPost.id ? updatedPost : post
+      )
+    );
+  };
+
+  const handlePostDelete = (deletedPostId: number) => {
+    setPosts((currentPosts) =>
+      currentPosts.filter((post) => post.id !== deletedPostId)
+    );
+  };
+
+  const renderItem = ({ item }: { item: Post }) => (
+    <PostCard
+      post={item}
+      onUpdate={handlePostUpdate}
+      onDelete={handlePostDelete}
+      isOwner={user?.id === item.user_id}
+    />
+  );
 
   if (!layoutMounted) {
-    // No mostramos nada mientras el layout no esté montado
     return null;
   }
 
   if (!isLoggedIn) {
-    // Si el usuario no está logueado, no mostramos nada (aunque la redirección ya debería estar en marcha)
     return null;
   }
 

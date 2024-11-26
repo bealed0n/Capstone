@@ -105,7 +105,10 @@ export default function TabLayout() {
 
           // tabBarIcon: ({ color }) => <FontAwesome5 name="user" size={24} color={iconColor} />,
           headerRight: () => (
-            <View style={{ flexDirection: "row", alignItems: "center" }}>
+            <View
+              className="bg-transparent"
+              style={{ flexDirection: "row", alignItems: "center" }}
+            >
               {user?.role === "tattoo_artist" && (
                 <Pressable
                   onPress={() => navigation.navigate("notifications" as never)}

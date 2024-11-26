@@ -227,7 +227,7 @@ export default function UsersProfile({ userId }: UsersProfileProps) {
   }
 
   return (
-    <View className="flex-1 bg-gray-100 dark:bg-gray-900">
+    <View className="flex-1 bg-gray-100 dark:bg-neutral-900">
       <FlatList
         data={posts}
         keyExtractor={(item) => item.id.toString()}
@@ -235,8 +235,8 @@ export default function UsersProfile({ userId }: UsersProfileProps) {
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         }
         ListHeaderComponent={
-          <View className="bg-white dark:bg-gray-800 p-4 mb-4 rounded-b-3xl shadow-md">
-            <View className="flex-row items-center">
+          <View className="bg-white dark:bg-neutral-900 p-4 mb-4 rounded-b-3xl shadow-md">
+            <View className="flex-row items-center dark:bg-neutral-900">
               <Image
                 source={
                   userProfile?.profile_pic
@@ -245,7 +245,7 @@ export default function UsersProfile({ userId }: UsersProfileProps) {
                 }
                 className="w-24 h-24 rounded-full"
               />
-              <View className="ml-4 flex-1">
+              <View className="ml-4 flex-1 dark:bg-neutral-900">
                 <Text className="text-xl font-bold text-gray-800 dark:text-white">
                   {userProfile?.name}
                 </Text>
@@ -275,14 +275,14 @@ export default function UsersProfile({ userId }: UsersProfileProps) {
               </TouchableOpacity>
             )}
 
-            <View className="flex-row justify-around mt-6 bg-gray-200 dark:bg-gray-700 rounded-full py-2">
-              <View className="items-center bg-gray-200 ">
+            <View className="flex-row justify-around mt-6 bg-gray-200 dark:bg-neutral-700 rounded-full py-2">
+              <View className="items-center bg-gray-200 dark:bg-neutral-700 ">
                 <Text className="font-bold text-gray-800 dark:text-white">
                   {postCount}
                 </Text>
                 <Text className="text-gray-600 dark:text-gray-300">Public</Text>
               </View>
-              <View className="items-center bg-gray-200">
+              <View className="items-center bg-gray-200 dark:bg-neutral-700">
                 <Text className="font-bold text-gray-800 dark:text-white">
                   {followerCount}
                 </Text>
@@ -290,7 +290,7 @@ export default function UsersProfile({ userId }: UsersProfileProps) {
                   Seguidores
                 </Text>
               </View>
-              <View className="items-center bg-gray-200">
+              <View className="items-center bg-gray-200 dark:bg-neutral-700">
                 <Text className="font-bold text-gray-800 dark:text-white">
                   {followingCount}
                 </Text>
@@ -316,7 +316,7 @@ export default function UsersProfile({ userId }: UsersProfileProps) {
               </TouchableOpacity>
             )}
             {userProfile?.role === "tattoo_artist" && (
-              <View className="mt-4">
+              <View className="mt-4 dark:bg-neutral-900">
                 <TouchableOpacity
                   className="bg-yellow-600 py-2 px-4 rounded-full flex-row items-center justify-center"
                   onPress={() => {
@@ -348,7 +348,7 @@ export default function UsersProfile({ userId }: UsersProfileProps) {
               </View>
             )}
             {userProfile?.role === "Designer" && (
-              <View className="mt-4">
+              <View className="mt-4 dark:bg-neutral-900">
                 <TouchableOpacity
                   className="bg-indigo-500 py-2 px-4 rounded-full flex-row items-center justify-center"
                   onPress={() => {
@@ -384,7 +384,25 @@ export default function UsersProfile({ userId }: UsersProfileProps) {
             </Text>
           </View>
         }
-        renderItem={({ item }) => <PostCard post={item} />}
+        renderItem={({ item }) => (
+          <PostCard
+            post={item}
+            onUpdate={(updatedPost) => {
+              setPosts((prevPosts) =>
+                prevPosts.map((post) =>
+                  post.id === updatedPost.id ? updatedPost : post
+                )
+              );
+            }}
+            onDelete={(deletedPostId) => {
+              setPosts((prevPosts) =>
+                prevPosts.filter((post) => post.id !== deletedPostId)
+              );
+              setPostCount((prevCount) => prevCount - 1);
+            }}
+            isOwner={user?.id === item.user_id}
+          />
+        )}
         ListEmptyComponent={() => (
           <View className="items-center mt-20">
             <FontAwesome5 name="frown" size={50} color="gray" />

@@ -221,7 +221,24 @@ export default function Profile() {
   return (
     <FlatList
       data={posts}
-      renderItem={({ item }) => <PostCard post={item} />}
+      renderItem={({ item }) => (
+        <PostCard
+          post={item}
+          onUpdate={(updatedPost) => {
+            setPosts((prevPosts) =>
+              prevPosts.map((post) =>
+                post.id === updatedPost.id ? updatedPost : post
+              )
+            );
+          }}
+          onDelete={(deletedPostId) => {
+            setPosts((prevPosts) =>
+              prevPosts.filter((post) => post.id !== deletedPostId)
+            );
+          }}
+          isOwner={item.user_id === user?.id}
+        />
+      )}
       keyExtractor={(item) => item.id.toString()}
       refreshControl={
         <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />

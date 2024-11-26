@@ -485,6 +485,29 @@ app.get("/posts/:user_id", async (req, res) => {
   }
 });
 
+//Ruta para obtener los posteos de los usuarios que sigue un usuario
+app.get("/posts/following/:user_id", async (req, res) => {
+  const { user_id } = req.params;
+  try {
+    const result = await pool.query(
+      `SELECT posts.id, posts.user_id, users.username, users.role, posts.content, posts.image, posts.created_at, users.profile_pic
+             FROM posts
+             JOIN users ON posts.user_id = users.id
+             WHERE posts.user_id IN (
+                 SELECT following_id FROM follows WHERE follower_id = $1
+             )
+             ORDER BY posts.created_at DESC`,
+      [user_id]
+    );
+    res.status(200).json({ posts: result.rows });
+  } catch (error) {
+    console.error("Error al obtener los posts de los seguidos:", error);
+    res
+      .status(500)
+      .json({ message: "Error al obtener los posts de los seguidos", error });
+  }
+});
+
 // Ruta para SUBIR posteo
 app.post("/posts", upload.single("image"), async (req, res) => {
   const { content, user_id } = req.body;

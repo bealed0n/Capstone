@@ -237,9 +237,9 @@ export default function Search() {
   };
 
   return (
-    <View className="flex-1 bg-white dark:bg-gray-900 px-2">
+    <View className="flex-1 bg-white dark:bg-neutral-900 px-2">
       <View className="p-4">
-        <View className="flex-row items-center p-2 rounded-full bg-gray-100 dark:bg-gray-800 mb-4">
+        <View className="flex-row items-center p-2 rounded-full bg-gray-100 dark:bg-neutral-800 mb-4">
           <Ionicons name="search" size={22} color={iconColor} />
           <TextInput
             className="flex-1 ml-2 text-base dark:text-white"
