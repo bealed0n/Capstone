@@ -27,7 +27,7 @@ export default function ProfileEdit() {
   const [name, setName] = useState("");
   const [loading, setLoading] = useState(false);
   const [imageUri, setImageUri] = useState<string | null>(null);
-  const { user } = useContext(UserContext);
+  const { user, updateUser } = useContext(UserContext);
 
   const SERVER_URL = "http://192.168.100.87:3000";
 
@@ -112,11 +112,14 @@ export default function ProfileEdit() {
       }
 
       const updatedUser = await response.json();
+
       setProfile((prevProfile) => ({ ...prevProfile, ...updatedUser }));
-      Alert.alert("Success", "Profile picture updated successfully");
+      updateUser(updatedUser);
+
+      Alert.alert("Éxito", "Imagen de perfil actualizada correctamente");
     } catch (error) {
-      console.error("Error uploading profile picture:", error);
-      Alert.alert("Error", "Failed to upload profile picture");
+      console.error("Error subiendo la imagen de perfil:", error);
+      Alert.alert("Error", "No se pudo subir la imagen de perfil");
     } finally {
       setLoading(false);
     }
@@ -138,11 +141,17 @@ export default function ProfileEdit() {
       }
 
       const updatedUser = await response.json();
+
+      // Actualizar el perfil local
       setProfile((prevProfile) => ({ ...prevProfile, ...updatedUser }));
-      Alert.alert("Success", "Username updated successfully");
+
+      // Actualizar el contexto de usuario
+      updateUser(updatedUser);
+
+      Alert.alert("Éxito", "Nombre de usuario actualizado correctamente");
     } catch (error) {
-      console.error("Error updating username:", error);
-      Alert.alert("Error", "Failed to update username");
+      console.error("Error actualizando el nombre de usuario:", error);
+      Alert.alert("Error", "No se pudo actualizar el nombre de usuario");
     } finally {
       setLoading(false);
     }

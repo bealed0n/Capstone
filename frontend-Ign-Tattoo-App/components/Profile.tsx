@@ -23,10 +23,20 @@ interface Post {
   profile_pic: string;
 }
 
+interface UserData {
+  id: number;
+  name: string;
+  bio: string | null;
+  username: string;
+  profile_pic: string | null;
+  role: string;
+}
+
 const serverUrl = "http://192.168.100.87:3000";
 
 export default function Profile() {
   const [posts, setPosts] = useState<Post[]>([]);
+  const [userData, setUserData] = useState<UserData | null>(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [postCount, setPostCount] = useState(0); // Para contar las publicaciones
@@ -38,14 +48,18 @@ export default function Profile() {
   useEffect(() => {
     fetchPosts();
     fetchUserCounts();
+    fetchUserData();
   }, [user?.id]); // Re-fetch posts and counts when user ID changes
 
   const onRefresh = async () => {
     setRefreshing(true);
     await fetchPosts();
     await fetchUserCounts(); // Refrescar conteos también
+    await fetchUserData(); // Refrescar datos del usuario
     setRefreshing(false);
   };
+
+  const defaultPhoto = require("../assets/images/user.png");
 
   const fetchPosts = async () => {
     if (!user?.id) return;
@@ -94,6 +108,20 @@ export default function Profile() {
       console.error(error);
     }
   };
+
+  const fetchUserData = async () => {
+    try {
+      const response = await fetch(`${serverUrl}/users/${user?.id}`);
+      if (!response.ok) {
+        throw new Error("Error al obtener los datos del usuario");
+      }
+      const data = await response.json();
+      setUserData(data);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   const colorScheme = useColorScheme();
   const iconColor = colorScheme === "dark" ? "white" : "black";
 
@@ -104,19 +132,19 @@ export default function Profile() {
 
         <Image
           source={
-            user?.profile_pic
-              ? { uri: `${serverUrl}${user.profile_pic}` }
-              : photo
+            userData?.profile_pic
+              ? { uri: `${serverUrl}${userData.profile_pic}` }
+              : defaultPhoto
           }
           className="rounded-full w-20 h-20 items-start mt-4 ml-3"
         />
         <View className="flex-col ml-3 mt-4">
           <Text className="text-2xl font-bold mb-1">
-            {user?.name ?? "No encontrado"}
+            {userData?.name ?? "No encontrado"}
           </Text>
 
           <Text className="text-sm ml-2 mb-2">
-            @{user?.username ?? "No encontrado"}
+            @{userData?.username ?? "No encontrado"}
           </Text>
           <View className="flex-row">
             <Text className="text-sm mt-1">{postCount} Public.</Text>
@@ -132,7 +160,7 @@ export default function Profile() {
       <View>
         <Text className="text-base mt-4 ml-5 opacity-50">Dashboard</Text>
         <View className="flex-row justify-center mt-2">
-          {user?.role === "tattoo_artist" ? (
+          {userData?.role === "tattoo_artist" ? (
             <TouchableOpacity
               className="flex-1 mx-5 "
               onPress={() => {
@@ -173,7 +201,7 @@ export default function Profile() {
             </TouchableOpacity>
           )}
 
-          {user?.role === "tattoo_artist" ? (
+          {userData?.role === "tattoo_artist" ? (
             <TouchableOpacity
               className="flex-1 mx-5"
               onPress={() => {
@@ -236,7 +264,7 @@ export default function Profile() {
               prevPosts.filter((post) => post.id !== deletedPostId)
             );
           }}
-          isOwner={item.user_id === user?.id}
+          isOwner={item.user_id === userData?.id}
         />
       )}
       keyExtractor={(item) => item.id.toString()}
