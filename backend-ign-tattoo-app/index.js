@@ -282,6 +282,347 @@ app.get("/verify-email", async (req, res) => {
   }
 });
 
+// Endpoint para solicitar el restablecimiento de contraseña
+app.post("/forgot-password", async (req, res) => {
+  const { email } = req.body;
+
+  try {
+    // Verificar si el usuario existe
+    const result = await pool.query("SELECT * FROM users WHERE email = $1", [
+      email,
+    ]);
+    const user = result.rows[0];
+
+    if (!user) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Correo no encontrado." });
+    }
+
+    // Generar un token único para el restablecimiento de la contraseña
+    const resetPasswordToken = crypto.randomBytes(32).toString("hex");
+
+    // Establecer el tiempo de expiración (ejemplo: 1 hora)
+    const expires = new Date();
+    expires.setHours(expires.getHours() + 1);
+
+    // Guardar el token y la expiración en la base de datos
+    await pool.query(
+      "UPDATE users SET reset_password_token = $1, reset_password_expires = $2 WHERE email = $3",
+      [resetPasswordToken, expires, email]
+    );
+
+    // Configurar el transporte de Nodemailer
+    const transporter = nodemailer.createTransport({
+      service: "Gmail",
+      auth: {
+        user: "igntattoo.contacto@gmail.com",
+        pass: "caiy hset szzy aopz",
+      },
+    });
+
+    // Enlace de restablecimiento
+    const resetLink = `${req.protocol}://${req.get(
+      "host"
+    )}/reset-password?token=${resetPasswordToken}`;
+
+    // Enviar correo con el enlace para restablecer la contraseña
+    await transporter.sendMail({
+      from: '"Tu Aplicación" <igntattoo.contacto@gmail.com>',
+      to: email,
+      subject: "Restablecer tu contraseña",
+      html: `
+        <p>Hola,</p>
+        <p>Recibimos una solicitud para restablecer tu contraseña. Haz clic en el siguiente enlace para cambiar tu contraseña:</p>
+        <a href="${resetLink}">${resetLink}</a>
+        <p>Este enlace expirará en 1 hora.</p>
+      `,
+    });
+
+    res.status(200).json({
+      success: true,
+      message: "Revisa tu correo para restablecer la contraseña.",
+    });
+  } catch (error) {
+    console.error("Error al enviar el correo:", error);
+    res
+      .status(500)
+      .json({ success: false, message: "Error al enviar el correo." });
+  }
+});
+
+app.get("/reset-password", (req, res) => {
+  const { token } = req.query;
+
+  if (!token) {
+    return res.status(400).send("Token inválido o no proporcionado.");
+  }
+
+  // Verificar que el token existe y no haya expirado
+  pool.query(
+    "SELECT * FROM users WHERE reset_password_token = $1 AND reset_password_expires > NOW()",
+    [token],
+    (err, result) => {
+      if (err || result.rows.length === 0) {
+        return res.status(400).send("El token es inválido o ha expirado.");
+      }
+
+      // Mostrar el formulario para restablecer la contraseña
+      res.send(`
+                <!DOCTYPE html>
+        <html lang="es">
+        <head>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1">
+          <title>Cambiar Contraseña</title>
+          <style>
+            /* Reset de estilos básicos */
+            * {
+              box-sizing: border-box;
+              margin: 0;
+              padding: 0;
+            }
+
+            body {
+              font-family: Arial, sans-serif;
+              background: linear-gradient(135deg, #f5f7fa, #c3cfe2);
+              display: flex;
+              justify-content: center;
+              align-items: center;
+              height: 100vh;
+            }
+
+            .container {
+              background-color: #ffffff;
+              padding: 30px 40px;
+              border-radius: 10px;
+              box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+              width: 100%;
+              max-width: 400px;
+            }
+
+            h2 {
+              text-align: center;
+              margin-bottom: 20px;
+              color: #333333;
+            }
+
+            form {
+              display: flex;
+              flex-direction: column;
+            }
+
+            input[type="password"] {
+              padding: 12px;
+              margin-bottom: 15px;
+              border: 1px solid #cccccc;
+              border-radius: 5px;
+              font-size: 16px;
+              transition: border-color 0.3s;
+            }
+
+            input[type="password"]:focus {
+              border-color: #007BFF;
+              outline: none;
+            }
+
+            button {
+              padding: 12px;
+              background-color: #007BFF;
+              color: #ffffff;
+              border: none;
+              border-radius: 5px;
+              font-size: 16px;
+              cursor: pointer;
+              transition: background-color 0.3s;
+            }
+
+            button:hover {
+              background-color: #0056b3;
+            }
+
+            .message {
+              margin-top: 20px;
+              text-align: center;
+              font-size: 16px;
+              color: #28a745;
+            }
+
+            .error {
+              color: #dc3545;
+              margin-bottom: 15px;
+              text-align: center;
+            }
+
+            /* Modal de Éxito */
+            .modal {
+              display: none; /* Oculto por defecto */
+              position: fixed;
+              z-index: 1;
+              left: 0;
+              top: 0;
+              width: 100%;
+              height: 100%;
+              overflow: auto;
+              background-color: rgba(0,0,0,0.5); /* Fondo semi-transparente */
+              justify-content: center;
+              align-items: center;
+            }
+
+            .modal-content {
+              background-color: #fefefe;
+              padding: 20px 30px;
+              border: 1px solid #888;
+              border-radius: 10px;
+              text-align: center;
+              max-width: 400px;
+              width: 90%;
+            }
+
+            .close-btn {
+              background-color: #28a745;
+              color: #ffffff;
+              padding: 10px 20px;
+              border: none;
+              border-radius: 5px;
+              cursor: pointer;
+              margin-top: 15px;
+              font-size: 16px;
+            }
+
+            .close-btn:hover {
+              background-color: #218838;
+            }
+          </style>
+        </head>
+        <body>
+          <div class="container">
+            <h2>Cambiar Contraseña</h2>
+            <form id="reset-password-form">
+              <input type="password" id="new-password" placeholder="Nueva contraseña" required />
+              <input type="password" id="confirm-password" placeholder="Confirmar nueva contraseña" required />
+              <button type="submit">Cambiar contraseña</button>
+              <div id="error-message" class="error"></div>
+            </form>
+          </div>
+
+          <!-- Modal de Éxito -->
+          <div id="success-modal" class="modal">
+            <div class="modal-content">
+              <h3>Contraseña Actualizada</h3>
+              <p>Tu contraseña ha sido cambiada con éxito. Puedes volver a la aplicación.</p>
+              <button class="close-btn" id="close-modal-btn">Cerrar</button>
+            </div>
+          </div>
+
+          <script>
+            const form = document.getElementById("reset-password-form");
+            const errorMessage = document.getElementById("error-message");
+            const successModal = document.getElementById("success-modal");
+            const closeModalBtn = document.getElementById("close-modal-btn");
+
+            form.addEventListener("submit", async (e) => {
+              e.preventDefault();
+
+              const newPassword = document.getElementById("new-password").value;
+              const confirmPassword = document.getElementById("confirm-password").value;
+
+              if (newPassword !== confirmPassword) {
+                errorMessage.textContent = "Las contraseñas no coinciden.";
+                return;
+              }
+
+              const token = new URLSearchParams(window.location.search).get("token");
+
+              try {
+                const response = await fetch("/reset-password", {
+                  method: "POST",
+                  headers: {
+                    "Content-Type": "application/json",
+                  },
+                  body: JSON.stringify({ token, newPassword }),
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                  // Mostrar el modal de éxito
+                  successModal.style.display = "flex";
+                  // Limpiar el formulario y los mensajes de error
+                  form.reset();
+                  errorMessage.textContent = "";
+
+                  // Cerrar automáticamente el modal después de 3 segundos
+                  setTimeout(() => {
+                    successModal.style.display = "none";
+                    // Opcional: Puedes redirigir a otra página dentro de la app si lo deseas
+                    // window.location.href = "/app-homepage"; // Cambia esto según la ruta de tu aplicación
+                  }, 3000);
+                } else {
+                  errorMessage.textContent = data.message || "Hubo un error.";
+                }
+              } catch (error) {
+                console.error("Error:", error);
+                errorMessage.textContent = "Hubo un error en el servidor.";
+              }
+            });
+
+            // Cerrar el modal cuando se hace clic en el botón
+            closeModalBtn.addEventListener("click", () => {
+              successModal.style.display = "none";
+            });
+
+            // Cerrar el modal cuando se hace clic fuera del contenido del modal
+            window.addEventListener("click", (event) => {
+              if (event.target == successModal) {
+                successModal.style.display = "none";
+              }
+            });
+          </script>
+        </body>
+        </html>
+      `);
+    }
+  );
+});
+
+app.post("/reset-password", async (req, res) => {
+  const { token, newPassword } = req.body;
+
+  try {
+    // Verificar si el token es válido
+    const result = await pool.query(
+      "SELECT * FROM users WHERE reset_password_token = $1",
+      [token]
+    );
+    const user = result.rows[0];
+
+    if (!user) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Token inválido o expirado." });
+    }
+
+    // Hashear la nueva contraseña
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    // Actualizar la contraseña y limpiar el token
+    await pool.query(
+      "UPDATE users SET password = $1, reset_password_token = NULL, reset_password_expires = NULL WHERE id = $2",
+      [hashedPassword, user.id]
+    );
+
+    res
+      .status(200)
+      .json({ success: true, message: "Contraseña actualizada exitosamente." });
+  } catch (error) {
+    console.error("Error al actualizar la contraseña:", error);
+    res
+      .status(500)
+      .json({ success: false, message: "Error interno del servidor." });
+  }
+});
+
 //PARA POSTULACIONES DE ROL TATUADOR Y DISEÑADOR
 
 //Endpoint para postular a rol
