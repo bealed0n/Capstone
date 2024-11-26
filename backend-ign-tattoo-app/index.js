@@ -235,13 +235,13 @@ app.post("/register", async (req, res) => {
 
     // Enviar correo de verificación
     await transporter.sendMail({
-      from: '"Tu Aplicación" <igntattoo.contacto@gmail.com>',
+      from: '"IgnTattoo" <igntattoo.contacto@gmail.com>',
       to: email,
       subject: "Verifica tu correo",
       html: `
         <p>Hola ${username},</p>
         <p>Por favor verifica tu correo haciendo clic en el siguiente enlace:</p>
-        <a href="${verificationLink}">${verificationLink}</a>
+        <a href="${verificationLink}">${verificationLink}</a>        
       `,
     });
 
