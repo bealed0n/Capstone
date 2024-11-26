@@ -146,6 +146,16 @@ app.post("/login", async (req, res) => {
 
     if (rows.length > 0) {
       const user = rows[0];
+
+      // Verificar si el usuario está verificado
+      if (!user.is_verified) {
+        return res.json({
+          success: false,
+          message: "Por favor verifica tu correo antes de iniciar sesión.",
+        });
+      }
+
+      // Validar la contraseña
       const isValidPassword = await bcrypt.compare(password, user.password);
 
       if (isValidPassword) {

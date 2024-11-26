@@ -10,6 +10,7 @@ import {
 } from "react-native";
 import { Text, View } from "./Themed";
 import { formatDistanceToNow, parseISO } from "date-fns";
+import { es } from "date-fns/locale";
 import { MaterialIcons } from "@expo/vector-icons";
 import { Href, router } from "expo-router";
 import CommentsModal from "./CommentsModal";
@@ -74,7 +75,10 @@ export const CardExample = ({
   const [editModalVisible, setEditModalVisible] = useState(false);
   const [editedContent, setEditedContent] = useState(content);
   const imageUrl = image ? `${SERVER_URL}${image}` : null;
-  const timeAgo = formatDistanceToNow(parseISO(createdAt), { addSuffix: true });
+  const timeAgo = formatDistanceToNow(parseISO(createdAt), {
+    addSuffix: true,
+    locale: es,
+  });
   const defaultPhoto = require("@/assets/images/user.png");
 
   useEffect(() => {

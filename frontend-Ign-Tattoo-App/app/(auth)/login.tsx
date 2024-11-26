@@ -6,6 +6,8 @@ import {
   useColorScheme,
   KeyboardAvoidingView,
   Platform,
+  Modal,
+  Pressable,
 } from "react-native";
 import { View, Text } from "../../components/Themed";
 import { useRouter, useSegments } from "expo-router";
@@ -16,6 +18,7 @@ export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [isModalVisible, setModalVisible] = useState(false); // Estado para el Modal
   const router = useRouter();
   const segments = useSegments();
   const { login, isLoggedIn } = useContext(UserContext);
@@ -36,7 +39,10 @@ export default function Login() {
         login(data.user);
         router.replace("/(tabs)");
       } else {
-        setError(data.message);
+        if (data.message.includes("verifica tu correo")) {
+          setModalVisible(true); // Mostrar Modal si el correo no está verificado
+        }
+        setError(data.message); // Mostrar el mensaje de error
       }
     } catch (error) {
       setError("Error en la conexión con el servidor");
@@ -118,6 +124,33 @@ export default function Login() {
           <Text className="font-bold dark:text-white">Registrate</Text>
         </TouchableOpacity>
       </View>
+
+      {/* Modal para mensaje de alerta */}
+      <Modal
+        visible={isModalVisible}
+        transparent={true}
+        animationType="slide"
+        onRequestClose={() => setModalVisible(false)}
+      >
+        <View className="flex-1 justify-center items-center bg-black/50">
+          <View className="w-3/4 bg-white p-5 rounded-lg shadow-lg dark:bg-neutral-800">
+            <Text className="text-lg font-bold mb-4 text-red-600">
+              Atención
+            </Text>
+            <Text className="text-base mb-4 text-neutral-700 dark:text-neutral-200">
+              {error}
+            </Text>
+            <Pressable
+              className="bg-blue-500 p-3 rounded-md"
+              onPress={() => setModalVisible(false)}
+            >
+              <Text className="text-center text-white font-bold">
+                Entendido
+              </Text>
+            </Pressable>
+          </View>
+        </View>
+      </Modal>
     </KeyboardAvoidingView>
   );
 }

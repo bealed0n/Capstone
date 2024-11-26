@@ -41,7 +41,7 @@ export default function Register() {
         setEmail("");
         setPassword("");
         // Redirigir a la pantalla de login después de unos segundos
-        setTimeout(() => router.replace("/(auth)/login"), 3000);
+        setTimeout(() => router.replace("/(auth)/login"), 1000);
       } else {
         setError(data.message || "Error al registrar usuario.");
       }
