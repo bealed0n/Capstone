@@ -16,10 +16,40 @@ export default function Register() {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [passwordStrength, setPasswordStrength] = useState("");
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const router = useRouter(); // Para redirigir
   const { login } = useContext(UserContext); // Usa la función login del contexto
+
+  const checkPasswordStrength = (password: string) => {
+    let strength = "";
+    const regexes = [
+      /[a-z]/, // Minúsculas
+      /[A-Z]/, // Mayúsculas
+      /[0-9]/, // Números
+      /[^A-Za-z0-9]/, // Caracteres especiales
+    ];
+    const passedTests = regexes.reduce(
+      (acc, regex) => acc + Number(regex.test(password)),
+      0
+    );
+
+    if (password.length >= 8 && passedTests >= 3) {
+      strength = "strong";
+    } else if (password.length >= 6 && passedTests >= 2) {
+      strength = "medium";
+    } else {
+      strength = "weak";
+    }
+
+    setPasswordStrength(strength);
+  };
+
+  const handlePasswordChange = (text: string) => {
+    setPassword(text);
+    checkPasswordStrength(text);
+  };
 
   const handleRegister = async () => {
     setError(""); // Limpiar errores previos
@@ -68,7 +98,7 @@ export default function Register() {
           <Text className=" text-xl justify-center">Sign Up to </Text>
           <Text className="font-bold text-xl ">Ign Tattoo</Text>
         </View>
-        <Text className="mb-1 mt-4">Username</Text>
+        <Text className="mb-1 mt-4">Usuario</Text>
         <TextInput
           className="dark:text-white border border-gray-500 p-2 rounded "
           placeholder="Username"
@@ -84,15 +114,23 @@ export default function Register() {
           value={email}
           onChangeText={setEmail}
         />
-        <Text className="mt-4">Password</Text>
+        <Text className="mt-4">Contraseña</Text>
         <TextInput
-          className="dark:text-white  border border-gray-500 p-2 rounded "
-          placeholder="Enter your password"
-          placeholderTextColor={colorScheme === "dark" ? "gray" : "gray"}
+          className="dark:text-white border border-gray-500 p-2 rounded"
           value={password}
-          onChangeText={setPassword}
+          onChangeText={handlePasswordChange}
+          placeholder="Contraseña"
           secureTextEntry
         />
+        {passwordStrength === "weak" && (
+          <Text className="text-red-500">Contraseña débil</Text>
+        )}
+        {passwordStrength === "medium" && (
+          <Text className="text-orange-500">Contraseña media</Text>
+        )}
+        {passwordStrength === "strong" && (
+          <Text className="text-green-500">Contraseña fuerte</Text>
+        )}
 
         {/* Mostrar mensajes de error o éxito */}
         {error ? <Text className="text-red-500 mb-2">{error}</Text> : null}
