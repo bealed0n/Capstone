@@ -31,7 +31,7 @@ export default function ManagementLayout() {
           <Stack.Screen
             name="designerProjects"
             options={{
-              title: "My projects",
+              title: "Mis proyectos",
               headerLeft: () => (
                 <Pressable className="ml-2" onPress={() => navigation.goBack()}>
                   <MaterialIcons
@@ -46,7 +46,7 @@ export default function ManagementLayout() {
           <Stack.Screen
             name="availableDesigns"
             options={{
-              title: "Available designs",
+              title: "Diseños disponibles",
               headerLeft: () => (
                 <Pressable className="ml-2" onPress={() => navigation.goBack()}>
                   <MaterialIcons
@@ -61,7 +61,7 @@ export default function ManagementLayout() {
           <Stack.Screen
             name="requestedDesigns"
             options={{
-              title: "Requested designs",
+              title: "Diseños solicitados",
               headerLeft: () => (
                 <Pressable className="ml-2" onPress={() => navigation.goBack()}>
                   <MaterialIcons
@@ -76,7 +76,7 @@ export default function ManagementLayout() {
           <Stack.Screen
             name="userRequested"
             options={{
-              title: "Requested designs",
+              title: "Diseños solicitados",
               headerLeft: () => (
                 <Pressable className="ml-2" onPress={() => navigation.goBack()}>
                   <MaterialIcons

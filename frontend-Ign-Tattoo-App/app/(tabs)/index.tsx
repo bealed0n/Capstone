@@ -9,6 +9,7 @@ import {
 import { useRouter } from "expo-router";
 import PostCard from "@/components/PostCard";
 import { UserContext } from "../context/userContext";
+import { View } from "@/components/Themed";
 
 interface Post {
   id: number;
@@ -106,6 +107,18 @@ export default function IndexScreen() {
           refreshControl={
             <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
           }
+          ListEmptyComponent={() => (
+            <View className="flex-1 justify-center items-center p-4">
+              <Text className="text-lg text-center text-gray-800 dark:text-white mb-4">
+                No sigues a nadie aún. 😞
+              </Text>
+              {/*Divider*/}
+              <View className="h-0.5 bg-gray-300 dark:bg-white/10 w-full mb-4" />
+              <Text className="text-lg text-center text-gray-800 dark:text-white mb-">
+                Sigue a otros usuarios para ver sus publicaciones aquí.🖤
+              </Text>
+            </View>
+          )}
         />
       )}
     </SafeAreaView>

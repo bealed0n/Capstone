@@ -234,7 +234,7 @@ export default function AppointmentsList() {
   return (
     <View style={{ flex: 1, padding: 8 }}>
       <Text className="font-bold text-2xl dark:text-white mt-1 mb-2">
-        Appointments List
+        Lista de citas
       </Text>
       {user?.role === "tattoo_artist" && (
         <TouchableOpacity
@@ -383,6 +383,17 @@ export default function AppointmentsList() {
             )}
           </View>
         )}
+        ListEmptyComponent={
+          <Text
+            style={{
+              color: colorScheme === "dark" ? "#fff" : "#000",
+              textAlign: "center",
+              marginTop: 20,
+            }}
+          >
+            No hay citas aun.
+          </Text>
+        }
       />
 
       {/* Modal for showing the image in full size */}

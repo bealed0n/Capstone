@@ -17,10 +17,13 @@ export default function Register() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
   const router = useRouter(); // Para redirigir
   const { login } = useContext(UserContext); // Usa la función login del contexto
 
   const handleRegister = async () => {
+    setError(""); // Limpiar errores previos
+    setSuccess(""); // Limpiar mensajes previos
     try {
       const response = await fetch("http://192.168.100.87:3000/register", {
         method: "POST",
@@ -30,24 +33,24 @@ export default function Register() {
         body: JSON.stringify({ username, email, password }),
       });
 
-      if (!response.ok) {
-        throw new Error("Error en la respuesta del servidor");
-      }
-
       const data = await response.json();
 
-      if (data.success) {
-        // Llamar a la función login del UserContext
-        login(data.user);
-        router.replace("/(tabs)");
+      if (response.ok && data.success) {
+        setSuccess(data.message); // Mostrar mensaje de éxito
+        setUsername("");
+        setEmail("");
+        setPassword("");
+        // Redirigir a la pantalla de login después de unos segundos
+        setTimeout(() => router.replace("/(auth)/login"), 3000);
       } else {
-        setError(data.message);
+        setError(data.message || "Error al registrar usuario.");
       }
     } catch (error) {
       console.error(error);
-      setError("Error en la conexión con el servidor");
+      setError("Error en la conexión con el servidor.");
     }
   };
+
   const colorScheme = useColorScheme();
   const iconColor = colorScheme === "dark" ? "white" : "black"; // 'light' is the default color scheme
 
@@ -90,22 +93,25 @@ export default function Register() {
           onChangeText={setPassword}
           secureTextEntry
         />
-        <TouchableOpacity className="mt-1"></TouchableOpacity>
 
+        {/* Mostrar mensajes de error o éxito */}
         {error ? <Text className="text-red-500 mb-2">{error}</Text> : null}
+        {success ? (
+          <Text className="text-green-500 mb-2">{success}</Text>
+        ) : null}
 
         <TouchableOpacity className="mt-4" onPress={handleRegister}>
           <Text className="text-lg text-neutral-100 p-2 bg-neutral-800 text-center dark:bg-neutral-50 dark:text-neutral-700 font-bold rounded-md">
             Sign Up
           </Text>
         </TouchableOpacity>
-        <View className="flex-row mt-4 justify-center mr-4 dark:bg-neutral-900">
+        <View className="flex-row mt-4 justify-center mr-4 dark:bg-black">
           <Text>¿Tienes cuenta? </Text>
           <TouchableOpacity onPress={() => router.push("/(auth)/login")}>
             <Text className="font-bold dark:text-white">Log In</Text>
           </TouchableOpacity>
         </View>
-        <View className="flex-row mt-4 justify-center mr-4 dark:bg-neutral-900 ">
+        <View className="flex-row mt-4 justify-center mr-4 dark:bg-black ">
           <Text>Eres Tatuador o Diseñador </Text>
           <TouchableOpacity onPress={() => router.push("/(auth)/postulacion")}>
             <Text className="font-bold dark:text-white">

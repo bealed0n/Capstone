@@ -85,7 +85,7 @@ export default function UserRequested() {
 
   return (
     <View className="flex-1 p-4">
-      <Text className="text-2xl font-bold mb-4">Your Requested Designs</Text>
+      <Text className="text-2xl font-bold mb-4">Tus diseños solicitados</Text>
       <FlatList
         data={designs}
         keyExtractor={(item) => item.id.toString()}

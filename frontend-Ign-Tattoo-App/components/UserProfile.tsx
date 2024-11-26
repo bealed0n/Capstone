@@ -1,5 +1,10 @@
-import React, { useContext } from "react";
-import { TouchableOpacity, Image, FlatList } from "react-native";
+import React, { useContext, useEffect, useState } from "react";
+import {
+  TouchableOpacity,
+  Image,
+  FlatList,
+  RefreshControl,
+} from "react-native";
 import { View, Text } from "./Themed";
 import { useNavigation } from "@react-navigation/native";
 import { Href, router } from "expo-router";
@@ -8,10 +13,41 @@ import ClientReviews from "./clientReview";
 
 const serverUrl = "http://192.168.100.87:3000";
 
+interface UserData {
+  id: number;
+  name: string;
+  bio: string | null;
+  username: string;
+  profile_pic: string | null;
+  role: string;
+}
+
 export default function UserProfile() {
   const navigation = useNavigation();
   const { user } = useContext(UserContext);
   const photo = require("../assets/images/user.png");
+  const [userData, setUserData] = useState<UserData | null>(null);
+  const [refreshing, setRefreshing] = useState(false);
+
+  useEffect(() => {
+    fetchUserData();
+  }, [user?.id]);
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await fetchUserData();
+    setRefreshing(false);
+  };
+
+  const fetchUserData = async () => {
+    try {
+      const response = await fetch(`${serverUrl}/users/${user?.id}`);
+      const data = await response.json();
+      setUserData(data);
+    } catch (error) {
+      console.error("Error fetching user data:", error);
+    }
+  };
 
   // Crear un array de datos para el FlatList
   const data = [
@@ -21,20 +57,24 @@ export default function UserProfile() {
         <View className="flex-row items-center ml-5 mt-4">
           <Image
             source={
-              user?.profile_pic
-                ? { uri: `${serverUrl}${user.profile_pic}` }
+              userData?.profile_pic
+                ? { uri: `${serverUrl}${userData.profile_pic}` }
                 : photo
             }
             className="w-20 h-20 rounded-full"
           />
           <View className="ml-4">
             <Text className="text-2xl font-bold">
-              {user?.name ?? "No encontrado"}
+              {userData?.name ?? "No encontrado"}
             </Text>
             <Text className="text-sm text-gray-500">
-              @{user?.username ?? "No encontrado"}
+              @{userData?.username ?? "No encontrado"}
             </Text>
           </View>
+          {/* Bio */}
+          <Text className="text-sm text-gray-500 ml-5">
+            {userData?.bio ?? "No hay biografía"}
+          </Text>
         </View>
       ),
     },
@@ -97,6 +137,9 @@ export default function UserProfile() {
     <FlatList
       data={data}
       renderItem={({ item }) => <View>{item.content}</View>}
+      refreshControl={
+        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+      }
       keyExtractor={(item) => item.key}
       contentContainerStyle={{ paddingBottom: 20 }} // Para agregar un poco de espacio en la parte inferior
     />

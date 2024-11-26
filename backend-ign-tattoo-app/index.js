@@ -8,6 +8,8 @@ const path = require("path");
 const fs = require("fs");
 const bcrypt = require("bcrypt");
 const { profile } = require("console");
+const crypto = require("crypto");
+const nodemailer = require("nodemailer");
 
 const app = express();
 const port = 3000;
@@ -175,21 +177,98 @@ app.post("/login", async (req, res) => {
   }
 });
 
-// Ruta para registrar un usuario automaticamente rol de user
+// Endpoint para registrar usuarios con verificación
 app.post("/register", async (req, res) => {
   const { username, email, password } = req.body;
 
   try {
+    // Hashear contraseña
     const hashedPassword = await bcrypt.hash(password, 10);
-    const query =
-      "INSERT INTO users (username, email, password) VALUES ($1, $2, $3)";
-    await pool.query(query, [username, email, hashedPassword]);
-    return res.status(200).json({ success: true, user: { username, email } });
+
+    // Generar token único
+    const verificationToken = crypto.randomBytes(32).toString("hex");
+
+    // Valores predeterminados
+    const name = "$";
+    const bio = ".";
+    const profilePic = "/uploads/user.png";
+
+    // Insertar usuario en la base de datos
+    const query = `
+      INSERT INTO users (username, email, password, bio, profile_pic, name, is_verified, verification_token)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+    `;
+    await pool.query(query, [
+      username,
+      email,
+      hashedPassword,
+      bio,
+      profilePic,
+      name,
+      false,
+      verificationToken,
+    ]);
+
+    // Configurar transporte de Nodemailer
+    const transporter = nodemailer.createTransport({
+      service: "Gmail",
+      auth: {
+        user: "igntattoo.contacto@gmail.com",
+        pass: "caiy hset szzy aopz",
+      },
+    });
+
+    // Enlace de verificación
+    const verificationLink = `${req.protocol}://${req.get(
+      "host"
+    )}/verify-email?token=${verificationToken}`;
+
+    // Enviar correo de verificación
+    await transporter.sendMail({
+      from: '"Tu Aplicación" <igntattoo.contacto@gmail.com>',
+      to: email,
+      subject: "Verifica tu correo",
+      html: `
+        <p>Hola ${username},</p>
+        <p>Por favor verifica tu correo haciendo clic en el siguiente enlace:</p>
+        <a href="${verificationLink}">${verificationLink}</a>
+      `,
+    });
+
+    res.status(200).json({
+      success: true,
+      message: "Usuario registrado. Revisa tu correo para verificarlo.",
+    });
   } catch (error) {
     console.error("Error al registrar usuario:", error);
-    return res
+    res
       .status(500)
       .json({ success: false, message: "Error al registrar usuario" });
+  }
+});
+
+app.get("/verify-email", async (req, res) => {
+  const { token } = req.query;
+
+  try {
+    const query =
+      "UPDATE users SET is_verified = $1, verification_token = NULL WHERE verification_token = $2 RETURNING id";
+    const { rowCount } = await pool.query(query, [true, token]);
+
+    if (rowCount === 0) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Token inválido o expirado" });
+    }
+
+    return res
+      .status(200)
+      .json({ success: true, message: "Correo verificado exitosamente" });
+  } catch (error) {
+    console.error("Error al verificar correo:", error);
+    return res
+      .status(500)
+      .json({ success: false, message: "Error al verificar el correo" });
   }
 });
 
