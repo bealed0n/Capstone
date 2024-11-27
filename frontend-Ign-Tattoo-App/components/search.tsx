@@ -13,8 +13,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { useColorScheme } from "react-native";
 import { Href, router } from "expo-router";
 import debounce from "lodash.debounce";
-
-const SERVER_URL = "http://192.168.100.87:3000";
+import { SERVER_URL } from "@/constants/constants";
 
 interface User {
   id: number;

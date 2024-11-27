@@ -12,6 +12,7 @@ import { useRouter } from "expo-router";
 import { View, Text } from "../components/Themed";
 import * as ImagePicker from "expo-image-picker";
 import { UserContext } from "./context/userContext";
+import { SERVER_URL } from "@/constants/constants";
 
 export default function CreatePost() {
   const { user } = useContext(UserContext);
@@ -76,7 +77,7 @@ export default function CreatePost() {
         formData.append("image", image); // Adjuntar la imagen como un archivo
       }
 
-      const response = await fetch("http://192.168.100.87:3000/posts", {
+      const response = await fetch(`${SERVER_URL}/posts`, {
         method: "POST",
         body: formData,
         headers: {

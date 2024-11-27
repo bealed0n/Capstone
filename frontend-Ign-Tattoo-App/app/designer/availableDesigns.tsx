@@ -11,7 +11,7 @@ import {
 import { UserContext } from "../context/userContext";
 import { View, Text } from "../../components/Themed";
 import { RouteProp, useRoute } from "@react-navigation/native";
-
+import { SERVER_URL } from "@/constants/constants";
 interface Project {
   is_requested: boolean;
   id: number;
@@ -34,8 +34,6 @@ type TattooArtistProjectsRouteProp = RouteProp<
   { params: RouteParams },
   "params"
 >;
-
-const SERVER_URL = "http://192.168.100.87:3000"; // Cambia esto a la IP de tu servidor
 
 const TattooArtistProjects = () => {
   const route = useRoute<TattooArtistProjectsRouteProp>();

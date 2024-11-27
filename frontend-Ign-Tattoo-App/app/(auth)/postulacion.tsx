@@ -15,6 +15,7 @@ import * as ImagePicker from "expo-image-picker";
 import { useNavigation } from "@react-navigation/native";
 import { useColorScheme } from "@/components/useColorScheme.web";
 import { router } from "expo-router";
+import { SERVER_URL } from "@/constants/constants";
 
 export default function PostulacionesScreen() {
   const [username, setUsername] = useState("");
@@ -68,7 +69,7 @@ export default function PostulacionesScreen() {
     } as any);
 
     try {
-      const response = await fetch("http://192.168.100.87:3000/postulaciones", {
+      const response = await fetch(`${SERVER_URL}/postulaciones`, {
         method: "POST",
         body: formData,
         headers: {

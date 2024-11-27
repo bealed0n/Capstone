@@ -11,6 +11,7 @@ import { UserContext } from "../app/context/userContext";
 import { Href, router } from "expo-router";
 import PostCard from "./PostCard";
 import { FontAwesome5 } from "@expo/vector-icons";
+import { SERVER_URL } from "@/constants/constants";
 
 interface Post {
   id: number;
@@ -31,8 +32,6 @@ interface UserData {
   profile_pic: string | null;
   role: string;
 }
-
-const serverUrl = "http://192.168.100.87:3000";
 
 export default function Profile() {
   const [posts, setPosts] = useState<Post[]>([]);
@@ -65,9 +64,7 @@ export default function Profile() {
     if (!user?.id) return;
 
     try {
-      const response = await fetch(
-        `http://192.168.100.87:3000/posts/${user.id}`
-      );
+      const response = await fetch(`${SERVER_URL}/posts/${user.id}`);
       if (!response.ok) {
         throw new Error("Error al obtener los posts");
       }
@@ -85,22 +82,20 @@ export default function Profile() {
 
     try {
       // Obtener el conteo de publicaciones
-      const postResponse = await fetch(
-        `http://192.168.100.87:3000/posts/count/${user.id}`
-      );
+      const postResponse = await fetch(`${SERVER_URL}/posts/count/${user.id}`);
       const postData = await postResponse.json();
       setPostCount(postData.post_count);
 
       // Obtener el conteo de seguidores
       const followerResponse = await fetch(
-        `http://192.168.100.87:3000/followers/${user.id}`
+        `${SERVER_URL}/followers/${user.id}`
       );
       const followerData = await followerResponse.json();
       setFollowerCount(followerData.follower_count);
 
       // Obtener el conteo de seguidos
       const followingResponse = await fetch(
-        `http://192.168.100.87:3000/following/${user.id}`
+        `${SERVER_URL}/following/${user.id}`
       );
       const followingData = await followingResponse.json();
       setFollowingCount(followingData.following_count);
@@ -111,7 +106,7 @@ export default function Profile() {
 
   const fetchUserData = async () => {
     try {
-      const response = await fetch(`${serverUrl}/users/${user?.id}`);
+      const response = await fetch(`${SERVER_URL}/users/${user?.id}`);
       if (!response.ok) {
         throw new Error("Error al obtener los datos del usuario");
       }
@@ -133,7 +128,7 @@ export default function Profile() {
         <Image
           source={
             userData?.profile_pic
-              ? { uri: `${serverUrl}${userData.profile_pic}` }
+              ? { uri: `${SERVER_URL}${userData.profile_pic}` }
               : defaultPhoto
           }
           className="rounded-full w-20 h-20 items-start mt-4 ml-3"

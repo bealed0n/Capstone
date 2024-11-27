@@ -10,8 +10,7 @@ import { useNavigation } from "@react-navigation/native";
 import { Href, router } from "expo-router";
 import { UserContext } from "../app/context/userContext";
 import ClientReviews from "./clientReview";
-
-const serverUrl = "http://192.168.100.87:3000";
+import { SERVER_URL } from "@/constants/constants";
 
 interface UserData {
   id: number;
@@ -41,7 +40,7 @@ export default function UserProfile() {
 
   const fetchUserData = async () => {
     try {
-      const response = await fetch(`${serverUrl}/users/${user?.id}`);
+      const response = await fetch(`${SERVER_URL}/users/${user?.id}`);
       const data = await response.json();
       setUserData(data);
     } catch (error) {
@@ -58,7 +57,7 @@ export default function UserProfile() {
           <Image
             source={
               userData?.profile_pic
-                ? { uri: `${serverUrl}${userData.profile_pic}` }
+                ? { uri: `${SERVER_URL}${userData.profile_pic}` }
                 : photo
             }
             className="w-20 h-20 rounded-full"

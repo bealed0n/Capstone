@@ -20,6 +20,7 @@ import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { format, isSameDay, parseISO } from "date-fns";
 import io from "socket.io-client";
 import * as ImagePicker from "expo-image-picker";
+import { SERVER_URL } from "@/constants/constants";
 
 interface Message {
   id: number;
@@ -56,7 +57,7 @@ export default function ConversationScreen() {
 
   useEffect(() => {
     if (user) {
-      const socket = io("http://192.168.100.87:3000", {
+      const socket = io(`"${SERVER_URL}"`, {
         autoConnect: true,
       });
 
@@ -114,7 +115,7 @@ export default function ConversationScreen() {
       if (user) {
         try {
           const response = await fetch(
-            `http://192.168.100.87:3000/user/${user.id}/messages`
+            `${SERVER_URL}/user/${user.id}/messages`
           );
 
           if (!response.ok) {
@@ -164,7 +165,7 @@ export default function ConversationScreen() {
           <Image
             source={{
               uri: item.sender_profile_pic
-                ? `http://192.168.100.87:3000${item.sender_profile_pic}`
+                ? `${SERVER_URL}${item.sender_profile_pic}`
                 : "https://via.placeholder.com/40",
             }}
             className="w-8 h-8 rounded-full ml-2"
@@ -185,7 +186,7 @@ export default function ConversationScreen() {
                   setSelectedImage(
                     item.image_url.startsWith("data:")
                       ? item.image_url
-                      : `http://192.168.100.87:3000${item.image_url}`
+                      : `${SERVER_URL}${item.image_url}`
                   );
                   setModalVisible(true);
                 }
@@ -195,7 +196,7 @@ export default function ConversationScreen() {
                 source={{
                   uri: item.image_url.startsWith("data:")
                     ? item.image_url
-                    : `http://192.168.100.87:3000${item.image_url}`,
+                    : `${SERVER_URL}${item.image_url}`,
                 }}
                 className="w-64 h-64 rounded-lg mt-2"
                 resizeMode="cover"
@@ -210,7 +211,7 @@ export default function ConversationScreen() {
           <Image
             source={{
               uri: item.sender_profile_pic
-                ? `http://192.168.100.87:3000${item.sender_profile_pic}`
+                ? `${SERVER_URL}${item.sender_profile_pic}`
                 : "https://via.placeholder.com/40",
             }}
             className="w-8 h-8 rounded-full mr-1"

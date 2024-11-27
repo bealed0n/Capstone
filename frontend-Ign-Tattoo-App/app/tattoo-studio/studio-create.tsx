@@ -11,9 +11,9 @@ import {
 import { UserContext } from "../context/userContext";
 import { router, useNavigation } from "expo-router";
 import * as ImagePicker from "expo-image-picker";
+import { SERVER_URL } from "@/constants/constants";
 
 export default function StudioCreate() {
-  const SERVER_URL = "http://192.168.100.87:3000";
   const { user } = useContext(UserContext);
   const owner_id = user?.id;
   const navigation = useNavigation();

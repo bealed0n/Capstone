@@ -4,6 +4,7 @@ import { View, Text } from "../../components/Themed";
 import { UserContext } from "../context/userContext";
 import { Calendar } from "react-native-calendars";
 import { format } from "date-fns";
+import { SERVER_URL } from "@/constants/constants";
 
 interface Appointment {
   id: number;
@@ -27,9 +28,9 @@ export default function AppointmentsCalendar() {
         try {
           let url = "";
           if (user.role === "tattoo_artist") {
-            url = `http://192.168.100.87:3000/tattoo-artist/${user.id}/appointments`;
+            url = `${SERVER_URL}/tattoo-artist/${user.id}/appointments`;
           } else if (user.role === "user") {
-            url = `http://192.168.100.87:3000/user/${user.id}/appointments`;
+            url = `${SERVER_URL}/user/${user.id}/appointments`;
           }
 
           const response = await fetch(url);

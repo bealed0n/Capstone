@@ -15,6 +15,7 @@ import { MaterialIcons } from "@expo/vector-icons";
 import { Href, router } from "expo-router";
 import CommentsModal from "./CommentsModal";
 import { UserContext } from "../app/context/userContext";
+import { SERVER_URL } from "@/constants/constants";
 
 interface CardExampleProps {
   username: string;
@@ -52,7 +53,6 @@ const beautifyRole = (role: string) => {
   }
 };
 
-const SERVER_URL = "http://192.168.100.87:3000";
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 
 export const CardExample = ({

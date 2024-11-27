@@ -13,6 +13,7 @@ import {
 import { Text } from "../../components/Themed";
 import { UserContext } from "../context/userContext";
 import RNPickerSelect from "react-native-picker-select";
+import { SERVER_URL } from "@/constants/constants";
 
 interface RequestedDesign {
   id: number;
@@ -25,8 +26,6 @@ interface RequestedDesign {
   user_id: number;
   username: string;
 }
-
-const SERVER_URL = "http://192.168.100.87:3000";
 
 const getFullImageUrl = (imagePath: string) => {
   if (imagePath.startsWith("http")) {

@@ -14,6 +14,7 @@ import {
 import { Text, View } from "../../components/Themed";
 import { UserContext } from "../context/userContext";
 import * as ImagePicker from "expo-image-picker";
+import { SERVER_URL } from "@/constants/constants";
 
 interface Project {
   id: number;
@@ -25,9 +26,6 @@ interface Project {
   is_available: boolean;
   is_requested: boolean;
 }
-
-const SERVER_URL = "http://192.168.100.87:3000"; // Cambia esto a la IP de tu servidor
-
 export default function DesignerProjects() {
   const { user } = useContext(UserContext);
   const colorScheme = useColorScheme();

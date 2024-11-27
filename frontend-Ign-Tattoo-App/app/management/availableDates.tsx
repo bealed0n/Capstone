@@ -4,6 +4,7 @@ import { View, Text } from "../../components/Themed";
 import { useRoute } from "@react-navigation/native";
 import { format } from "date-fns";
 import { Href, router } from "expo-router";
+import { SERVER_URL } from "@/constants/constants";
 
 export default function AvailableDates() {
   const route = useRoute();
@@ -24,7 +25,7 @@ export default function AvailableDates() {
     if (typeof id === "string") {
       try {
         const response = await fetch(
-          `http://192.168.100.87:3000/tattoo-artist/${id}/availability`
+          `${SERVER_URL}/tattoo-artist/${id}/availability`
         );
         const data = await response.json();
         setAvailability(data.availability);

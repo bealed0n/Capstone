@@ -8,10 +8,9 @@ import {
 import { Text, View } from "../components/Themed";
 import { useRouter } from "expo-router";
 import { UserContext } from "../app/context/userContext";
-
+import { SERVER_URL } from "@/constants/constants";
 import io from "socket.io-client";
 
-const SERVER_URL = "http://192.168.100.87:3000";
 interface Message {
   id: number;
   sender_id: number;

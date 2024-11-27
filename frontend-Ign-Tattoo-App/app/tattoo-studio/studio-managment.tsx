@@ -4,9 +4,9 @@ import { useColorScheme } from "../../components/useColorScheme";
 import { Href, router } from "expo-router";
 import { UserContext } from "../context/userContext";
 import { FontAwesome5 } from "@expo/vector-icons";
+import { SERVER_URL } from "@/constants/constants";
 
 export default function StudioManagment() {
-  const SERVER_URL = "http://192.168.100.87:3000";
   const colorScheme = useColorScheme();
   const { user } = useContext(UserContext);
   const [isOwner, setIsOwner] = useState(false);

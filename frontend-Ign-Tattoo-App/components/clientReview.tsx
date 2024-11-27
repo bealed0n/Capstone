@@ -12,8 +12,7 @@ import { View, Text } from "./Themed";
 import { FontAwesome5 } from "@expo/vector-icons";
 import { UserContext } from "../app/context/userContext";
 import * as ImagePicker from "expo-image-picker";
-
-const serverUrl = "http://192.168.100.87:3000";
+import { SERVER_URL } from "@/constants/constants";
 
 interface Review {
   id: number;
@@ -41,7 +40,7 @@ export default function ClientReviews() {
 
   const fetchReviews = async () => {
     try {
-      const response = await fetch(`${serverUrl}/user/${user?.id}/reviews`);
+      const response = await fetch(`${SERVER_URL}/user/${user?.id}/reviews`);
       if (!response.ok) {
         throw new Error("Failed to fetch reviews");
       }
@@ -79,7 +78,7 @@ export default function ClientReviews() {
       }
 
       const response = await fetch(
-        `${serverUrl}/reviews/${selectedReview.id}`,
+        `${SERVER_URL}/reviews/${selectedReview.id}`,
         {
           method: "PUT",
           body: formData,
@@ -155,7 +154,7 @@ export default function ClientReviews() {
       )}
       {item.tattoo_image_url && (
         <Image
-          source={{ uri: `${serverUrl}${item.tattoo_image_url}` }}
+          source={{ uri: `${SERVER_URL}${item.tattoo_image_url}` }}
           className="w-full h-40 rounded-md mb-2"
         />
       )}

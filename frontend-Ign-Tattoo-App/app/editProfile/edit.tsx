@@ -13,6 +13,7 @@ import { Text, View } from "../../components/Themed";
 import { UserContext } from "../context/userContext";
 import * as ImagePicker from "expo-image-picker";
 import { Camera } from "lucide-react-native";
+import { SERVER_URL } from "@/constants/constants";
 
 interface UserProfile {
   id: number;
@@ -28,8 +29,6 @@ export default function ProfileEdit() {
   const [loading, setLoading] = useState(false);
   const [imageUri, setImageUri] = useState<string | null>(null);
   const { user, updateUser } = useContext(UserContext);
-
-  const SERVER_URL = "http://192.168.100.87:3000";
 
   useEffect(() => {
     if (user) {

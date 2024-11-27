@@ -11,6 +11,7 @@ import { useRouter } from "expo-router";
 import { useContext } from "react";
 import { UserContext } from "@/app/context/userContext";
 import { Feather } from "@expo/vector-icons";
+import { SERVER_URL } from "@/constants/constants";
 
 export default function Register() {
   const [username, setUsername] = useState("");
@@ -55,7 +56,7 @@ export default function Register() {
     setError(""); // Limpiar errores previos
     setSuccess(""); // Limpiar mensajes previos
     try {
-      const response = await fetch("http://192.168.100.87:3000/register", {
+      const response = await fetch(`${SERVER_URL}/register`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

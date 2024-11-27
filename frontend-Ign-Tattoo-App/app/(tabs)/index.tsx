@@ -10,6 +10,7 @@ import { useRouter } from "expo-router";
 import PostCard from "@/components/PostCard";
 import { UserContext } from "../context/userContext";
 import { View } from "@/components/Themed";
+import { SERVER_URL } from "@/constants/constants";
 
 interface Post {
   id: number;
@@ -46,9 +47,7 @@ export default function IndexScreen() {
 
   const fetchPosts = async () => {
     try {
-      const response = await fetch(
-        `http://192.168.100.87:3000/posts/following/${user.id}`
-      );
+      const response = await fetch(`${SERVER_URL}/posts/following/${user.id}`);
       const data = await response.json();
       setPosts(data.posts);
     } catch (error) {

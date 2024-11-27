@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { View, Text, Button, TextInput, StyleSheet, Image } from "react-native";
+import { SERVER_URL } from "@/constants/constants";
 
 interface Postulacion {
   id: number;
@@ -10,8 +11,6 @@ interface Postulacion {
   role: string;
   requisitos: string; // Añade el campo requisitos
 }
-
-const serverUrl = "http://192.168.100.87:3000";
 
 export default function AdminView() {
   const [postulaciones, setPostulaciones] = useState<Postulacion[]>([]);
@@ -27,7 +26,7 @@ export default function AdminView() {
   const fetchPostulaciones = async () => {
     try {
       const response = await axios.get<{ postulaciones: Postulacion[] }>(
-        `${serverUrl}/postulaciones`
+        `${SERVER_URL}/postulaciones`
       );
       setPostulaciones(response.data.postulaciones);
     } catch (error) {
@@ -37,7 +36,7 @@ export default function AdminView() {
 
   const aprobarPostulacion = async (id: number) => {
     try {
-      await axios.post(`${serverUrl}/postulaciones/${id}/aprobar`);
+      await axios.post(`${SERVER_URL}/postulaciones/${id}/aprobar`);
       fetchPostulaciones();
     } catch (error) {
       console.error("Error al aprobar la postulación:", error);
@@ -46,7 +45,7 @@ export default function AdminView() {
 
   const rechazarPostulacion = async (id: number) => {
     try {
-      await axios.delete(`${serverUrl}/postulaciones/${id}`);
+      await axios.delete(`${SERVER_URL}/postulaciones/${id}`);
       fetchPostulaciones();
     } catch (error) {
       console.error("Error al rechazar la postulación:", error);
@@ -88,7 +87,7 @@ export default function AdminView() {
           <Text>Role: {postulacion.role}</Text>
           {postulacion.requisitos && (
             <Image
-              source={{ uri: `${serverUrl}${postulacion.requisitos}` }}
+              source={{ uri: `${SERVER_URL}${postulacion.requisitos}` }}
               style={styles.image}
             />
           )}

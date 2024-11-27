@@ -9,6 +9,7 @@ import {
 } from "react-native";
 import { UserContext } from "../context/userContext";
 import { Text, View } from "../../components/Themed";
+import { SERVER_URL } from "@/constants/constants";
 
 interface RequestedDesign {
   id: number;
@@ -20,8 +21,6 @@ interface RequestedDesign {
   created_at: string;
   image: string;
 }
-
-const SERVER_URL = "http://192.168.100.87:3000";
 
 const getFullImageUrl = (imagePath: string) => {
   if (imagePath.startsWith("http")) {

@@ -10,6 +10,7 @@ import {
 import { useRoute } from "@react-navigation/native";
 import { FontAwesome5 } from "@expo/vector-icons";
 import { format } from "date-fns";
+import { SERVER_URL } from "@/constants/constants";
 
 interface RouteParams {
   userId: string;
@@ -25,8 +26,6 @@ interface Review {
 interface ReviewsResponse {
   reviews: Review[];
 }
-
-const SERVER_URL = "http://192.168.100.87:3000";
 
 export default function ReviewsView() {
   const route = useRoute();

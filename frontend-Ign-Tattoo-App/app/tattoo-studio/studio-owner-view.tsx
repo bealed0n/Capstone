@@ -15,6 +15,7 @@ import {
 import { FontAwesome5 } from "@expo/vector-icons";
 import { Href, useRouter } from "expo-router";
 import { useRoute, RouteProp } from "@react-navigation/native";
+import { SERVER_URL } from "@/constants/constants";
 
 interface Slot {
   slot_number: number;
@@ -57,7 +58,6 @@ export default function StudioOwnerView() {
   const [studioData, setStudioData] = useState<StudioResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
-  const SERVER_URL = "http://192.168.100.87:3000"; // Asegúrate de que esta URL sea correcta
   const colorScheme = useColorScheme();
   const isDarkMode = colorScheme === "dark";
   const router = useRouter();

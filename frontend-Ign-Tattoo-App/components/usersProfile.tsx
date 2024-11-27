@@ -13,6 +13,7 @@ import PostCard from "./PostCard";
 import { FontAwesome5, MaterialIcons } from "@expo/vector-icons";
 import { UserContext } from "../app/context/userContext";
 import { useRouter } from "expo-router";
+import { SERVER_URL } from "@/constants/constants";
 
 interface Post {
   id: number;
@@ -50,7 +51,6 @@ export default function UsersProfile({ userId }: UsersProfileProps) {
   const [isFollowing, setIsFollowing] = useState<boolean>(false);
 
   const { user } = useContext(UserContext);
-  const SERVER_URL = "http://192.168.100.87:3000";
   const colorScheme = useColorScheme();
   const isDarkMode = colorScheme === "dark";
   const isDark = isDarkMode ? "white" : "black";

@@ -13,6 +13,7 @@ import { View, Text } from "../../components/Themed";
 import { useRouter, useSegments } from "expo-router";
 import { UserContext } from "../context/userContext";
 import { Feather } from "@expo/vector-icons";
+import { SERVER_URL } from "@/constants/constants";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -25,7 +26,7 @@ export default function Login() {
 
   const handleLogin = async () => {
     try {
-      const response = await fetch("http://192.168.100.87:3000/login", {
+      const response = await fetch(`${SERVER_URL}/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

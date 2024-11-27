@@ -11,10 +11,8 @@ import { Text, View } from "./Themed";
 import { MaterialIcons } from "@expo/vector-icons";
 import { StatusBar } from "expo-status-bar";
 import { useColorScheme } from "react-native";
-
+import { SERVER_URL } from "@/constants/constants";
 import { UserContext } from "../app/context/userContext";
-
-const SERVER_URL = "http://192.168.100.87:3000"; // Cambia esto a la URL de tu servidor
 
 interface Comment {
   id: number;

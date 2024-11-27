@@ -13,6 +13,7 @@ import { useNavigation } from "@react-navigation/native";
 import { UserContext } from "./context/userContext";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Feather, FontAwesome5 } from "@expo/vector-icons";
+import { SERVER_URL } from "@/constants/constants";
 
 interface Invitation {
   id: number;
@@ -29,8 +30,6 @@ export default function Notifications() {
   const [refreshing, setRefreshing] = useState(false);
   const navigation = useNavigation();
   const { user } = useContext(UserContext);
-
-  const SERVER_URL = "http://192.168.100.87:3000";
 
   useEffect(() => {
     fetchInvitations();

@@ -13,6 +13,7 @@ import {
 import { useRoute } from "@react-navigation/native";
 import { FontAwesome5 } from "@expo/vector-icons";
 import { debounce } from "lodash";
+import { SERVER_URL } from "@/constants/constants";
 
 interface TattooArtist {
   id: number;
@@ -42,8 +43,6 @@ export default function StudioAdminView() {
   const [invitations, setInvitations] = useState<Invitation[]>([]);
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
-
-  const SERVER_URL = "http://192.168.100.87:3000";
 
   useEffect(() => {
     fetchInvitations();

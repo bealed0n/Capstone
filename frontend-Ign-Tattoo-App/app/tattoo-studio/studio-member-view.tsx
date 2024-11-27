@@ -16,6 +16,7 @@ import { Href, useRouter } from "expo-router";
 import { useRoute, RouteProp } from "@react-navigation/native";
 import { useColorScheme } from "../../components/useColorScheme";
 import { UserContext } from "../context/userContext"; // Importar el contexto del usuario
+import { SERVER_URL } from "@/constants/constants";
 
 interface Slot {
   id: number;
@@ -65,7 +66,6 @@ export default function StudioMemberView() {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [slotId, setSlotId] = useState<number | null>(null); // Estado para almacenar el ID del slot
-  const SERVER_URL = "http://192.168.100.87:3000"; // Asegúrate de que esta URL sea correcta
   const colorScheme = useColorScheme();
   const isDarkMode = colorScheme === "dark";
   const router = useRouter();

@@ -17,8 +17,7 @@ import { format } from "date-fns";
 import { Picker } from "@react-native-picker/picker";
 import { styled } from "nativewind";
 import DateTimePicker from "@react-native-community/datetimepicker";
-
-const serverUrl = "http://192.168.100.87:3000";
+import { SERVER_URL } from "@/constants/constants";
 
 const StyledImage = styled(RNImage);
 
@@ -71,9 +70,9 @@ export default function AppointmentsList() {
         try {
           let url = "";
           if (user.role === "tattoo_artist") {
-            url = `${serverUrl}/tattoo-artist/${user.id}/appointments`;
+            url = `${SERVER_URL}/tattoo-artist/${user.id}/appointments`;
           } else if (user.role === "user") {
-            url = `${serverUrl}/user/${user.id}/appointments`;
+            url = `${SERVER_URL}/user/${user.id}/appointments`;
           }
 
           const response = await fetch(url);
@@ -105,7 +104,7 @@ export default function AppointmentsList() {
   ) => {
     try {
       const response = await fetch(
-        `${serverUrl}/appointments/${appointmentId}/status`,
+        `${SERVER_URL}/appointments/${appointmentId}/status`,
         {
           method: "PUT",
           headers: {
@@ -152,7 +151,7 @@ export default function AppointmentsList() {
   const completeAppointment = async (appointmentId: number) => {
     try {
       const response = await fetch(
-        `${serverUrl}/appointments/${appointmentId}/complete`,
+        `${SERVER_URL}/appointments/${appointmentId}/complete`,
         {
           method: "PUT",
           headers: {
@@ -194,7 +193,7 @@ export default function AppointmentsList() {
 
     try {
       const response = await fetch(
-        `${serverUrl}/tattoo-artist/${user.id}/availability`,
+        `${SERVER_URL}/tattoo-artist/${user.id}/availability`,
         {
           method: "POST",
           headers: {
@@ -266,14 +265,14 @@ export default function AppointmentsList() {
             {item.reference_image_url && (
               <TouchableOpacity
                 onPress={() => {
-                  setSelectedImage(`${serverUrl}${item.reference_image_url}`);
+                  setSelectedImage(`${SERVER_URL}${item.reference_image_url}`);
                   setModalVisible(true);
                 }}
                 style={{ marginVertical: 8 }}
               >
                 <StyledImage
                   source={{
-                    uri: `${serverUrl}${item.reference_image_url}`,
+                    uri: `${SERVER_URL}${item.reference_image_url}`,
                   }}
                   className="w-full h-40 rounded-lg"
                   resizeMode="cover"

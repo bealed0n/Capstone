@@ -13,6 +13,7 @@ import { View, Text } from "../../components/Themed";
 import * as ImagePicker from "expo-image-picker";
 import { UserContext } from "../context/userContext";
 import { useRoute, RouteProp } from "@react-navigation/native";
+import { SERVER_URL } from "@/constants/constants";
 
 interface RouteParams {
   date: string;
@@ -84,7 +85,7 @@ export default function DateRequest() {
         formData.append("reference_image", image); // Adjuntar la imagen como un archivo
       }
 
-      const response = await fetch("http://192.168.100.87:3000/appointments", {
+      const response = await fetch(`${SERVER_URL}/appointments`, {
         method: "POST",
         body: formData,
         headers: {
