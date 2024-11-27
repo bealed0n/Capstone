@@ -867,6 +867,25 @@ app.put("/users/:user_id/name", async (req, res) => {
   }
 });
 
+//Endpoint para actualizar la biografia de un usuario
+app.put("/users/:user_id/bio", async (req, res) => {
+  const { user_id } = req.params;
+  const { bio } = req.body;
+  try {
+    const result = await pool.query(
+      "UPDATE users SET bio = $1 WHERE id = $2 RETURNING *",
+      [bio, user_id]
+    );
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: "User not found" });
+    }
+    res.json(result.rows[0]);
+  } catch (error) {
+    console.error("Error updating bio:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
 //----------------------------------------------------------------------------------------------------
 //FIN DE APARTADO DE USUARIOS
 //----------------------------------------------------------------------------------------------------

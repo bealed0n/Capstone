@@ -153,6 +153,12 @@ export default function Profile() {
         </View>
       </View>
       <View>
+        <Text className="text-base mt-4 ml-5 opacity-50">Biografia</Text>
+        <Text className=" ml-6 text-neutral-700 dark:text-neutral-300 ">
+          {userData?.bio ?? "No se ha agregado una biografía"}
+        </Text>
+      </View>
+      <View>
         <Text className="text-base mt-4 ml-5 opacity-50">Dashboard</Text>
         <View className="flex-row justify-center mt-2">
           {userData?.role === "tattoo_artist" ? (

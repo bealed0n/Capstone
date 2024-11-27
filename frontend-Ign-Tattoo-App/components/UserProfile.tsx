@@ -70,10 +70,6 @@ export default function UserProfile() {
               @{userData?.username ?? "No encontrado"}
             </Text>
           </View>
-          {/* Bio */}
-          <Text className="text-sm text-gray-500 ml-5">
-            {userData?.bio ?? "No hay biografía"}
-          </Text>
         </View>
       ),
     },

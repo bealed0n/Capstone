@@ -20,6 +20,7 @@ interface UserProfile {
   username: string;
   name: string;
   profile_pic: string | null;
+  bio: string | null;
 }
 
 export default function ProfileEdit() {
@@ -27,6 +28,7 @@ export default function ProfileEdit() {
   const [username, setUsername] = useState("");
   const [name, setName] = useState("");
   const [loading, setLoading] = useState(false);
+  const [bio, setBio] = useState<string | null>(null);
   const [imageUri, setImageUri] = useState<string | null>(null);
   const { user, updateUser } = useContext(UserContext);
 
@@ -182,6 +184,32 @@ export default function ProfileEdit() {
     }
   };
 
+  const updateBio = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch(`${SERVER_URL}/users/${user?.id}/bio`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ bio }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to update bio");
+      }
+
+      const updatedUser = await response.json();
+      setProfile((prevProfile) => ({ ...prevProfile, ...updatedUser }));
+      Alert.alert("Success", "Bio updated successfully");
+    } catch (error) {
+      console.error("Error updating bio:", error);
+      Alert.alert("Error", "Failed to update bio");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   if (loading && !profile) {
     return (
       <View className="flex-1 justify-center items-center">
@@ -249,6 +277,27 @@ export default function ProfileEdit() {
                 {loading ? "Actualizando..." : "Actualizar nombre"}
               </Text>
             </TouchableOpacity>
+            {/* Si el usuario es Tatuador o Designer aparecera el actualizar bio */}
+            {user?.role === "tattoo_artist" || user?.role === "Designer" ? (
+              <View className="mb-4">
+                <Text className="text-lg mb-2">Bio</Text>
+                <TextInput
+                  className="bg-gray-300 dark:bg-gray-800 p-2 rounded-md dark:text-white"
+                  value={bio ?? ""}
+                  onChangeText={setBio}
+                  placeholder="Ingrese bio"
+                />
+                <TouchableOpacity
+                  className="bg-blue-500 p-2 rounded-md mt-2"
+                  onPress={updateBio}
+                  disabled={loading}
+                >
+                  <Text className="text-white text-center">
+                    {loading ? "Actualizando..." : "Actualizar bio"}
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            ) : null}
           </View>
         </View>
       </ScrollView>
