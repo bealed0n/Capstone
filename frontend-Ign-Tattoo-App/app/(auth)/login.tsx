@@ -108,7 +108,7 @@ export default function Login() {
         className="mt-1"
       >
         <Text className="text-right text-neutral-500">
-          Forgot your password?
+          ¿Olvidaste tu contraseña?
         </Text>
       </TouchableOpacity>
 

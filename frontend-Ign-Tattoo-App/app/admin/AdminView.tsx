@@ -1,8 +1,17 @@
 // app/admin/AdminView.tsx
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { View, Text, Button, TextInput, StyleSheet, Image } from "react-native";
+import {
+  View,
+  Text,
+  Button,
+  TextInput,
+  StyleSheet,
+  Image,
+  Alert,
+} from "react-native";
 import { SERVER_URL } from "@/constants/constants";
+import { adminPass } from "@/constants/constants";
 
 interface Postulacion {
   id: number;
@@ -45,7 +54,7 @@ export default function AdminView() {
 
   const rechazarPostulacion = async (id: number) => {
     try {
-      await axios.delete(`${SERVER_URL}/postulaciones/${id}`);
+      await axios.post(`${SERVER_URL}/postulaciones/${id}/rechazar`);
       fetchPostulaciones();
     } catch (error) {
       console.error("Error al rechazar la postulación:", error);
@@ -53,7 +62,7 @@ export default function AdminView() {
   };
 
   const handleLogin = () => {
-    if (password === "123") {
+    if (password === adminPass) {
       setIsAuthenticated(true);
     } else {
       alert("Contraseña incorrecta");

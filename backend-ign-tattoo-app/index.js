@@ -192,6 +192,28 @@ app.post("/register", async (req, res) => {
   const { username, email, password } = req.body;
 
   try {
+    // Verificar si el correo electrónico ya existe
+    const emailCheckQuery = "SELECT * FROM users WHERE email = $1";
+    const emailCheckResult = await pool.query(emailCheckQuery, [email]);
+    if (emailCheckResult.rows.length > 0) {
+      return res.status(400).json({
+        success: false,
+        message: "El correo electrónico ya está registrado.",
+      });
+    }
+
+    // Verificar si el nombre de usuario ya existe
+    const usernameCheckQuery = "SELECT * FROM users WHERE username = $1";
+    const usernameCheckResult = await pool.query(usernameCheckQuery, [
+      username,
+    ]);
+    if (usernameCheckResult.rows.length > 0) {
+      return res.status(400).json({
+        success: false,
+        message: "El nombre de usuario ya está registrado.",
+      });
+    }
+
     // Hashear contraseña
     const hashedPassword = await bcrypt.hash(password, 10);
 
@@ -625,7 +647,7 @@ app.post("/reset-password", async (req, res) => {
 
 //PARA POSTULACIONES DE ROL TATUADOR Y DISEÑADOR
 
-//Endpoint para postular a rol
+// Endpoint para postular a rol
 app.post("/postulaciones", upload.single("requisitos"), async (req, res) => {
   const { username, email, role, password } = req.body;
   let requisitos = null;
@@ -635,6 +657,28 @@ app.post("/postulaciones", upload.single("requisitos"), async (req, res) => {
   }
 
   try {
+    // Verificar si el correo electrónico ya existe en la tabla de usuarios
+    const emailCheckQuery = "SELECT * FROM users WHERE email = $1";
+    const emailCheckResult = await pool.query(emailCheckQuery, [email]);
+    if (emailCheckResult.rows.length > 0) {
+      return res.status(400).json({
+        success: false,
+        message: "El correo electrónico ya está registrado.",
+      });
+    }
+
+    // Verificar si el nombre de usuario ya existe en la tabla de usuarios
+    const usernameCheckQuery = "SELECT * FROM users WHERE username = $1";
+    const usernameCheckResult = await pool.query(usernameCheckQuery, [
+      username,
+    ]);
+    if (usernameCheckResult.rows.length > 0) {
+      return res.status(400).json({
+        success: false,
+        message: "El nombre de usuario ya está registrado.",
+      });
+    }
+
     // Hashear la contraseña antes de guardarla
     const hashedPassword = await bcrypt.hash(password, 10);
 
@@ -644,6 +688,27 @@ app.post("/postulaciones", upload.single("requisitos"), async (req, res) => {
        VALUES ($1, $2, $3, $4, $5, FALSE) RETURNING *`,
       [username, email, role, hashedPassword, requisitos]
     );
+
+    // Configurar transporte de Nodemailer
+    const transporter = nodemailer.createTransport({
+      service: "Gmail",
+      auth: {
+        user: "igntattoo.contacto@gmail.com",
+        pass: "caiy hset szzy aopz",
+      },
+    });
+
+    // Enviar correo de notificación
+    await transporter.sendMail({
+      from: '"IgnTattoo" <igntattoo.contacto@gmail.com>',
+      to: email,
+      subject: "Postulación Recibida",
+      html: `
+        <p>Hola ${username},</p>
+        <p>Hemos recibido tu postulación para el rol de ${role}.</p>
+        <p>Nos pondremos en contacto contigo después de revisar tu solicitud.</p>
+      `,
+    });
 
     res.status(201).json({ postulacion: result.rows[0] });
   } catch (error) {
@@ -708,10 +773,80 @@ app.post("/postulaciones/:id/aprobar", async (req, res) => {
       id,
     ]);
 
+    // Configurar transporte de Nodemailer
+    const transporter = nodemailer.createTransport({
+      service: "Gmail",
+      auth: {
+        user: "igntattoo.contacto@gmail.com",
+        pass: "caiy hset szzy aopz",
+      },
+    });
+
+    // Enviar correo de notificación
+    await transporter.sendMail({
+      from: '"IgnTattoo" <igntattoo.contacto@gmail.com>',
+      to: postulacion.email,
+      subject: "Solicitud Aceptada",
+      html: `
+        <p>Hola ${postulacion.username},</p>
+        <p>Nos complace informarte que tu solicitud para el rol de ${postulacion.role} ha sido aceptada.</p>
+        <p>¡Bienvenido a nuestro equipo!</p>
+      `,
+    });
+
     res.status(200).json({ message: "Postulación aprobada y usuario creado" });
   } catch (error) {
     console.error("Error al aprobar la postulación:", error);
     res.status(500).json({ message: "Error al aprobar la postulación", error });
+  }
+});
+
+// Endpoint para rechazar una postulacion
+app.post("/postulaciones/:id/rechazar", async (req, res) => {
+  const { id } = req.params;
+  try {
+    // Obtener la postulación por ID
+    const postulacionResult = await pool.query(
+      `SELECT * FROM postulaciones WHERE id = $1`,
+      [id]
+    );
+
+    if (postulacionResult.rows.length === 0) {
+      return res.status(404).json({ message: "Postulación no encontrada" });
+    }
+
+    const postulacion = postulacionResult.rows[0];
+
+    // Eliminar la postulación
+    await pool.query(`DELETE FROM postulaciones WHERE id = $1`, [id]);
+
+    // Configurar transporte de Nodemailer
+    const transporter = nodemailer.createTransport({
+      service: "Gmail",
+      auth: {
+        user: "igntattoo.contacto@gmail.com",
+        pass: "caiy hset szzy aopz",
+      },
+    });
+
+    // Enviar correo de notificación
+    await transporter.sendMail({
+      from: '"IgnTattoo" <igntattoo.contacto@gmail.com>',
+      to: postulacion.email,
+      subject: "Solicitud Rechazada",
+      html: `
+        <p>Hola ${postulacion.username},</p>
+        <p>Lamentamos informarte que tu solicitud para el rol de ${postulacion.role} ha sido rechazada.</p>
+        <p>Gracias por tu interés en unirte a la plataforma.</p>
+      `,
+    });
+
+    res.status(200).json({ message: "Postulación rechazada" });
+  } catch (error) {
+    console.error("Error al rechazar la postulación:", error);
+    res
+      .status(500)
+      .json({ message: "Error al rechazar la postulación", error });
   }
 });
 
@@ -833,6 +968,19 @@ app.put("/users/:user_id/username", async (req, res) => {
   const { username } = req.body;
 
   try {
+    // Verificar si el nombre de usuario ya existe
+    const usernameCheckQuery = "SELECT * FROM users WHERE username = $1";
+    const usernameCheckResult = await pool.query(usernameCheckQuery, [
+      username,
+    ]);
+    if (usernameCheckResult.rows.length > 0) {
+      return res.status(400).json({
+        success: false,
+        message: "El nombre de usuario ya está registrado.",
+      });
+    }
+
+    // Actualizar el nombre de usuario
     const result = await pool.query(
       "UPDATE users SET username = $1 WHERE id = $2 RETURNING *",
       [username, user_id]
@@ -848,6 +996,7 @@ app.put("/users/:user_id/username", async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 });
+
 //Endpoint para actualizar el nombre real de un usuario
 app.put("/users/:user_id/name", async (req, res) => {
   const { user_id } = req.params;

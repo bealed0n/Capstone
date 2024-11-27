@@ -80,16 +80,19 @@ export default function PostulacionesScreen() {
       const data = await response.json();
 
       if (response.ok) {
-        Alert.alert("Éxito", "Tu postulación ha sido enviada correctamente");
+        Alert.alert(
+          "Éxito",
+          "Tu postulación ha sido enviada correctamente, obten tu respuesta en tu correo electrónico ingresado"
+        );
         navigation.goBack();
       } else {
         throw new Error(data.message || "Error al enviar la postulación");
       }
     } catch (error) {
-      console.error("Error:", error);
       Alert.alert(
         "Error",
-        "Hubo un problema al enviar tu postulación. Por favor, intenta de nuevo."
+        (error as any).message ||
+          "Hubo un problema al enviar tu postulación. Por favor, intenta de nuevo."
       );
     } finally {
       setIsLoading(false);

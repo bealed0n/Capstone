@@ -121,6 +121,7 @@ export default function Register() {
           value={password}
           onChangeText={handlePasswordChange}
           placeholder="Contraseña"
+          placeholderTextColor={colorScheme === "dark" ? "gray" : "gray"}
           secureTextEntry
         />
         {passwordStrength === "weak" && (

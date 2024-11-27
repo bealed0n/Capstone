@@ -138,18 +138,26 @@ export default function ProfileEdit() {
       });
 
       if (!response.ok) {
-        throw new Error("Failed to update username");
+        const data = await response.json();
+        if (data.message === "El nombre de usuario ya está registrado.") {
+          Alert.alert(
+            "Error",
+            "El nombre de usuario ya está registrado. Intenta con otro."
+          );
+        } else {
+          throw new Error("Failed to update username");
+        }
+      } else {
+        const updatedUser = await response.json();
+
+        // Actualizar el perfil local
+        setProfile((prevProfile) => ({ ...prevProfile, ...updatedUser }));
+
+        // Actualizar el contexto de usuario
+        updateUser(updatedUser);
+
+        Alert.alert("Éxito", "Nombre de usuario actualizado correctamente");
       }
-
-      const updatedUser = await response.json();
-
-      // Actualizar el perfil local
-      setProfile((prevProfile) => ({ ...prevProfile, ...updatedUser }));
-
-      // Actualizar el contexto de usuario
-      updateUser(updatedUser);
-
-      Alert.alert("Éxito", "Nombre de usuario actualizado correctamente");
     } catch (error) {
       console.error("Error actualizando el nombre de usuario:", error);
       Alert.alert("Error", "No se pudo actualizar el nombre de usuario");
@@ -238,7 +246,7 @@ export default function ProfileEdit() {
                 <Camera size={40} color="gray" />
               </View>
             )}
-            <Text className="text-blue-500">Cmabiar imagen de perfil</Text>
+            <Text className="text-blue-500">Cambiar imagen de perfil</Text>
           </TouchableOpacity>
 
           <View className="mb-4">
