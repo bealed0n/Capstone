@@ -328,7 +328,7 @@ app.post("/forgot-password", async (req, res) => {
 
     // Enviar correo con el enlace para restablecer la contraseña
     await transporter.sendMail({
-      from: '"Tu Aplicación" <igntattoo.contacto@gmail.com>',
+      from: '"IgnTattoo" <igntattoo.contacto@gmail.com>',
       to: email,
       subject: "Restablecer tu contraseña",
       html: `
@@ -921,12 +921,12 @@ app.get("/posts/following/:user_id", async (req, res) => {
   try {
     const result = await pool.query(
       `SELECT posts.id, posts.user_id, users.username, users.role, posts.content, posts.image, posts.created_at, users.profile_pic
-             FROM posts
-             JOIN users ON posts.user_id = users.id
-             WHERE posts.user_id IN (
-                 SELECT following_id FROM follows WHERE follower_id = $1
-             )
-             ORDER BY posts.created_at DESC`,
+        FROM posts
+        JOIN users ON posts.user_id = users.id
+        WHERE posts.user_id IN (
+        SELECT following_id FROM follows WHERE follower_id = $1)
+         OR posts.user_id = $1
+        ORDER BY posts.created_at DESC`,
       [user_id]
     );
     res.status(200).json({ posts: result.rows });
@@ -1727,7 +1727,7 @@ app.post("/designer/projects", upload.single("image"), async (req, res) => {
 
   try {
     const result = await pool.query(
-      "INSERT INTO designer_projects (designer_id, title, description, image, price, currency, is_available) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *",
+      "INSERT INTO designer_projects (designer_id, title, description, image, price, currency, is_available, is_requested) VALUES ($1, $2, $3, $4, $5, $6, $7, FALSE) RETURNING *",
       [designer_id, title, description, image, price, currency, is_available]
     );
     res.status(201).json(result.rows[0]);
@@ -1821,7 +1821,7 @@ app.get("/requested-designs/:user_id", async (req, res) => {
   const { user_id } = req.params;
   try {
     const result = await pool.query(
-      `SELECT * FROM requested_design WHERE user_id = $1`,
+      `SELECT * FROM requested_design WHERE user_id = $1 ORDER BY created_at DESC`,
       [user_id]
     );
     res.status(200).json(result.rows);
@@ -1831,7 +1831,7 @@ app.get("/requested-designs/:user_id", async (req, res) => {
   }
 });
 
-// Endpoint para obtener los diseños solicitados por un usuario
+// Endpoint para obtener los diseños solicitados para un diseñador
 app.get("/designer-projects/:designer_id/requests", async (req, res) => {
   const { designer_id } = req.params;
 
@@ -1839,7 +1839,7 @@ app.get("/designer-projects/:designer_id/requests", async (req, res) => {
     const result = await pool.query(
       `SELECT requested_design.*, users.username FROM requested_design
       JOIN users ON requested_design.user_id = users.id
-      WHERE designer_id = $1`,
+      WHERE designer_id = $1 ORDER BY requested_design.created_at DESC`,
       [designer_id]
     );
     res.status(200).json(result.rows);
@@ -1858,7 +1858,7 @@ app.get("/designer/:designer_id/projects", async (req, res) => {
 
   try {
     const result = await pool.query(
-      `SELECT * FROM designer_projects WHERE designer_id = $1 AND is_available = TRUE AND is_requested = FALSE`,
+      `SELECT * FROM designer_projects WHERE designer_id = $1 AND is_available = TRUE AND is_requested = FALSE ORDER BY created_at DESC`,
       [designer_id]
     );
     res.status(200).json(result.rows);
