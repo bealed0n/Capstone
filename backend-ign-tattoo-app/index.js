@@ -58,7 +58,7 @@ const pool = new Pool({
 const server = http.createServer(app);
 const io = require("socket.io")(server, {
   cors: {
-    origin: "*", // Ajusta según sea necesario para tu desarrollo local
+    origin: "*",
     methods: ["GET", "POST"],
   },
 });
@@ -2573,6 +2573,6 @@ app.get("/search/tattoer-studio", async (req, res) => {
 });
 
 // Iniciar el servidor
-server.listen(port, () => {
-  console.log(`Servidor escuchando en http://localhost:${port}`);
+server.listen(port, "0.0.0.0", () => {
+  console.log(`Servidor corriendo en el puerto ${port}`);
 });

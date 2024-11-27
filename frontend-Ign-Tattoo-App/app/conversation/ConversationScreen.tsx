@@ -1,4 +1,10 @@
-import React, { useContext, useEffect, useState, useRef } from "react";
+import React, {
+  useContext,
+  useEffect,
+  useState,
+  useRef,
+  useCallback,
+} from "react";
 import {
   FlatList,
   TextInput,
@@ -10,7 +16,6 @@ import {
   Alert,
   Keyboard,
   Image,
-  Image as RNImage,
   Modal,
 } from "react-native";
 import { Text } from "../../components/Themed";
@@ -21,13 +26,14 @@ import { format, isSameDay, parseISO } from "date-fns";
 import io from "socket.io-client";
 import * as ImagePicker from "expo-image-picker";
 import { SERVER_URL } from "@/constants/constants";
+import MessageItem from "@/components/MessageItem";
 
 interface Message {
   id: number;
   sender_id: number;
   receiver_id: number;
   content: string;
-  image_url: string | null;
+  image_url?: string;
   sent_at: string;
   is_read: boolean;
   tempId?: number;
@@ -52,12 +58,12 @@ export default function ConversationScreen() {
   const [modalVisible, setModalVisible] = useState<boolean>(false);
   const [imageToSend, setImageToSend] = useState<string | null>(null);
   const flatListRef = useRef<FlatList>(null);
-
+  const socket = io(SERVER_URL);
   const socketRef = useRef<any>(null);
 
   useEffect(() => {
     if (user) {
-      const socket = io(`"${SERVER_URL}"`, {
+      const socket = io(`${SERVER_URL}`, {
         autoConnect: true,
       });
 
@@ -153,80 +159,48 @@ export default function ConversationScreen() {
     fetchMessages();
   }, [user, conversationId]);
 
-  const renderMessage = ({ item }: { item: Message }) => {
-    const isUserMessage = Number(item.sender_id) === Number(user?.id);
-    return (
-      <View
-        className={`flex-row items-start my-2 ${
-          isUserMessage ? "justify-end" : "justify-start"
-        }`}
-      >
-        {!isUserMessage && (
-          <Image
-            source={{
-              uri: item.sender_profile_pic
-                ? `${SERVER_URL}${item.sender_profile_pic}`
-                : "https://via.placeholder.com/40",
-            }}
-            className="w-8 h-8 rounded-full ml-2"
-          />
-        )}
-        <View
-          className={`p-3 rounded-lg shadow-sm ${
-            isUserMessage ? "bg-blue-500 mr-3" : "bg-neutral-500 ml-3"
-          } max-w-[75%]`}
-        >
-          {item.content ? (
-            <Text className="text-white font-medium">{item.content}</Text>
-          ) : null}
-          {item.image_url ? (
-            <TouchableOpacity
-              onPress={() => {
-                if (item.image_url) {
-                  setSelectedImage(
-                    item.image_url.startsWith("data:")
-                      ? item.image_url
-                      : `${SERVER_URL}${item.image_url}`
-                  );
-                  setModalVisible(true);
-                }
-              }}
-            >
-              <Image
-                source={{
-                  uri: item.image_url.startsWith("data:")
-                    ? item.image_url
-                    : `${SERVER_URL}${item.image_url}`,
-                }}
-                className="w-64 h-64 rounded-lg mt-2"
-                resizeMode="cover"
-              />
-            </TouchableOpacity>
-          ) : null}
-          <Text className="text-xs text-gray-200 mt-1 text-right">
-            {new Date(item.sent_at).toLocaleTimeString()}
-          </Text>
-        </View>
-        {isUserMessage && (
-          <Image
-            source={{
-              uri: item.sender_profile_pic
-                ? `${SERVER_URL}${item.sender_profile_pic}`
-                : "https://via.placeholder.com/40",
-            }}
-            className="w-8 h-8 rounded-full mr-1"
-          />
-        )}
-      </View>
-    );
-  };
+  const renderMessage = useCallback(
+    ({ item }: { item: Message }) => {
+      const isUserMessage = Number(item.sender_id) === Number(user?.id);
+      return (
+        <MessageItem
+          item={item}
+          isUserMessage={isUserMessage}
+          onImagePress={(imageUrl) => {
+            setSelectedImage(imageUrl);
+            setModalVisible(true);
+          }}
+          userProfilePic={
+            user?.profile_pic
+              ? `${SERVER_URL}${user.profile_pic}`
+              : "https://via.placeholder.com/40"
+          }
+        />
+      );
+    },
+    [user?.id, user?.profile_pic]
+  );
 
-  const renderDateSeparator = (dateString: string) => (
-    <View className="my-4">
-      <Text className="text-center text-gray-500">
-        {format(new Date(dateString), "dd/MM/yyyy")}
-      </Text>
-    </View>
+  const renderDateSeparator = useCallback(
+    (dateString: string) => (
+      <View className="my-4">
+        <Text className="text-center text-gray-500">
+          {format(new Date(dateString), "dd/MM/yyyy")}
+        </Text>
+      </View>
+    ),
+    []
+  );
+
+  const keyExtractor = useCallback((item: any) => item.id.toString(), []);
+
+  const getItemLayout = useCallback(
+    (data: any, index: number) => ({
+      length: 100, // Approximate height of each item
+      offset: 100 * index,
+      index,
+    }),
+    []
   );
 
   const renderMessagesWithDateSeparators = () => {
@@ -272,7 +246,7 @@ export default function ConversationScreen() {
         sender_id: userId,
         receiver_id: conversationIdNum,
         content: messageContent,
-        image_url: null,
+        image_url: undefined,
         sent_at: new Date().toISOString(),
         is_read: false,
         tempId: tempId,
@@ -336,14 +310,21 @@ export default function ConversationScreen() {
         <FlatList
           ref={flatListRef}
           data={renderMessagesWithDateSeparators()}
-          keyExtractor={(item) => item.id.toString()}
+          keyExtractor={keyExtractor}
           renderItem={({ item }) =>
             item.type === "separator"
               ? renderDateSeparator(item.date!)
               : renderMessage({ item })
           }
           contentContainerStyle={{ paddingBottom: 20 }}
-          initialNumToRender={5}
+          initialNumToRender={10}
+          maxToRenderPerBatch={10}
+          windowSize={21}
+          getItemLayout={getItemLayout}
+          onEndReachedThreshold={0.5}
+          onEndReached={() => {
+            // Implement pagination logic here if needed
+          }}
           onContentSizeChange={() =>
             setTimeout(() => {
               flatListRef.current?.scrollToEnd({ animated: false });
