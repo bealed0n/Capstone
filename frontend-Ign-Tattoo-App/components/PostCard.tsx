@@ -199,15 +199,15 @@ export const CardExample = ({
 
   const handleDelete = async () => {
     Alert.alert(
-      "Confirm Delete",
-      "Are you sure you want to delete this post?",
+      "Eliminar publicación",
+      "¿Estás seguro de que deseas eliminar esta publicación?",
       [
         {
-          text: "Cancel",
+          text: "Cancelar",
           style: "cancel",
         },
         {
-          text: "Delete",
+          text: "Eliminar",
           style: "destructive",
           onPress: async () => {
             try {
@@ -226,7 +226,7 @@ export const CardExample = ({
               const result = await response.json();
               if (result.success) {
                 onDelete(postId);
-                Alert.alert("Success", "Post deleted successfully");
+                Alert.alert("Eliminado", "Publicación eliminada correctamente");
               } else {
                 Alert.alert("Error", result.message);
               }
@@ -366,13 +366,13 @@ export const CardExample = ({
                 onPress={() => setEditModalVisible(false)}
                 className="bg-gray-300 p-2 rounded"
               >
-                <Text className="">Cancel</Text>
+                <Text className="">Cancelar</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 onPress={handleEdit}
                 className="bg-blue-500 p-2 rounded"
               >
-                <Text className="text-white">Save</Text>
+                <Text className="text-white">Guardar</Text>
               </TouchableOpacity>
             </View>
           </View>

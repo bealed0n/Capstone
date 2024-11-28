@@ -109,14 +109,14 @@ export default function Notifications() {
           className="bg-green-500 py-2 px-4 rounded-full flex-row items-center"
         >
           <Feather name="check" size={18} color="white" />
-          <Text className="text-white ml-1 font-semibold">Accept</Text>
+          <Text className="text-white ml-1 font-semibold">Aceptar</Text>
         </TouchableOpacity>
         <TouchableOpacity
           onPress={() => handleReject(item.id)}
           className="bg-red-500 py-2 px-4 rounded-full flex-row items-center"
         >
           <Feather name="x" size={18} color="white" />
-          <Text className="text-white ml-1 font-semibold">Reject</Text>
+          <Text className="text-white ml-1 font-semibold">Rechazar</Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -134,7 +134,7 @@ export default function Notifications() {
     <SafeAreaView className="flex-1 bg-gray-100 dark:bg-neutral-900">
       <View className="flex-row justify-between items-center p-4 bg-white dark:bg-neutral-800 shadow-sm">
         <Text className="text-2xl font-bold text-gray-800 dark:text-white">
-          Studio Invitations
+          Invitaciones de estudio
         </Text>
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <Feather name="x" size={24} color="#4B5563" />
@@ -161,10 +161,10 @@ export default function Notifications() {
             style={{ width: 200, height: 200, opacity: 0.7 }}
           />
           <Text className="text-xl font-semibold text-gray-600 dark:text-gray-300 mt-4">
-            No pending invitations
+            No hay invitaciones
           </Text>
           <Text className="text-gray-500 dark:text-gray-400 mt-2 text-center px-4">
-            When you receive studio invitations, they will appear here.
+            Cuando un estudio te invite, aparecerá aquí
           </Text>
         </View>
       )}

@@ -251,7 +251,7 @@ export default function StudioAdminView() {
         </Text>
         <TextInput
           className="bg-white p-2 rounded-md"
-          placeholder="Search for tattoo artists..."
+          placeholder="Buscar tatuadores..."
           value={searchQuery}
           onChangeText={handleSearchChange}
         />
@@ -267,8 +267,8 @@ export default function StudioAdminView() {
           ListEmptyComponent={() => (
             <Text className="text-center mt-4 text-gray-500 ">
               {searchQuery
-                ? "No artists found"
-                : "Start typing to search for artists"}
+                ? "No se encontraron tatuadores"
+                : "Empieza a buscar tatuadores para invitarlos al estudio"}
             </Text>
           )}
         />
@@ -295,7 +295,7 @@ export default function StudioAdminView() {
 
       <View className="mt-8 p-4 bg-gray-100 dark:bg-neutral-800">
         <Text className="text-2xl font-bold mb-4 dark:text-white">
-          Pending Invitations
+          Invitaciones pendientes
         </Text>
         <FlatList
           data={invitations}
@@ -306,7 +306,7 @@ export default function StudioAdminView() {
           }
           ListEmptyComponent={() => (
             <Text className="text-center mt-4 text-gray-500">
-              No pending invitations
+              No hay invitaciones pendientes
             </Text>
           )}
         />
