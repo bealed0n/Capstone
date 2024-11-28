@@ -107,7 +107,7 @@ export default function IndexScreen() {
             <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
           }
           ListEmptyComponent={() => (
-            <View className="flex-1 justify-center items-center p-4">
+            <View className="flex-1 justify-center items-center p-4 bg-transparent">
               <Text className="text-lg text-center text-gray-800 dark:text-white mb-4">
                 No sigues a nadie aún. 😞
               </Text>

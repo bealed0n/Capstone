@@ -27,6 +27,7 @@ export default function DateRequest() {
   const [imageUri, setImageUri] = useState<string | null>(null); // Para almacenar la URI de la imagen seleccionada
   const router = useRouter();
   const colorScheme = useColorScheme();
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Obtener los parámetros de búsqueda directamente desde el objeto router
   const route = useRoute<RouteProp<{ params: RouteParams }, "params">>();
@@ -66,9 +67,7 @@ export default function DateRequest() {
       return;
     }
 
-    // Agrega este log para verificar que el `user` y su `id` estén disponibles
-    console.log("Usuario cargado desde el contexto:", user);
-
+    setIsSubmitting(true); // Iniciar el estado de envío
     try {
       const formData = new FormData();
       formData.append("user_id", user.id);
@@ -76,13 +75,16 @@ export default function DateRequest() {
       formData.append("date", date);
       formData.append("time", time);
       formData.append("description", description);
+
       if (imageUri) {
-        const image = {
+        const uriParts = imageUri.split(".");
+        const fileType = uriParts[uriParts.length - 1];
+
+        formData.append("reference_image", {
           uri: imageUri,
-          name: "reference-image.jpg",
-          type: "image/jpeg",
-        } as any;
-        formData.append("reference_image", image); // Adjuntar la imagen como un archivo
+          name: `reference-image.${fileType}`,
+          type: `image/${fileType}`,
+        } as any);
       }
 
       const response = await fetch(`${SERVER_URL}/appointments`, {
@@ -106,6 +108,8 @@ export default function DateRequest() {
     } catch (error) {
       console.error("Error creando la cita:", error);
       Alert.alert("Error", "Hubo un problema al conectarse al servidor");
+    } finally {
+      setIsSubmitting(false); // Finalizar el estado de envío
     }
   };
 
@@ -138,7 +142,7 @@ export default function DateRequest() {
 
         <TextInput
           className="border border-gray-300 rounded p-2 w-full mb-4 dark:text-white"
-          placeholder="Write your idea here"
+          placeholder="Escribe una descripción"
           placeholderTextColor={colorScheme === "dark" ? "gray" : "gray"}
           value={description}
           onChangeText={setDescription}
@@ -149,7 +153,7 @@ export default function DateRequest() {
           className="bg-blue-500 p-3 rounded w-full"
           onPress={handleSubmit}
         >
-          <Text className="text-white text-center">Request Date</Text>
+          <Text className="text-white text-center">Solicitar Cita</Text>
         </TouchableOpacity>
       </View>
     </KeyboardAvoidingView>

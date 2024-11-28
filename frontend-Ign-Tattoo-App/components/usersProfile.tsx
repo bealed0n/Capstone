@@ -404,7 +404,7 @@ export default function UsersProfile({ userId }: UsersProfileProps) {
           />
         )}
         ListEmptyComponent={() => (
-          <View className="items-center mt-20">
+          <View className="items-center mt-20 bg-transparent">
             <FontAwesome5 name="frown" size={50} color="gray" />
             <Text className="mt-4 text-lg text-gray-500">No posts yet</Text>
           </View>

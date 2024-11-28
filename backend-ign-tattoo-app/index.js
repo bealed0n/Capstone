@@ -1609,13 +1609,20 @@ app.post(
     const { user_id, tattoo_artist_id, date, time, description } = req.body;
     let referenceImageUrl = null;
 
-    // Guardar la referencia de la imagen directamente sin intentar convertir o eliminar
+    console.log("Datos recibidos:", {
+      user_id,
+      tattoo_artist_id,
+      date,
+      time,
+      description,
+    });
+
     if (req.file) {
       referenceImageUrl = `/uploads/${req.file.filename}`;
+      console.log("Imagen de referencia recibida:", referenceImageUrl);
     }
 
     try {
-      // Verificar si ya existe una cita para el tatuador en esa fecha y hora
       const existingAppointment = await pool.query(
         `SELECT * FROM appointments 
              WHERE tattoo_artist_id = $1 AND date = $2 AND time = $3`,
@@ -1623,13 +1630,13 @@ app.post(
       );
 
       if (existingAppointment.rows.length > 0) {
+        console.log("Cita existente encontrada:", existingAppointment.rows);
         return res.status(400).json({
           message:
             "Ya existe una cita en la fecha y hora seleccionadas para este tatuador.",
         });
       }
 
-      // Verificar disponibilidad del tatuador en la fecha y hora solicitada
       const availability = await pool.query(
         `SELECT * FROM tattoo_artist_availability 
              WHERE tattoo_artist_id = $1 AND date = $2 AND is_available = TRUE 
@@ -1638,20 +1645,23 @@ app.post(
       );
 
       if (availability.rows.length === 0) {
+        console.log("Disponibilidad no encontrada para el tatuador:", {
+          tattoo_artist_id,
+          date,
+          time,
+        });
         return res.status(400).json({
           message:
             "El tatuador no está disponible en la fecha y hora seleccionadas.",
         });
       }
 
-      // Crear la cita si no existe ninguna en la fecha y hora solicitadas
       const result = await pool.query(
         `INSERT INTO appointments (user_id, tattoo_artist_id, date, time, description, reference_image_url, status) 
             VALUES ($1, $2, $3, $4, $5, $6, 'Pending') RETURNING *`,
         [user_id, tattoo_artist_id, date, time, description, referenceImageUrl]
       );
 
-      // Actualizar la disponibilidad del tatuador
       await pool.query(
         `UPDATE tattoo_artist_availability 
          SET is_available = FALSE 
@@ -1660,6 +1670,7 @@ app.post(
         [tattoo_artist_id, date, time]
       );
 
+      console.log("Cita creada exitosamente:", result.rows[0]);
       res.status(201).json({ appointment: result.rows[0] });
     } catch (error) {
       console.error("Error al crear la cita:", error);

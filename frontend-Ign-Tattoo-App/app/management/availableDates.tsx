@@ -54,9 +54,9 @@ export default function AvailableDates() {
         keyExtractor={(item) => item.id.toString()}
         renderItem={({ item }) => (
           <View className="p-2 my-1 border-b border-gray-300">
-            <Text>Date: {format(new Date(item.date), "dd/MMM/yyyy")}</Text>
-            <Text>Start Time: {item.start_time}</Text>
-            <Text>Description: {item.description}</Text>
+            <Text>Fecha: {format(new Date(item.date), "dd/MMM/yyyy")}</Text>
+            <Text>Hora: {item.start_time}</Text>
+            <Text>Descripción {item.description}</Text>
             <TouchableOpacity
               className="absolute right-2 top-4 mr-4 transform -translate-y-1/2 bg-yellow-400 px-2 rounded"
               onPress={() => {
@@ -81,7 +81,7 @@ export default function AvailableDates() {
         }
         ListEmptyComponent={
           <Text className="text-center text-lg text-gray-500">
-            El tatuador no ha publicado citas
+            No se han publicado fechas disponibles
           </Text>
         }
       />
