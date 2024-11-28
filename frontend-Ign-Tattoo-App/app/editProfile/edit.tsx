@@ -155,16 +155,14 @@ export default function ProfileEdit() {
             "El nombre de usuario ya está registrado. Intenta con otro."
           );
         } else {
-          throw new Error("Failed to update username");
+          throw new Error("No se pudo actualizar el nombre de usuario");
         }
       } else {
         const updatedUser = await response.json();
 
-        // Actualizar el perfil local
+        // Combinar el usuario previo con los datos actualizados
         setProfile((prevProfile) => ({ ...prevProfile, ...updatedUser }));
-
-        // Actualizar el contexto de usuario
-        updateUser(updatedUser);
+        updateUser((prevUser: any) => ({ ...prevUser, ...updatedUser }));
 
         Alert.alert("Éxito", "Nombre de usuario actualizado correctamente");
       }

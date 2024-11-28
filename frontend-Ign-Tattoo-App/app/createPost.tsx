@@ -108,7 +108,7 @@ export default function CreatePost() {
       keyboardVerticalOffset={90} // Ajusta según sea necesario
     >
       <View className="flex-1 justify-center items-center p-4">
-        <Text className="text-2xl font-bold mb-4 ">Upload post</Text>
+        <Text className="text-2xl font-bold mb-4 ">Subir publicación</Text>
 
         {/* Muestra la imagen seleccionada si existe */}
         {imageUri ? (
@@ -122,7 +122,7 @@ export default function CreatePost() {
             className="bg-gray-200 p-3 rounded mb-4 w-full"
             onPress={pickImage}
           >
-            <Text className="text-center text-gray-500">Select image</Text>
+            <Text className="text-center text-gray-500">Seleccione imagen</Text>
           </TouchableOpacity>
         )}
 

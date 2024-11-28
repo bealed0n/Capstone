@@ -235,7 +235,7 @@ export default function UsersProfile({ userId }: UsersProfileProps) {
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         }
         ListHeaderComponent={
-          <View className="bg-white dark:bg-neutral-900 p-4 mb-4 rounded-b-3xl shadow-md">
+          <View className="bg-white dark:bg-neutral-900 p-4 rounded-b-3xl shadow-md">
             <View className="flex-row items-center dark:bg-neutral-900">
               <Image
                 source={
@@ -342,7 +342,7 @@ export default function UsersProfile({ userId }: UsersProfileProps) {
                     style={{ marginRight: 8 }}
                   />
                   <Text className="text-white font-semibold">
-                    Available dates
+                    Citas disponibles
                   </Text>
                 </TouchableOpacity>
               </View>
@@ -374,13 +374,13 @@ export default function UsersProfile({ userId }: UsersProfileProps) {
                     style={{ marginRight: 8 }}
                   />
                   <Text className="text-white font-semibold">
-                    Available Designs
+                    Diseños disponibles
                   </Text>
                 </TouchableOpacity>
               </View>
             )}
             <Text className="mt-6 text-lg font-bold text-gray-800 dark:text-white">
-              Posts
+              Publicaciones
             </Text>
           </View>
         }

@@ -32,6 +32,19 @@ interface Appointment {
   reference_image_url: string | null;
 }
 
+const statusMap = {
+  accepted: "Aceptado",
+  rejected: "Rechazado",
+  pending: "Pendiente",
+  Completed: "Completado",
+};
+
+const reverseStatusMap = {
+  Aceptado: "Accepted",
+  Rechazado: "Rejected",
+  Pendiente: "Pending",
+};
+
 export default function AppointmentsList() {
   const colorScheme = useColorScheme();
   const { user, isLoggedIn } = useContext(UserContext);
@@ -305,7 +318,7 @@ export default function AppointmentsList() {
             </View>
 
             <Text style={{ color: colorScheme === "dark" ? "#fff" : "#000" }}>
-              Estado: {item.status}
+              Estado: {statusMap[item.status as keyof typeof statusMap]}
             </Text>
             {user?.role === "tattoo_artist" && item.status !== "Completed" && (
               <View className="bg-neutral-200 dark:bg-neutral-900">
@@ -325,7 +338,7 @@ export default function AppointmentsList() {
                   <Text
                     style={{ color: colorScheme === "dark" ? "#fff" : "#000" }}
                   >
-                    Change Status
+                    Cambiar estado
                   </Text>
                 </TouchableOpacity>
                 {selectedAppointment === item.id &&
@@ -449,9 +462,9 @@ export default function AppointmentsList() {
               onValueChange={(value: string) => setPickerValue(value)}
               style={{ color: colorScheme === "dark" ? "#fff" : "#000" }}
             >
-              <Picker.Item label="Pending" value="pending" />
-              <Picker.Item label="Accepted" value="accepted" />
-              <Picker.Item label="Rejected" value="rejected" />
+              <Picker.Item label="Pendiente" value="pending" />
+              <Picker.Item label="Aceptado" value="accepted" />
+              <Picker.Item label="Rechazado" value="rejected" />
             </Picker>
             <TouchableOpacity
               onPress={() => {

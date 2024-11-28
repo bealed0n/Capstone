@@ -134,24 +134,24 @@ export default function AppointmentsCalendar() {
                 <Text
                   style={{ color: colorScheme === "dark" ? "#fff" : "#000" }}
                 >
-                  Time: {item.time}
+                  Hora: {item.time}
                 </Text>
                 <Text
                   style={{ color: colorScheme === "dark" ? "#fff" : "#000" }}
                 >
-                  Description: {item.description}
+                  Descripcion: {item.description}
                 </Text>
                 <Text
                   style={{ color: colorScheme === "dark" ? "#fff" : "#000" }}
                 >
                   {user?.role === "user"
-                    ? `Tattoo Artist: ${item.username}`
-                    : `Client: ${item.username}`}
+                    ? `Tatuador: ${item.username}`
+                    : `Cliente: ${item.username}`}
                 </Text>
                 <Text
                   style={{ color: colorScheme === "dark" ? "#fff" : "#000" }}
                 >
-                  Date: {format(new Date(item.date), "dd/MMM/yyyy")}
+                  Fecha: {format(new Date(item.date), "dd/MMM/yyyy")}
                 </Text>
               </View>
             )}

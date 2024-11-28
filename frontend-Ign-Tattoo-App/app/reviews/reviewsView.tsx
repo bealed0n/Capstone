@@ -138,7 +138,7 @@ export default function ReviewsView() {
           <View className="flex-1 justify-center items-center mt-10">
             <FontAwesome5 name="comment-slash" size={50} color="#9CA3AF" />
             <Text className="mt-4 text-lg text-gray-500 dark:text-gray-400">
-              No reviews yet
+              El tatuador no tiene reseñas
             </Text>
           </View>
         )}
