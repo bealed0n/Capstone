@@ -20,6 +20,7 @@ interface RequestedDesign {
   status: string;
   created_at: string;
   image: string;
+  username: string; // Actualizado para usar 'username'
 }
 
 const getFullImageUrl = (imagePath: string) => {
@@ -27,6 +28,12 @@ const getFullImageUrl = (imagePath: string) => {
     return imagePath;
   }
   return `${SERVER_URL}${imagePath}`;
+};
+
+const statusMap = {
+  Accepted: "Aceptado",
+  Rejected: "Rechazado",
+  Pending: "Pendiente",
 };
 
 export default function UserRequested() {
@@ -51,6 +58,7 @@ export default function UserRequested() {
       }
       const data = await response.json();
       setDesigns(data);
+      console.log(data);
     } catch (error) {
       console.error("Error fetching requested designs:", error);
       Alert.alert("Error", (error as Error).message);
@@ -61,9 +69,9 @@ export default function UserRequested() {
 
   const renderDesign = ({ item }: { item: RequestedDesign }) => (
     <View className="p-3 bg-neutral-200 dark:bg-neutral-800 rounded-md mb-3">
-      <Text>Designer ID: {item.designer_id}</Text>
-      <Text>Price: ${parseFloat(item.price).toFixed(2)}</Text>
-      <Text>Status: {item.status}</Text>
+      <Text>Diseñador: {item.username}</Text>
+      <Text>Precio: ${parseFloat(item.price).toFixed(2)}</Text>
+      <Text>Estado: {statusMap[item.status as keyof typeof statusMap]}</Text>
       <TouchableOpacity onPress={() => setSelectedImage(item.image)}>
         <Image
           source={{ uri: getFullImageUrl(item.image) }}

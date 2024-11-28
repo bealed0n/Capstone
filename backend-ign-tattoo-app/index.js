@@ -2022,7 +2022,7 @@ app.get("/requested-designs/:user_id", async (req, res) => {
   const { user_id } = req.params;
   try {
     const result = await pool.query(
-      `SELECT * FROM requested_design WHERE user_id = $1 ORDER BY created_at DESC`,
+      `SELECT requested_design.*, users.username FROM requested_design JOIN users on users.id = requested_design.designer_id WHERE user_id = $1 ORDER BY created_at DESC `,
       [user_id]
     );
     res.status(200).json(result.rows);
