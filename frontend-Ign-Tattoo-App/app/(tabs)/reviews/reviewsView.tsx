@@ -101,11 +101,6 @@ export default function ReviewsView() {
 
   return (
     <View className="flex-1 bg-gray-100 dark:bg-gray-900">
-      <View className="p-4 bg-white dark:bg-gray-800 shadow-sm">
-        <Text className="text-2xl font-bold text-gray-800 dark:text-white">
-          Reviews
-        </Text>
-      </View>
       <FlatList
         data={reviews}
         renderItem={renderReviewItem}

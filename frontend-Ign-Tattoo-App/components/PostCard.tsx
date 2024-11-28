@@ -354,12 +354,12 @@ export const CardExample = ({
               multiline
               className="border border-gray-300 p-2 rounded mb-4"
             />
-            <View className="flex-row justify-between">
+            <View className="flex-row justify-between bg-transparent">
               <TouchableOpacity
                 onPress={() => setEditModalVisible(false)}
                 className="bg-gray-300 p-2 rounded"
               >
-                <Text>Cancel</Text>
+                <Text className="">Cancel</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 onPress={handleEdit}

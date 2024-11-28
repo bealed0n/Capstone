@@ -188,8 +188,11 @@ app.post("/login", async (req, res) => {
 });
 
 // Endpoint para registrar usuarios con verificación
-app.post("/register", async (req, res) => {
-  const { username, email, password } = req.body;
+app.post("/register", upload.single("profile_pic"), async (req, res) => {
+  const { username, email, password, name } = req.body;
+  const profilePic = req.file
+    ? `/uploads/${req.file.filename}`
+    : "/uploads/user.png";
 
   try {
     // Verificar si el correo electrónico ya existe
@@ -221,9 +224,7 @@ app.post("/register", async (req, res) => {
     const verificationToken = crypto.randomBytes(32).toString("hex");
 
     // Valores predeterminados
-    const name = "$";
     const bio = ".";
-    const profilePic = "/uploads/user.png";
 
     // Insertar usuario en la base de datos
     const query = `
@@ -257,7 +258,7 @@ app.post("/register", async (req, res) => {
 
     // Enviar correo de verificación
     await transporter.sendMail({
-      from: '"IgnTattoo" <igntattoo.contacto@gmail.com>',
+      from: '"IGN Tattoo" <igntattoo.contacto@gmail.com>',
       to: email,
       subject: "Verifica tu correo",
       html: `
@@ -350,7 +351,7 @@ app.post("/forgot-password", async (req, res) => {
 
     // Enviar correo con el enlace para restablecer la contraseña
     await transporter.sendMail({
-      from: '"IgnTattoo" <igntattoo.contacto@gmail.com>',
+      from: '"IGN Tattoo" <igntattoo.contacto@gmail.com>',
       to: email,
       subject: "Restablecer tu contraseña",
       html: `
@@ -648,75 +649,86 @@ app.post("/reset-password", async (req, res) => {
 //PARA POSTULACIONES DE ROL TATUADOR Y DISEÑADOR
 
 // Endpoint para postular a rol
-app.post("/postulaciones", upload.single("requisitos"), async (req, res) => {
-  const { username, email, role, password } = req.body;
-  let requisitos = null;
+app.post(
+  "/postulaciones",
+  upload.fields([
+    { name: "requisitos", maxCount: 1 },
+    { name: "profile_pic", maxCount: 1 },
+  ]),
+  async (req, res) => {
+    const { username, email, role, password, name } = req.body;
+    let requisitos = null;
+    let profilePic = null;
 
-  if (req.file) {
-    requisitos = `/uploads/${req.file.filename}`;
-  }
-
-  try {
-    // Verificar si el correo electrónico ya existe en la tabla de usuarios
-    const emailCheckQuery = "SELECT * FROM users WHERE email = $1";
-    const emailCheckResult = await pool.query(emailCheckQuery, [email]);
-    if (emailCheckResult.rows.length > 0) {
-      return res.status(400).json({
-        success: false,
-        message: "El correo electrónico ya está registrado.",
-      });
+    if (req.files["requisitos"]) {
+      requisitos = `/uploads/${req.files["requisitos"][0].filename}`;
     }
 
-    // Verificar si el nombre de usuario ya existe en la tabla de usuarios
-    const usernameCheckQuery = "SELECT * FROM users WHERE username = $1";
-    const usernameCheckResult = await pool.query(usernameCheckQuery, [
-      username,
-    ]);
-    if (usernameCheckResult.rows.length > 0) {
-      return res.status(400).json({
-        success: false,
-        message: "El nombre de usuario ya está registrado.",
-      });
+    if (req.files["profile_pic"]) {
+      profilePic = `/uploads/${req.files["profile_pic"][0].filename}`;
     }
 
-    // Hashear la contraseña antes de guardarla
-    const hashedPassword = await bcrypt.hash(password, 10);
+    try {
+      // Verificar si el correo electrónico ya existe en la tabla de usuarios
+      const emailCheckQuery = "SELECT * FROM users WHERE email = $1";
+      const emailCheckResult = await pool.query(emailCheckQuery, [email]);
+      if (emailCheckResult.rows.length > 0) {
+        return res.status(400).json({
+          success: false,
+          message: "El correo electrónico ya está registrado.",
+        });
+      }
 
-    // Insertar la postulación en la tabla de postulaciones
-    const result = await pool.query(
-      `INSERT INTO postulaciones (username, email, role, password, requisitos, aprobado) 
-       VALUES ($1, $2, $3, $4, $5, FALSE) RETURNING *`,
-      [username, email, role, hashedPassword, requisitos]
-    );
+      // Verificar si el nombre de usuario ya existe en la tabla de usuarios
+      const usernameCheckQuery = "SELECT * FROM users WHERE username = $1";
+      const usernameCheckResult = await pool.query(usernameCheckQuery, [
+        username,
+      ]);
+      if (usernameCheckResult.rows.length > 0) {
+        return res.status(400).json({
+          success: false,
+          message: "El nombre de usuario ya está registrado.",
+        });
+      }
 
-    // Configurar transporte de Nodemailer
-    const transporter = nodemailer.createTransport({
-      service: "Gmail",
-      auth: {
-        user: "igntattoo.contacto@gmail.com",
-        pass: "caiy hset szzy aopz",
-      },
-    });
+      // Hashear la contraseña antes de guardarla
+      const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Enviar correo de notificación
-    await transporter.sendMail({
-      from: '"IgnTattoo" <igntattoo.contacto@gmail.com>',
-      to: email,
-      subject: "Postulación Recibida",
-      html: `
+      // Insertar la postulación en la tabla de postulaciones
+      const result = await pool.query(
+        `INSERT INTO postulaciones (username, email, role, password, requisitos, name, profile_pic, aprobado) 
+       VALUES ($1, $2, $3, $4, $5, $6, $7, FALSE) RETURNING *`,
+        [username, email, role, hashedPassword, requisitos, name, profilePic]
+      );
+
+      // Configurar transporte de Nodemailer
+      const transporter = nodemailer.createTransport({
+        service: "Gmail",
+        auth: {
+          user: "igntattoo.contacto@gmail.com",
+          pass: "caiy hset szzy aopz",
+        },
+      });
+
+      // Enviar correo de notificación
+      await transporter.sendMail({
+        from: '"IgnTattoo" <igntattoo.contacto@gmail.com>',
+        to: email,
+        subject: "Postulación Recibida",
+        html: `
         <p>Hola ${username},</p>
         <p>Hemos recibido tu postulación para el rol de ${role}.</p>
         <p>Nos pondremos en contacto contigo después de revisar tu solicitud.</p>
       `,
-    });
+      });
 
-    res.status(201).json({ postulacion: result.rows[0] });
-  } catch (error) {
-    console.error("Error al crear la postulación:", error);
-    res.status(500).json({ message: "Error al crear la postulación", error });
+      res.status(201).json({ postulacion: result.rows[0] });
+    } catch (error) {
+      console.error("Error al crear la postulación:", error);
+      res.status(500).json({ message: "Error al crear la postulación", error });
+    }
   }
-});
-
+);
 //Endpoint para obtener todas las postulaciones
 app.get("/postulaciones", async (req, res) => {
   try {
@@ -732,6 +744,7 @@ app.get("/postulaciones", async (req, res) => {
 });
 
 //Endpoint para aprobar una postulacion y mover los datos a la tabla de users
+// Endpoint para aprobar postulación
 app.post("/postulaciones/:id/aprobar", async (req, res) => {
   const { id } = req.params;
 
@@ -748,15 +761,17 @@ app.post("/postulaciones/:id/aprobar", async (req, res) => {
 
     const postulacion = postulacionResult.rows[0];
 
-    // Definir valores predeterminados
+    // Definir bio según el rol
     const bio = postulacion.role === "tattoo_artist" ? "Tatuador" : "Diseñador";
-    const profilePic = "/assets/images/user.png";
-    const name = postulacion.username;
+
+    // Usar name y profile_pic de la postulación
+    const name = postulacion.name;
+    const profilePic = postulacion.profile_pic;
 
     // Insertar los datos en la tabla de users
     await pool.query(
-      `INSERT INTO users (username, email, role, password, bio, profile_pic, name) 
-       VALUES ($1, $2, $3, $4, $5, $6, $7)`,
+      `INSERT INTO users (username, email, role, password, bio, profile_pic, name, is_verified) 
+       VALUES ($1, $2, $3, $4, $5, $6, $7, TRUE)`,
       [
         postulacion.username,
         postulacion.email,
@@ -831,7 +846,7 @@ app.post("/postulaciones/:id/rechazar", async (req, res) => {
 
     // Enviar correo de notificación
     await transporter.sendMail({
-      from: '"IgnTattoo" <igntattoo.contacto@gmail.com>',
+      from: '"IGN Tattoo" <igntattoo.contacto@gmail.com>',
       to: postulacion.email,
       subject: "Solicitud Rechazada",
       html: `
@@ -2252,6 +2267,31 @@ app.get("/tattoo-studios/is-owner/:user_id", async (req, res) => {
   }
 });
 
+// Endpoint para obtener los slots disponibles
+app.get("/available-slots", async (req, res) => {
+  const { studio_id } = req.query;
+
+  try {
+    // Consulta para obtener los slots disponibles
+    const result = await pool.query(
+      `SELECT id, slot_number 
+       FROM studio_slots 
+       WHERE studio_id = $1 AND is_available = TRUE`,
+      [studio_id]
+    );
+
+    // Verificar si hay slots disponibles
+    const slots = result.rows;
+
+    res.status(200).json({ slots });
+  } catch (error) {
+    console.error("Error al obtener los slots disponibles:", error);
+    res.status(500).json({
+      error: "Error al obtener los slots disponibles",
+    });
+  }
+});
+
 app.get("/tattoo-studios/is-member/:user_id", async (req, res) => {
   const { user_id } = req.params;
 
@@ -2737,6 +2777,29 @@ app.get("/search/tattoer-studio", async (req, res) => {
   } catch (error) {
     console.error("Error al buscar usuarios:", error);
     res.status(500).json({ message: "Error al buscar usuarios", error });
+  }
+});
+// Endpoint para obtener la lista de miembros de un estudio
+app.get("/tattoo-studios/:studio_id/members", async (req, res) => {
+  const { studio_id } = req.params;
+
+  try {
+    const result = await pool.query(
+      `
+      SELECT u.id AS artist_id, u.username AS artist_name, u.email AS artist_email, u.profile_pic
+      FROM users u
+      JOIN studio_slots ss ON u.id = ss.assigned_tattoo_artist_id
+      WHERE ss.studio_id = $1
+      `,
+      [studio_id]
+    );
+
+    res.status(200).json(result.rows);
+  } catch (error) {
+    console.error("Error al obtener los miembros del estudio:", error);
+    res
+      .status(500)
+      .json({ message: "Error al obtener los miembros del estudio", error });
   }
 });
 

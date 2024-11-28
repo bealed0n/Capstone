@@ -1,7 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
 import {
-  View,
-  Text,
   TextInput,
   FlatList,
   TouchableOpacity,
@@ -10,6 +8,7 @@ import {
   ActivityIndicator,
   RefreshControl,
 } from "react-native";
+import { Text, View } from "../../components/Themed";
 import { useRoute } from "@react-navigation/native";
 import { FontAwesome5 } from "@expo/vector-icons";
 import { debounce } from "lodash";
@@ -35,17 +34,26 @@ interface RouteParams {
   studioId: string;
 }
 
+interface StudioMember {
+  artist_id: number;
+  artist_name: string;
+  artist_email: string;
+  profile_pic: string | null;
+}
+
 export default function StudioAdminView() {
   const route = useRoute();
   const { studioId } = route.params as RouteParams;
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<TattooArtist[]>([]);
   const [invitations, setInvitations] = useState<Invitation[]>([]);
+  const [studioMembers, setStudioMembers] = useState<StudioMember[]>([]);
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
     fetchInvitations();
+    fetchStudioMembers();
   }, []);
 
   const fetchInvitations = async () => {
@@ -59,6 +67,21 @@ export default function StudioAdminView() {
     } catch (error) {
       console.error("Error fetching invitations:", error);
       Alert.alert("Error", "Failed to load invitations");
+    }
+  };
+
+  const fetchStudioMembers = async () => {
+    try {
+      const response = await fetch(
+        `${SERVER_URL}/tattoo-studios/${studioId}/members`
+      );
+      if (!response.ok) throw new Error("Failed to fetch studio members");
+      const data = await response.json();
+      setStudioMembers(data);
+      console.log("Studio members:", data);
+    } catch (error) {
+      console.error("Error fetching studio members:", error);
+      Alert.alert("Error", "Failed to load studio members");
     }
   };
 
@@ -90,8 +113,31 @@ export default function StudioAdminView() {
     debouncedSearch(text);
   };
 
+  const fetchAvailableSlots = async () => {
+    try {
+      const response = await fetch(
+        `${SERVER_URL}/available-slots?studio_id=${studioId}`
+      );
+      if (!response.ok) throw new Error("Failed to fetch available slots");
+      const data = await response.json();
+      return data.slots;
+    } catch (error) {
+      console.error("Error fetching available slots:", error);
+      Alert.alert("Error", "Failed to fetch available slots");
+      return [];
+    }
+  };
+
   const sendInvitation = async (artistId: number) => {
     try {
+      const availableSlots = await fetchAvailableSlots();
+      if (availableSlots.length === 0) {
+        Alert.alert("Error", "No available slots");
+        return;
+      }
+
+      const slotId = availableSlots[0].id;
+
       const response = await fetch(`${SERVER_URL}/studio-invitations`, {
         method: "POST",
         headers: {
@@ -99,13 +145,14 @@ export default function StudioAdminView() {
         },
         body: JSON.stringify({
           studio_id: studioId,
-          slot_id: 1, // Assuming slot 1 is always available. You might want to implement slot selection.
+          slot_id: slotId,
           tattoo_artist_id: artistId,
         }),
       });
+
       if (!response.ok) throw new Error("Failed to send invitation");
       Alert.alert("Success", "Invitation sent successfully");
-      fetchInvitations(); // Refresh the invitations list
+      fetchInvitations();
     } catch (error) {
       console.error("Error sending invitation:", error);
       Alert.alert("Error", "Failed to send invitation");
@@ -122,7 +169,7 @@ export default function StudioAdminView() {
       );
       if (!response.ok) throw new Error("Failed to remove artist");
       Alert.alert("Success", "Artist removed successfully");
-      // You might want to refresh the studio data here
+      fetchStudioMembers();
     } catch (error) {
       console.error("Error removing artist:", error);
       Alert.alert("Error", "Failed to remove artist");
@@ -132,12 +179,13 @@ export default function StudioAdminView() {
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
     await fetchInvitations();
+    await fetchStudioMembers();
     setRefreshing(false);
   }, []);
 
   const renderArtistItem = ({ item }: { item: TattooArtist }) => (
-    <View className="flex-row items-center justify-between p-4 border-b border-gray-200">
-      <View className="flex-row items-center">
+    <View className="flex-row items-center justify-between p-4 border-b border-gray-200 dark:bg-neutral-800">
+      <View className="flex-row items-center dark:bg-neutral-800">
         <Image
           source={
             item.profile_pic
@@ -146,7 +194,9 @@ export default function StudioAdminView() {
           }
           className="w-12 h-12 rounded-full"
         />
-        <Text className="ml-4 font-semibold">{item.username}</Text>
+        <Text className="ml-4 font-semibold dark:text-white ">
+          {item.username}
+        </Text>
       </View>
       <TouchableOpacity
         onPress={() => sendInvitation(item.id)}
@@ -157,17 +207,48 @@ export default function StudioAdminView() {
     </View>
   );
 
+  const renderStudioMember = ({ item }: { item: StudioMember }) => (
+    <View className="flex-row items-center justify-between p-4 border-b border-gray-200 dark:bg-neutral-800">
+      <View className="flex-row items-center dark:bg-neutral-800">
+        <Image
+          source={
+            item.profile_pic
+              ? { uri: `${SERVER_URL}${item.profile_pic}` }
+              : require("../../assets/images/user.png")
+          }
+          className="w-12 h-12 rounded-full"
+        />
+        <View className="ml-4 bg-neutral-800">
+          <Text className="font-semibold dark:text-white">
+            {item.artist_name}
+          </Text>
+          <Text className="text-sm text-gray-500 dark:text-gray-400">
+            {item.artist_email}
+          </Text>
+        </View>
+      </View>
+      <TouchableOpacity
+        onPress={() => removeArtist(item.artist_id)}
+        className="bg-red-500 px-4 py-2 rounded-md"
+      >
+        <Text className="text-white">Expulsar</Text>
+      </TouchableOpacity>
+    </View>
+  );
+
   const renderInvitationItem = ({ item }: { item: Invitation }) => (
-    <View className="flex-row items-center justify-between p-4 border-b border-gray-200">
+    <View className="flex-row items-center justify-between p-4 border-b border-gray-200 dark:bg-neutral-800">
       <Text>{item.tattoo_artist_name}</Text>
       <Text className="text-gray-500">{item.status}</Text>
     </View>
   );
 
   return (
-    <View className="flex-1 bg-white">
-      <View className="p-4 bg-gray-100">
-        <Text className="text-2xl font-bold mb-4">Manage Studio Members</Text>
+    <View className="flex-1 bg-white dark:bg-neutral-900">
+      <View className="p-4 bg-gray-100 dark:bg-neutral-900">
+        <Text className="text-2xl font-bold mb-4 dark:text-white">
+          Administrar Integrantes
+        </Text>
         <TextInput
           className="bg-white p-2 rounded-md"
           placeholder="Search for tattoo artists..."
@@ -184,7 +265,7 @@ export default function StudioAdminView() {
           renderItem={renderArtistItem}
           keyExtractor={(item) => item.id.toString()}
           ListEmptyComponent={() => (
-            <Text className="text-center mt-4 text-gray-500">
+            <Text className="text-center mt-4 text-gray-500 ">
               {searchQuery
                 ? "No artists found"
                 : "Start typing to search for artists"}
@@ -193,8 +274,29 @@ export default function StudioAdminView() {
         />
       )}
 
-      <View className="mt-8 p-4 bg-gray-100">
-        <Text className="text-2xl font-bold mb-4">Pending Invitations</Text>
+      <View className="mt-8 p-4 bg-gray-100 dark:bg-neutral-800">
+        <Text className="text-2xl font-bold mb-4 dark:text-white">
+          Miembros del estudio
+        </Text>
+        <FlatList
+          data={studioMembers}
+          renderItem={renderStudioMember}
+          keyExtractor={(item) => item.artist_id.toString()}
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+          }
+          ListEmptyComponent={() => (
+            <Text className="text-center mt-4 text-gray-500">
+              No hay miembros en el estudio
+            </Text>
+          )}
+        />
+      </View>
+
+      <View className="mt-8 p-4 bg-gray-100 dark:bg-neutral-800">
+        <Text className="text-2xl font-bold mb-4 dark:text-white">
+          Pending Invitations
+        </Text>
         <FlatList
           data={invitations}
           renderItem={renderInvitationItem}

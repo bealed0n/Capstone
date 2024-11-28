@@ -15,7 +15,6 @@ import {
 import { FontAwesome5 } from "@expo/vector-icons";
 import { Href, useRouter } from "expo-router";
 import { useRoute, RouteProp } from "@react-navigation/native";
-import { SERVER_URL } from "@/constants/constants";
 
 interface Slot {
   slot_number: number;
@@ -58,6 +57,7 @@ export default function StudioOwnerView() {
   const [studioData, setStudioData] = useState<StudioResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const SERVER_URL = "http://192.168.100.87:3000"; // Asegúrate de que esta URL sea correcta
   const colorScheme = useColorScheme();
   const isDarkMode = colorScheme === "dark";
   const router = useRouter();
@@ -164,10 +164,10 @@ export default function StudioOwnerView() {
     },
     {
       title: "Artistas del Estudio",
-      data: tattoo_artists,
-      renderItem: ({ item }: { item: TattooArtist }) => (
+      data: [{ members: tattoo_artists }], // Envuelve los artistas en un objeto
+      renderItem: ({ item }: { item: { members: TattooArtist[] } }) => (
         <View className="p-2">
-          {/* Botón de Administrar miembros arriba */}
+          {/* Botón de Administrar miembros solo una vez */}
           <TouchableOpacity className="flex-row justify-center bg-blue-500 mb-4 px-4 py-1 rounded-md">
             <Text
               onPress={() =>
@@ -182,26 +182,29 @@ export default function StudioOwnerView() {
             </Text>
           </TouchableOpacity>
 
-          {/* Contenedor para los artistas */}
-          <TouchableOpacity
-            onPress={() => router.push(`/(tabs)/${item.artist_id}` as Href)}
-            className="flex-row items-center p-2 border-b border-gray-200"
-          >
-            <Image
-              source={
-                item.profile_pic
-                  ? { uri: `${SERVER_URL}${item.profile_pic}` }
-                  : require("../../assets/images/user.png") // Imagen por defecto
-              }
-              className="w-12 h-12 rounded-full"
-            />
-            <View className="ml-4 flex-1">
-              <Text className="font-bold text-black dark:text-white">
-                {item.artist_name}
-              </Text>
-              <Text className="text-gray-500">{item.artist_email}</Text>
-            </View>
-          </TouchableOpacity>
+          {/* Lista de artistas */}
+          {item.members.map((artist) => (
+            <TouchableOpacity
+              key={artist.artist_id}
+              onPress={() => router.push(`/(tabs)/${artist.artist_id}` as Href)}
+              className="flex-row items-center p-2 border-b border-gray-200"
+            >
+              <Image
+                source={
+                  artist.profile_pic
+                    ? { uri: `${SERVER_URL}${artist.profile_pic}` }
+                    : require("../../assets/images/user.png")
+                }
+                className="w-12 h-12 rounded-full"
+              />
+              <View className="ml-4 flex-1">
+                <Text className="font-bold text-black dark:text-white">
+                  {artist.artist_name}
+                </Text>
+                <Text className="text-gray-500">{artist.artist_email}</Text>
+              </View>
+            </TouchableOpacity>
+          ))}
         </View>
       ),
     },

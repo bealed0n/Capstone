@@ -501,10 +501,10 @@ export default function AppointmentsList() {
         <View className="flex-1 justify-center items-center bg-black bg-opacity-50">
           <View className="bg-white dark:bg-gray-800 p-4 rounded-lg w-4/5">
             <Text className="text-xl font-bold mb-4 text-gray-800 dark:text-white">
-              Register Availability
+              Registrar Disponibilidad
             </Text>
             <ScrollView>
-              <Text className="text-gray-800 dark:text-white mb-2">Date:</Text>
+              <Text className="text-gray-800 dark:text-white mb-2">Fecha:</Text>
               <TouchableOpacity onPress={() => setShowDatePicker(true)}>
                 <Text className="border border-gray-300 dark:border-gray-600 rounded p-2 mb-4 text-gray-800 dark:text-white">
                   {format(availabilityDate, "dd/MM/yyyy")}
@@ -526,7 +526,7 @@ export default function AppointmentsList() {
                 />
               )}
               <Text className="text-gray-800 dark:text-white mb-2 mt-4">
-                Start Time:
+                Hora:
               </Text>
               <TouchableOpacity onPress={() => setShowTimePicker(true)}>
                 <Text className="border border-gray-300 dark:border-gray-600 rounded p-2 mb-4 text-gray-800 dark:text-white">
@@ -549,16 +549,20 @@ export default function AppointmentsList() {
                   }}
                 />
               )}
+              <Text className="text-gray-800 dark:text-white">
+                Descripción:
+              </Text>
               <TextInput
-                className="border border-gray-300 dark:border-gray-600 rounded p-2 mb-4 text-gray-800 dark:text-white mt-4"
-                placeholder="Description"
+                className="border border-gray-300 dark:border-gray-600 rounded p-2 mb-4 text-gray-800 dark:text-white mt-2"
+                placeholder="Descripción"
                 value={availabilityDescription}
                 onChangeText={setAvailabilityDescription}
+                placeholderTextColor={colorScheme === "dark" ? "#fff" : "#000"}
                 multiline
               />
               <View className="flex-row items-center mb-4">
                 <Text className="text-gray-800 dark:text-white mr-2">
-                  Available:
+                  Disponible:
                 </Text>
                 <TouchableOpacity
                   onPress={() => setIsAvailable(!isAvailable)}
@@ -574,14 +578,16 @@ export default function AppointmentsList() {
                 onPress={handleRegisterAvailability}
               >
                 <Text className="text-white text-center font-bold">
-                  Register
+                  Registrar
                 </Text>
               </TouchableOpacity>
               <TouchableOpacity
                 className="bg-gray-500 p-2 rounded-md"
                 onPress={() => setAvailabilityModalVisible(false)}
               >
-                <Text className="text-white text-center font-bold">Cancel</Text>
+                <Text className="text-white text-center font-bold">
+                  Cancelar
+                </Text>
               </TouchableOpacity>
             </ScrollView>
           </View>

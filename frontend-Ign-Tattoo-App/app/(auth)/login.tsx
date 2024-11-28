@@ -128,6 +128,14 @@ export default function Login() {
           <Text className="font-bold dark:text-white">Registrate</Text>
         </TouchableOpacity>
       </View>
+      <View className="flex-row mt-4 justify-center mr-4 dark:bg-neutral-900">
+        <Text>¿Eres tatuador o diseñador?</Text>
+        <TouchableOpacity onPress={() => router.push("/(auth)/postulacion")}>
+          <Text className="font-bold dark:text-white ml-2">
+            Envia tu solicitud!
+          </Text>
+        </TouchableOpacity>
+      </View>
 
       {/* Modal para mensaje de alerta */}
       <Modal

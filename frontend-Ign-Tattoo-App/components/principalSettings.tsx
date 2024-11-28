@@ -6,7 +6,11 @@ import { UserContext } from "../app/context/userContext";
 import { useColorScheme } from "./useColorScheme";
 import { useNavigation } from "@react-navigation/native";
 
-export default function PrincipalSettings() {
+interface PrincipalSettingsProps {
+  path: string;
+}
+
+export default function PrincipalSettings({ path }: PrincipalSettingsProps) {
   const { user } = useContext(UserContext);
   const router = useRouter();
   const colorScheme = useColorScheme();
@@ -23,7 +27,7 @@ export default function PrincipalSettings() {
   };
 
   return (
-    <View className="flex-1 bg-gray-50 dark:bg-gray-900">
+    <View className="flex-1 bg-gray-50 dark:bg-neutral-900">
       <Text className="text-neutral-600 dark:text-neutral-400 ml-4 mt-2 mb-2">
         Configuracion
       </Text>

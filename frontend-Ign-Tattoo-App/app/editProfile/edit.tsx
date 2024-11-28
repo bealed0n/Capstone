@@ -8,6 +8,7 @@ import {
   Platform,
   Image,
   TextInput,
+  useColorScheme,
 } from "react-native";
 import { Text, View } from "../../components/Themed";
 import { UserContext } from "../context/userContext";
@@ -32,6 +33,9 @@ export default function ProfileEdit() {
   const [imageUri, setImageUri] = useState<string | null>(null);
   const { user, updateUser } = useContext(UserContext);
 
+  // Mover useColorScheme al nivel superior
+  const colorScheme = useColorScheme();
+
   useEffect(() => {
     if (user) {
       fetchUserProfile();
@@ -42,7 +46,9 @@ export default function ProfileEdit() {
   const requestMediaLibraryPermissions = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (status !== "granted") {
-      Alert.alert("Sorry, we need camera roll permissions to make this work!");
+      Alert.alert(
+        "Lo sentimos, necesitamos permisos para acceder a tus fotos."
+      );
     }
   };
 
@@ -57,6 +63,7 @@ export default function ProfileEdit() {
       setProfile(data);
       setUsername(data.username);
       setName(data.name);
+      setBio(data.bio); // Asegúrate de establecer la bio
       if (data.profile_pic) {
         setImageUri(`${SERVER_URL}${data.profile_pic}`);
       }
@@ -90,6 +97,8 @@ export default function ProfileEdit() {
   const uploadProfilePicture = async (uri: string) => {
     try {
       setLoading(true);
+      console.log("Uploading image from URI:", uri);
+
       const formData = new FormData();
       formData.append("profile_pic", {
         uri,
@@ -102,25 +111,26 @@ export default function ProfileEdit() {
         {
           method: "PUT",
           body: formData,
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
         }
       );
 
       if (!response.ok) {
-        throw new Error("Failed to upload profile picture");
+        const errorData = await response.json();
+        console.error("Upload error response:", errorData);
+        throw new Error(
+          "Failed to upload profile picture: " + errorData.message
+        );
       }
 
       const updatedUser = await response.json();
-
-      setProfile((prevProfile) => ({ ...prevProfile, ...updatedUser }));
-      updateUser(updatedUser);
-
-      Alert.alert("Éxito", "Imagen de perfil actualizada correctamente");
+      console.log("Profile picture uploaded successfully:", updatedUser);
     } catch (error) {
       console.error("Error subiendo la imagen de perfil:", error);
-      Alert.alert("Error", "No se pudo subir la imagen de perfil");
+      Alert.alert(
+        "Error",
+        "No se pudo subir la imagen de perfil: " +
+          (error instanceof Error ? error.message : "Unknown error")
+      );
     } finally {
       setLoading(false);
     }
@@ -183,10 +193,10 @@ export default function ProfileEdit() {
 
       const updatedUser = await response.json();
       setProfile((prevProfile) => ({ ...prevProfile, ...updatedUser }));
-      Alert.alert("Success", "Name updated successfully");
+      Alert.alert("Éxito", "Nombre actualizado correctamente");
     } catch (error) {
       console.error("Error updating name:", error);
-      Alert.alert("Error", "Failed to update name");
+      Alert.alert("Error", "No se pudo actualizar el nombre");
     } finally {
       setLoading(false);
     }
@@ -209,10 +219,10 @@ export default function ProfileEdit() {
 
       const updatedUser = await response.json();
       setProfile((prevProfile) => ({ ...prevProfile, ...updatedUser }));
-      Alert.alert("Success", "Bio updated successfully");
+      Alert.alert("Éxito", "Bio actualizada correctamente");
     } catch (error) {
       console.error("Error updating bio:", error);
-      Alert.alert("Error", "Failed to update bio");
+      Alert.alert("Error", "No se pudo actualizar la bio");
     } finally {
       setLoading(false);
     }
@@ -285,7 +295,8 @@ export default function ProfileEdit() {
                 {loading ? "Actualizando..." : "Actualizar nombre"}
               </Text>
             </TouchableOpacity>
-            {/* Si el usuario es Tatuador o Designer aparecera el actualizar bio */}
+
+            {/* Si el usuario es Tatuador o Diseñador, aparecerá el actualizar bio */}
             {user?.role === "tattoo_artist" || user?.role === "Designer" ? (
               <View className="mb-4">
                 <Text className="text-lg mb-2">Bio</Text>
@@ -294,6 +305,9 @@ export default function ProfileEdit() {
                   value={bio ?? ""}
                   onChangeText={setBio}
                   placeholder="Ingrese bio"
+                  placeholderTextColor={
+                    colorScheme === "dark" ? "#999" : "#666"
+                  }
                 />
                 <TouchableOpacity
                   className="bg-blue-500 p-2 rounded-md mt-2"

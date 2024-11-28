@@ -145,7 +145,7 @@ export default function StudioPage() {
             {item.address}
           </Text>
           <Text className="text-gray-500 mt-1">
-            Propietario: {item.owner_name} ({item.owner_email})
+            Propietario: {item.owner_name}
           </Text>
         </View>
       ),
@@ -170,7 +170,6 @@ export default function StudioPage() {
             <Text className="font-bold text-black dark:text-white">
               {item.artist_name}
             </Text>
-            <Text className="text-gray-500">{item.artist_email}</Text>
           </View>
         </TouchableOpacity>
       ),

@@ -102,9 +102,9 @@ export default function Search() {
   const beautifyRole = (role: string) => {
     switch (role) {
       case "tattoo_artist":
-        return "Tattoo Artist";
-      case "designer":
-        return "Designer";
+        return "Tatuador";
+      case "Designer":
+        return "Diseñador";
       default:
         return role;
     }
