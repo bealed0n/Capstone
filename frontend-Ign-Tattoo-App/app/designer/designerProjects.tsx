@@ -26,6 +26,7 @@ interface Project {
   is_available: boolean;
   is_requested: boolean;
 }
+
 export default function DesignerProjects() {
   const { user } = useContext(UserContext);
   const colorScheme = useColorScheme();
@@ -89,7 +90,9 @@ export default function DesignerProjects() {
       if (response.ok) {
         Alert.alert(
           "Éxito",
-          `El proyecto ha sido marcado como ${newStatus ? "Disponible" : "No Disponible"}.`
+          `El proyecto ha sido marcado como ${
+            newStatus ? "Disponible" : "No Disponible"
+          }.`
         );
         fetchProjects();
       } else {
@@ -194,7 +197,7 @@ export default function DesignerProjects() {
       <Text className="text-lg font-semibold">{item.title}</Text>
       <Text className="mt-2 text-sm">{item.description}</Text>
       <Text className="mt-2 text-sm">
-        Price: {item.price} {item.currency}
+        Precio: {item.price} {item.currency}
       </Text>
       {item.image && (
         <Image
@@ -211,7 +214,7 @@ export default function DesignerProjects() {
           },
         ]}
       >
-        Status: {item.is_available ? "Available" : "Not available"}
+        Estado: {item.is_available ? "Disponible" : "No disponible"}
       </Text>
       <Text
         className=" text-base "
@@ -221,7 +224,7 @@ export default function DesignerProjects() {
           },
         ]}
       >
-        Requested: {item.is_requested ? "Yes" : "No"}
+        Solicitado: {item.is_requested ? "Sí" : "No"}
       </Text>
       <TouchableOpacity
         onPress={() => toggleAvailability(item.id, item.is_available)}
@@ -233,7 +236,9 @@ export default function DesignerProjects() {
         ]}
       >
         <Text style={styles.buttonText}>
-          {item.is_available ? "Mark as not available" : "Mark as available"}
+          {item.is_available
+            ? "Marcar como no disponible"
+            : "Marcar como disponible"}
         </Text>
       </TouchableOpacity>
     </View>
@@ -252,7 +257,7 @@ export default function DesignerProjects() {
   return (
     <View style={styles.container}>
       <TouchableOpacity onPress={openModal} style={styles.addButton}>
-        <Text style={styles.addButtonText}>Add New Project</Text>
+        <Text style={styles.addButtonText}>Crear nuevo proyecto</Text>
       </TouchableOpacity>
 
       {projects.length === 0 ? (
@@ -290,11 +295,11 @@ export default function DesignerProjects() {
                   { color: colorScheme === "dark" ? "#ffffff" : "#000000" },
                 ]}
               >
-                Add New Project
+                Crear nuevo proyecto
               </Text>
 
               <TextInput
-                placeholder="Ttitle"
+                placeholder="Título"
                 value={title}
                 onChangeText={setTitle}
                 style={[
@@ -310,7 +315,7 @@ export default function DesignerProjects() {
               />
 
               <TextInput
-                placeholder="Description"
+                placeholder="Descripción"
                 value={description}
                 onChangeText={setDescription}
                 style={[
@@ -329,7 +334,7 @@ export default function DesignerProjects() {
               />
 
               <TextInput
-                placeholder="Price"
+                placeholder="Precio"
                 value={price}
                 onChangeText={setPrice}
                 keyboardType="numeric"
@@ -361,7 +366,7 @@ export default function DesignerProjects() {
                     color: colorScheme === "dark" ? "#ffffff" : "#000000",
                   }}
                 >
-                  Currency: {currency}
+                  Moneda: {currency}
                 </Text>
               </TouchableOpacity>
 
@@ -391,7 +396,7 @@ export default function DesignerProjects() {
                 style={styles.pickImageButton}
               >
                 <Text style={styles.pickImageButtonText}>
-                  {imageUri ? "Change Image" : "Select Image"}
+                  {imageUri ? "Cambiar imagen" : "Seleccionar imagen"}
                 </Text>
               </TouchableOpacity>
 
@@ -407,7 +412,7 @@ export default function DesignerProjects() {
                 style={styles.availabilityContainer}
                 className="bg-transparent"
               >
-                <Text style={styles.availabilityText}>Available:</Text>
+                <Text style={styles.availabilityText}>Disponible:</Text>
                 <TouchableOpacity
                   onPress={() => setIsAvailable(!isAvailable)}
                   style={[
@@ -418,7 +423,7 @@ export default function DesignerProjects() {
                   ]}
                 >
                   <Text style={styles.buttonText}>
-                    {isAvailable ? "Yes" : "No"}
+                    {isAvailable ? "Sí" : "No"}
                   </Text>
                 </TouchableOpacity>
               </View>
@@ -427,14 +432,14 @@ export default function DesignerProjects() {
                 onPress={submitProject}
                 style={styles.submitButton}
               >
-                <Text style={styles.buttonText}>Create Project</Text>
+                <Text style={styles.buttonText}>Crear proyecto</Text>
               </TouchableOpacity>
 
               <TouchableOpacity
                 onPress={closeModal}
                 style={styles.cancelButton}
               >
-                <Text style={styles.buttonText}>Cancel</Text>
+                <Text style={styles.buttonText}>Cancelar</Text>
               </TouchableOpacity>
             </ScrollView>
           </View>

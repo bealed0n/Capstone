@@ -186,7 +186,9 @@ export default function StudioOwnerView() {
           {item.members.map((artist) => (
             <TouchableOpacity
               key={artist.artist_id}
-              onPress={() => router.push(`/(tabs)/${artist.artist_id}` as Href)}
+              onPress={() =>
+                router.push(`/(tabs)/user/${artist.artist_id}` as Href)
+              }
               className="flex-row items-center p-2 border-b border-gray-200"
             >
               <Image

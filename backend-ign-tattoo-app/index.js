@@ -93,6 +93,14 @@ io.on("connection", (socket) => {
         imageUrl = `/uploads/${filename}`;
       }
 
+      // Fetch sender information
+      const senderQuery =
+        "SELECT username, profile_pic FROM users WHERE id = $1";
+      const senderResult = await pool.query(senderQuery, [
+        messageData.sender_id,
+      ]);
+      const senderInfo = senderResult.rows[0];
+
       const query =
         "INSERT INTO messages (sender_id, receiver_id, content, image_url, sent_at) VALUES ($1, $2, $3, $4, NOW()) RETURNING *";
       const result = await pool.query(query, [
@@ -104,11 +112,21 @@ io.on("connection", (socket) => {
 
       const savedMessage = result.rows[0];
 
+      // Combine saved message with sender info
+      const messageWithSenderInfo = {
+        ...savedMessage,
+        sender_username: senderInfo.username,
+        sender_profile_pic: senderInfo.profile_pic,
+      };
+
       io.to(messageData.receiver_id.toString()).emit(
         "newMessage",
-        savedMessage
+        messageWithSenderInfo
       );
-      io.to(messageData.sender_id.toString()).emit("newMessage", savedMessage);
+      io.to(messageData.sender_id.toString()).emit(
+        "newMessage",
+        messageWithSenderInfo
+      );
     } catch (error) {
       console.error("Error al guardar el mensaje:", error);
     }
@@ -1812,7 +1830,7 @@ app.get("/tattoo-artist/:tattoo_artist_id/reviews", async (req, res) => {
 
   try {
     const result = await pool.query(
-      `SELECT review_text, rating, client_username, created_at
+      `SELECT review_text, rating, client_username, created_at, tattoo_image_url
        FROM reviews
        WHERE tattoo_artist_id = $1 and is_published = TRUE
        ORDER BY created_at DESC`,
@@ -2113,7 +2131,23 @@ app.post("/messages", async (req, res) => {
       [sender_id, receiver_id, content, image_url]
     );
 
-    const newMessage = result.rows[0];
+    let newMessage = result.rows[0];
+
+    // Obtener información del remitente
+    const senderResult = await pool.query(
+      "SELECT username, profile_pic FROM users WHERE id = $1",
+      [sender_id]
+    );
+
+    const senderInfo = senderResult.rows[0];
+
+    // Agregar la información del remitente al mensaje
+    newMessage = {
+      ...newMessage,
+      sender_username: senderInfo.username,
+      sender_profile_pic: senderInfo.profile_pic,
+    };
+
     res.status(201).json({ message: newMessage });
 
     // Emitir el nuevo mensaje a los clientes conectados

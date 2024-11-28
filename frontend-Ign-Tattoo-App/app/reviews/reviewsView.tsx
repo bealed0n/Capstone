@@ -6,10 +6,12 @@ import {
   RefreshControl,
   ActivityIndicator,
   Alert,
+  Image,
 } from "react-native";
 import { useRoute } from "@react-navigation/native";
 import { FontAwesome5 } from "@expo/vector-icons";
 import { format } from "date-fns";
+import { es } from "date-fns/locale";
 import { SERVER_URL } from "@/constants/constants";
 
 interface RouteParams {
@@ -21,6 +23,7 @@ interface Review {
   rating: number;
   client_username: string;
   created_at: string;
+  tattoo_image_url: string;
 }
 
 interface ReviewsResponse {
@@ -33,6 +36,9 @@ export default function ReviewsView() {
   const [reviews, setReviews] = useState<Review[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const capitalizeFirstLetter = (string: string) => {
+    return string.charAt(0).toUpperCase() + string.slice(1);
+  };
 
   const fetchReviews = async () => {
     try {
@@ -74,7 +80,7 @@ export default function ReviewsView() {
             <FontAwesome5
               key={star}
               name="star"
-              solid={star <= item.rating} // Cambiado para usar item.rating directamente
+              solid={star <= item.rating}
               size={16}
               color={star <= item.rating ? "#FFC107" : "#E0E0E0"}
               style={{ marginLeft: 2 }}
@@ -85,8 +91,23 @@ export default function ReviewsView() {
       <Text className="text-gray-600 dark:text-gray-300 mb-2">
         {item.review_text}
       </Text>
+      {item.tattoo_image_url && (
+        <Image
+          source={{ uri: `${SERVER_URL}${item.tattoo_image_url}` }}
+          style={{
+            width: "100%",
+            height: undefined,
+            aspectRatio: 1,
+            borderRadius: 8,
+            marginBottom: 8,
+          }}
+          resizeMode="cover"
+        />
+      )}
       <Text className="text-xs text-gray-500 dark:text-gray-400">
-        {format(new Date(item.created_at), "MMMM d, yyyy")}
+        {capitalizeFirstLetter(
+          format(new Date(item.created_at), "MMMM d, yyyy", { locale: es })
+        )}
       </Text>
     </View>
   );

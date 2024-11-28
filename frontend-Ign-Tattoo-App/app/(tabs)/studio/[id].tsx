@@ -155,7 +155,7 @@ export default function StudioPage() {
       data: tattoo_artists,
       renderItem: ({ item }: { item: TattooArtist }) => (
         <TouchableOpacity
-          onPress={() => router.push(`/(tabs)/${item.artist_id}` as Href)}
+          onPress={() => router.push(`/(tabs)/user/${item.artist_id}` as Href)}
           className="flex-row items-center p-2 border-b border-gray-200"
         >
           <Image

@@ -96,7 +96,7 @@ export default function Login() {
       />
       <Text className="mt-2">Contraseña</Text>
       <TextInput
-        className="dark:text-white my-2 border border-gray-500 p-2 rounded"
+        className="my-2 border border-gray-500 p-2 rounded text-black dark:text-white"
         placeholder="Ingrese su contraseña"
         placeholderTextColor={colorScheme === "dark" ? "gray" : "gray"}
         value={password}

@@ -124,7 +124,7 @@ export default function UserProfile() {
     },
     {
       key: "clientReviews",
-      content: <ClientReviews />,
+      content: <ClientReviews onRefresh={onRefresh} />,
     },
   ];
 

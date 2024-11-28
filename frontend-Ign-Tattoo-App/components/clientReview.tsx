@@ -7,6 +7,8 @@ import {
   Modal,
   TextInput,
   Alert,
+  RefreshControl,
+  TouchableWithoutFeedback,
 } from "react-native";
 import { View, Text } from "./Themed";
 import { FontAwesome5 } from "@expo/vector-icons";
@@ -24,7 +26,11 @@ interface Review {
   tattoo_artist_name: string;
 }
 
-export default function ClientReviews() {
+interface ClientReviewsProps {
+  onRefresh: () => void;
+}
+
+export default function ClientReviews({ onRefresh }: ClientReviewsProps) {
   const { user } = useContext(UserContext);
   const [reviews, setReviews] = useState<Review[]>([]);
   const [loading, setLoading] = useState(true);
@@ -33,6 +39,9 @@ export default function ClientReviews() {
   const [reviewText, setReviewText] = useState("");
   const [reviewRating, setReviewRating] = useState(0);
   const [reviewImage, setReviewImage] = useState<string | null>(null);
+  const [refreshing, setRefreshing] = useState(false);
+  const [isImageModalVisible, setIsImageModalVisible] = useState(false);
+  const [selectedImageUrl, setSelectedImageUrl] = useState<string | null>(null);
 
   useEffect(() => {
     fetchReviews();
@@ -95,6 +104,7 @@ export default function ClientReviews() {
       Alert.alert("Success", "Review submitted successfully");
       setIsReviewModalVisible(false);
       fetchReviews();
+      onRefresh(); // Llamar a la función de actualización pasada como prop
     } catch (error) {
       console.error("Error submitting review:", error);
       Alert.alert("Error", "Failed to submit review");
@@ -131,7 +141,7 @@ export default function ClientReviews() {
         {item.tattoo_artist_name}
       </Text>
       <Text className="text-sm text-gray-600 dark:text-gray-300 mb-2">
-        {item.is_published ? "Published" : "Not Published"}
+        {item.is_published ? "Publicada" : "No publicada"}
       </Text>
       {item.is_published && (
         <>
@@ -143,20 +153,27 @@ export default function ClientReviews() {
               <FontAwesome5
                 key={star}
                 name="star"
-                solid={star <= (item.rating || 0)} // Cambiado para usar item.rating directamente
+                solid={star <= (item.rating || 0)}
                 size={16}
                 color={star <= (item.rating || 0) ? "#FFC107" : "#E0E0E0"}
                 style={{ marginRight: 4 }}
               />
             ))}
           </View>
+          {item.tattoo_image_url && (
+            <TouchableOpacity
+              onPress={() => {
+                setSelectedImageUrl(`${SERVER_URL}${item.tattoo_image_url}`);
+                setIsImageModalVisible(true);
+              }}
+            >
+              <Image
+                source={{ uri: `${SERVER_URL}${item.tattoo_image_url}` }}
+                className="w-full h-40 rounded-md mb-2"
+              />
+            </TouchableOpacity>
+          )}
         </>
-      )}
-      {item.tattoo_image_url && (
-        <Image
-          source={{ uri: `${SERVER_URL}${item.tattoo_image_url}` }}
-          className="w-full h-40 rounded-md mb-2"
-        />
       )}
       <Text className="text-xs text-gray-500 dark:text-gray-400">
         {new Date(item.created_at).toLocaleDateString()}
@@ -200,7 +217,28 @@ export default function ClientReviews() {
         keyExtractor={(item) => item.id.toString()}
         contentContainerStyle={{ flexGrow: 1 }}
         nestedScrollEnabled={true}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={fetchReviews} />
+        }
       />
+      {/* Modal para la imagen expandida */}
+      <Modal
+        visible={isImageModalVisible}
+        transparent={true}
+        onRequestClose={() => setIsImageModalVisible(false)}
+      >
+        <TouchableWithoutFeedback onPress={() => setIsImageModalVisible(false)}>
+          <View className="flex-1 bg-black bg-opacity-80 justify-center items-center">
+            {selectedImageUrl && (
+              <Image
+                source={{ uri: selectedImageUrl }}
+                style={{ width: "100%", height: "100%" }}
+                resizeMode="contain"
+              />
+            )}
+          </View>
+        </TouchableWithoutFeedback>
+      </Modal>
 
       <Modal
         visible={isReviewModalVisible}
@@ -211,16 +249,17 @@ export default function ClientReviews() {
         <View className="flex-1 justify-center items-center bg-black bg-opacity-50">
           <View className="bg-white dark:bg-gray-800 p-4 rounded-lg w-4/5">
             <Text className="text-xl font-bold mb-4 text-gray-800 dark:text-white">
-              Submit Review
+              Reseña tu experiencia
             </Text>
             <TextInput
               className="border border-gray-300 dark:border-gray-600 rounded p-2 mb-4 text-gray-800 dark:text-white"
-              placeholder="Write your review..."
+              placeholder="Escibe tu reseña aquí..."
               value={reviewText}
               onChangeText={setReviewText}
+              placeholderTextColor={"gray"}
               multiline
             />
-            <View className="flex-row justify-center mb-4">
+            <View className="flex-row justify-center mb-4 dark:bg-transparent">
               {[1, 2, 3, 4, 5].map((star) => (
                 <TouchableOpacity
                   key={star}
@@ -241,7 +280,7 @@ export default function ClientReviews() {
               onPress={pickImage}
             >
               <Text className="text-white text-center font-bold">
-                {reviewImage ? "Change Image" : "Add Image"}
+                {reviewImage ? "Cambiar imagen" : "Añadir Imagen"}
               </Text>
             </TouchableOpacity>
             {reviewImage && (
@@ -250,19 +289,21 @@ export default function ClientReviews() {
                 className="w-full h-40 rounded-md mb-4"
               />
             )}
-            <View className="flex-row justify-between">
+            <View className="flex-row justify-between dark:bg-transparent">
               <TouchableOpacity
-                className="bg-gray-500 p-2 rounded flex-1 mr-2"
+                className="bg-red-500 p-2 rounded flex-1 mr-2"
                 onPress={() => setIsReviewModalVisible(false)}
               >
-                <Text className="text-white text-center font-bold">Cancel</Text>
+                <Text className="text-white text-center font-bold">
+                  Cancelar
+                </Text>
               </TouchableOpacity>
               <TouchableOpacity
                 className="bg-blue-500 p-2 rounded flex-1 ml-2"
                 onPress={handleReviewSubmit}
               >
                 <Text className="text-white text-center font-bold">
-                  Submit Review
+                  Enviar Reseña
                 </Text>
               </TouchableOpacity>
             </View>

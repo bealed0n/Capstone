@@ -92,19 +92,26 @@ export default function ConversationScreen() {
         ) {
           setMessages((prevMessages) => {
             if (isUserMessage) {
-              // Reemplazar el mensaje temporal con el real del servidor
               return prevMessages.map((msg) => {
                 if (msg.tempId && msg.tempId === message.tempId) {
                   return {
                     ...message,
                     image_url: message.image_url || msg.image_url,
+                    sender_profile_pic:
+                      message.sender_profile_pic || user.profile_pic,
                   };
                 }
                 return msg;
               });
             } else {
-              // Agregar el mensaje recibido de otro usuario
-              return [...prevMessages, message];
+              // Add the received message from another user
+              return [
+                ...prevMessages,
+                {
+                  ...message,
+                  sender_profile_pic: message.sender_profile_pic,
+                },
+              ];
             }
           });
         }
@@ -162,6 +169,16 @@ export default function ConversationScreen() {
   const renderMessage = useCallback(
     ({ item }: { item: Message }) => {
       const isUserMessage = Number(item.sender_id) === Number(user?.id);
+
+      // Determine the profile picture to use
+      const profilePic = isUserMessage
+        ? user?.profile_pic
+          ? `${SERVER_URL}${user.profile_pic}`
+          : "https://via.placeholder.com/40"
+        : item.sender_profile_pic
+          ? `${SERVER_URL}${item.sender_profile_pic}`
+          : "https://via.placeholder.com/40";
+
       return (
         <MessageItem
           item={item}
@@ -170,11 +187,7 @@ export default function ConversationScreen() {
             setSelectedImage(imageUrl);
             setModalVisible(true);
           }}
-          userProfilePic={
-            user?.profile_pic
-              ? `${SERVER_URL}${user.profile_pic}`
-              : "https://via.placeholder.com/40"
-          }
+          userProfilePic={profilePic}
         />
       );
     },

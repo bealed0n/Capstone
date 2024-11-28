@@ -112,7 +112,7 @@ export default function Search() {
 
   const renderUserItem = ({ item }: { item: User }) => (
     <TouchableOpacity
-      onPress={() => router.push(`/(tabs)/${item.id}` as Href)}
+      onPress={() => router.push(`/(tabs)/user/${item.id}` as Href)}
       className="flex-row items-center p-3 border-b border-gray-200 dark:border-gray-700"
     >
       <Image

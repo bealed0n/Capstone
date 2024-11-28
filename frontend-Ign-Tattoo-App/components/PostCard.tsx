@@ -254,7 +254,7 @@ export const CardExample = ({
           className="w-11 h-11 rounded-full mr-3"
         />
         <TouchableOpacity
-          onPress={() => router.push(`/(tabs)/${userId}` as Href)}
+          onPress={() => router.push(`/(tabs)/user/${userId}` as Href)}
         >
           <View>
             <Text className="text-base font-bold dark:text-white">
@@ -263,8 +263,15 @@ export const CardExample = ({
             <Text className="text-xs text-gray-500">{timeAgo}</Text>
           </View>
         </TouchableOpacity>
-        <View className="absolute right-2.5 top-2.5 bg-yellow-400 px-2 py-0.5 rounded">
-          <Text className="text-black font-bold text-xs">
+        <View
+          className={`absolute right-2.5 top-2.5 px-2 py-0.5 rounded ${
+            role === "Designer" ? "bg-indigo-500" : "bg-yellow-400"
+          }`}
+        >
+          <Text
+            className={`text-black font-bold text-xs
+            ${role === "Designer" ? "text-white" : "text-black"}`}
+          >
             {beautifyRole(role)}
           </Text>
         </View>

@@ -262,7 +262,7 @@ export default function UsersProfile({ userId }: UsersProfileProps) {
               <TouchableOpacity
                 onPress={() =>
                   router.push({
-                    pathname: `/(tabs)/reviews/reviewsView`,
+                    pathname: `/reviews/reviewsView`,
                     params: { userId: userId },
                   })
                 }

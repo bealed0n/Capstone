@@ -9,10 +9,12 @@ import {
   TextInput,
   useColorScheme,
   View,
+  Platform,
+  ActionSheetIOS,
 } from "react-native";
 import { Text } from "../../components/Themed";
 import { UserContext } from "../context/userContext";
-import RNPickerSelect from "react-native-picker-select";
+import { Picker } from "@react-native-picker/picker";
 import { SERVER_URL } from "@/constants/constants";
 
 interface RequestedDesign {
@@ -34,6 +36,18 @@ const getFullImageUrl = (imagePath: string) => {
   return `${SERVER_URL}${imagePath}`;
 };
 
+const statusMap = {
+  Accepted: "Aceptado",
+  Rejected: "Rechazado",
+  Pending: "Pendiente",
+};
+
+const reverseStatusMap = {
+  Aceptado: "Accepted",
+  Rechazado: "Rejected",
+  Pendiente: "Pending",
+};
+
 export default function RequestedDesigns() {
   const [designs, setDesigns] = useState<RequestedDesign[]>([]);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
@@ -42,8 +56,6 @@ export default function RequestedDesigns() {
   const { user } = useContext(UserContext);
   const colorScheme = useColorScheme();
   const isDarkMode = colorScheme === "dark";
-  const isDark = isDarkMode ? "white" : "black";
-  const backgroundPicker = isDarkMode ? "#525252" : "#a1a1aa";
 
   useEffect(() => {
     if (user && user.id) {
@@ -68,7 +80,6 @@ export default function RequestedDesigns() {
       if (!response.ok) {
         throw new Error("Failed to update status");
       }
-      // Actualizar el estado local
       setDesigns((prevDesigns) =>
         prevDesigns.map((design) =>
           design.id === id ? { ...design, status: newStatus } : design
@@ -137,70 +148,102 @@ export default function RequestedDesigns() {
     }
   };
 
+  const showStatusPicker = (item: RequestedDesign) => {
+    const options = ["Aceptado", "Rechazado", "Pendiente", "Cancelar"];
+    const destructiveIndex = -1;
+    const cancelButtonIndex = options.length - 1;
+
+    ActionSheetIOS.showActionSheetWithOptions(
+      {
+        options,
+        cancelButtonIndex,
+        destructiveButtonIndex: destructiveIndex,
+        title: "Seleccionar Estado",
+      },
+      (buttonIndex: number) => {
+        if (buttonIndex !== cancelButtonIndex) {
+          const selectedOption = options[
+            buttonIndex
+          ] as keyof typeof reverseStatusMap;
+          const newStatus = reverseStatusMap[selectedOption];
+          updateStatus(item.id, newStatus);
+        }
+      }
+    );
+  };
+
   const renderDesign = ({ item }: { item: RequestedDesign }) => (
-    <View className="flex-row p-3 bg-neutral-200 dark:bg-neutral-800 rounded-md mb-3 shadow">
-      <TouchableOpacity onPress={() => setSelectedImage(item.image)}>
-        <Image
-          className="mt-2 w-20 h-20 rounded"
-          source={{ uri: getFullImageUrl(item.image) }}
-        />
-      </TouchableOpacity>
-
-      <View className="flex-1 ml-3">
-        <Text>Client: {item.username}</Text>
-        <Text>Price: ${parseFloat(item.price).toFixed(2)}</Text>
-        <Text>Date: {new Date(item.created_at).toLocaleDateString()}</Text>
-
-        {/* Picker de estado */}
-        <View className="flex-row items-center">
-          <Text>Status: </Text>
-          <View style={{ width: 90 }}>
-            <RNPickerSelect
-              onValueChange={(newStatus) => updateStatus(item.id, newStatus)}
-              items={[
-                { label: "Accepted", value: "Accepted" },
-                { label: "Rejected", value: "Rejected" },
-                { label: "Pending", value: "Pending" },
-              ]}
-              value={item.status}
-              style={{
-                inputIOS: {
-                  color: isDark,
-                  backgroundColor: backgroundPicker,
-                  paddingVertical: 5,
-                  paddingHorizontal: 10,
-                  borderRadius: 5,
-                },
-                inputAndroid: {
-                  color: isDark,
-                  backgroundColor: backgroundPicker,
-                  paddingVertical: 5,
-                  paddingHorizontal: 10,
-                  borderRadius: 5,
-                },
-                placeholder: {
-                  color: isDark,
-                },
-                modalViewBottom: {
-                  backgroundColor: backgroundPicker,
-                },
-              }}
-              useNativeAndroidPickerStyle={false}
-              placeholder={{}}
-            />
+    <View className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 mb-4">
+      <View className="flex-row">
+        <TouchableOpacity onPress={() => setSelectedImage(item.image)}>
+          <Image
+            className="w-24 h-24 rounded-md"
+            source={{ uri: getFullImageUrl(item.image) }}
+          />
+        </TouchableOpacity>
+        <View className="flex-1 ml-4">
+          <Text className="text-lg font-semibold dark:text-white">
+            Cliente: {item.username}
+          </Text>
+          <Text className="text-gray-600 dark:text-gray-300">
+            Precio: ${parseFloat(item.price).toFixed(2)}
+          </Text>
+          <Text className="text-gray-600 dark:text-gray-300">
+            Fecha: {new Date(item.created_at).toLocaleDateString()}
+          </Text>
+          <View className="mt-2">
+            <Text className="text-gray-700 dark:text-gray-200 mb-1">
+              Estado:
+            </Text>
+            <View className="border border-gray-300 dark:border-gray-600 rounded">
+              {Platform.OS === "ios" ? (
+                <TouchableOpacity
+                  onPress={() => showStatusPicker(item)}
+                  style={{
+                    height: 44,
+                    justifyContent: "center",
+                    paddingHorizontal: 10,
+                  }}
+                >
+                  <Text style={{ color: isDarkMode ? "white" : "black" }}>
+                    {statusMap[item.status as keyof typeof statusMap]}
+                  </Text>
+                </TouchableOpacity>
+              ) : (
+                <Picker
+                  selectedValue={item.status}
+                  onValueChange={(newStatus) =>
+                    updateStatus(item.id, newStatus)
+                  }
+                  style={{
+                    color: isDarkMode ? "white" : "black",
+                    backgroundColor: "transparent",
+                  }}
+                >
+                  <Picker.Item label="Aceptado" value="Accepted" />
+                  <Picker.Item label="Rechazado" value="Rejected" />
+                  <Picker.Item label="Pendiente" value="Pending" />
+                </Picker>
+              )}
+            </View>
           </View>
         </View>
-
-        {/* Input y botón de Reply */}
+      </View>
+      <View className="mt-4">
         <TextInput
           placeholder="Escribe tu respuesta..."
-          placeholderTextColor={isDark}
+          placeholderTextColor={isDarkMode ? "#a0aec0" : "#718096"}
           value={replyMessage}
           onChangeText={(text) => setReplyMessage(text)}
-          className="border border-gray-300 p-2 mt-2 rounded text-black dark:text-white"
+          className="border border-gray-300 dark:border-gray-600 p-2 rounded text-black dark:text-white"
         />
-        <TouchableOpacity onPress={() => sendReply(item)} className="mt-2">
-          <Text className="text-blue-500 text-base font-bold">Reply</Text>
+        <TouchableOpacity
+          onPress={() => sendReply(item)}
+          className="bg-blue-500 rounded-md py-2 px-4 mt-2"
+        >
+          <Text className="text-white text-center font-semibold">
+            Enviar mensaje
+          </Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -209,26 +252,24 @@ export default function RequestedDesigns() {
   if (loading) {
     return (
       <View className="flex-1 justify-center items-center">
-        <ActivityIndicator size="large" />
+        <ActivityIndicator size="large" color="#0000ff" />
       </View>
     );
   }
 
   return (
-    <View className="flex-1 p-4">
-      <Text className="text-2xl font-bold mb-4">Requested Designs</Text>
-
+    <View className="flex-1 bg-gray-100 dark:bg-gray-900">
       <FlatList
         data={designs}
         renderItem={renderDesign}
         keyExtractor={(item) => item.id.toString()}
+        contentContainerStyle={{ padding: 16 }}
         ListEmptyComponent={() => (
-          <Text className="text-center mt-5 text-base text-gray-500">
+          <Text className="text-center mt-5 text-base text-gray-500 dark:text-gray-400">
             No hay diseños solicitados
           </Text>
         )}
       />
-
       <Modal visible={!!selectedImage} transparent={true}>
         <TouchableOpacity
           className="flex-1 bg-black bg-opacity-80 justify-center items-center"
@@ -239,7 +280,7 @@ export default function RequestedDesigns() {
               uri: selectedImage ? getFullImageUrl(selectedImage) : "",
             }}
             className="w-[90%] h-[90%]"
-            style={{ resizeMode: "contain" }}
+            resizeMode="contain"
           />
         </TouchableOpacity>
       </Modal>
