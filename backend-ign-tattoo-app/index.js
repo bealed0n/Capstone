@@ -2464,6 +2464,27 @@ app.get("/tattoo-studios/:id", async (req, res) => {
   }
 });
 
+//Endpoint para obtener informacion mas precisa de un estudio
+app.get("/tattoo-studio/:id", async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const result = await pool.query(
+      `SELECT * FROM tattoo_studios WHERE id = $1`,
+      [id]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: "Studio not found" });
+    }
+
+    res.json(result.rows[0]);
+  } catch (error) {
+    console.error("Error fetching studio:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
 //Endpoint para actualizar nombre de un estudio
 app.put("/tattoo-studios/:id/name", async (req, res) => {
   const { id } = req.params;

@@ -8,18 +8,24 @@ import {
   Platform,
   Image,
   TextInput,
+  Keyboard,
+  TouchableWithoutFeedback,
 } from "react-native";
 import { Text, View } from "../../../components/Themed";
 import * as ImagePicker from "expo-image-picker";
 import { Camera } from "lucide-react-native";
 import { useRoute } from "@react-navigation/native";
+import { SERVER_URL } from "../../../constants/constants";
 
 interface TattooStudio {
   id: number;
+  owner_id: number;
   name: string;
   address: string;
   description: string;
   image_url: string | null;
+  created_at: string;
+  status: string;
 }
 
 export default function StudioEdit() {
@@ -29,8 +35,6 @@ export default function StudioEdit() {
   const [description, setDescription] = useState("");
   const [loading, setLoading] = useState(false);
   const [imageUri, setImageUri] = useState<string | null>(null);
-
-  const SERVER_URL = "http://192.168.100.87:3000";
   const route = useRoute();
   const { id } = route.params as { id: number };
 
@@ -52,7 +56,7 @@ export default function StudioEdit() {
   const fetchStudioDetails = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`${SERVER_URL}/tattoo-studios/${id}`);
+      const response = await fetch(`${SERVER_URL}/tattoo-studio/${id}`);
       if (!response.ok) {
         throw new Error("Failed to fetch studio details");
       }
@@ -91,7 +95,9 @@ export default function StudioEdit() {
     });
 
     if (!result.canceled && result.assets && result.assets.length > 0) {
-      setImageUri(result.assets[0].uri); // Guardar la URI de la imagen seleccionada
+      const uri = result.assets[0].uri;
+      setImageUri(uri);
+      await uploadStudioImage(uri);
     }
   };
 
@@ -108,9 +114,6 @@ export default function StudioEdit() {
       const response = await fetch(`${SERVER_URL}/tattoo-studios/${id}/image`, {
         method: "PUT",
         body: formData,
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
       });
 
       if (!response.ok) {
@@ -119,6 +122,7 @@ export default function StudioEdit() {
 
       const updatedStudio = await response.json();
       setStudio((prevStudio) => ({ ...prevStudio, ...updatedStudio }));
+      setImageUri(`${SERVER_URL}${updatedStudio.image_url}`);
       Alert.alert("Success", "Studio image updated successfully");
     } catch (error) {
       console.error("Error uploading studio image:", error);
@@ -165,6 +169,10 @@ export default function StudioEdit() {
     }
   };
 
+  const dismissKeyboard = () => {
+    Keyboard.dismiss();
+  };
+
   if (loading && !studio) {
     return (
       <View className="flex-1 justify-center items-center">
@@ -177,81 +185,100 @@ export default function StudioEdit() {
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : "height"}
       className="flex-1"
+      keyboardVerticalOffset={100}
     >
-      <ScrollView className="flex-1 p-4">
-        <View className="mb-6">
-          <TouchableOpacity onPress={pickImage} className="items-center mb-6">
-            {imageUri ? (
-              <Image
-                source={{ uri: imageUri }}
-                className="w-32 h-32 rounded-full mb-2"
+      <TouchableWithoutFeedback onPress={dismissKeyboard}>
+        <ScrollView
+          className="flex-1 p-4"
+          contentContainerStyle={{ paddingBottom: 200 }}
+        >
+          <View className="mb-6">
+            <Text className="text-2xl font-bold mb-4">Editar estudio</Text>
+
+            <TouchableOpacity onPress={pickImage} className="items-center mb-6">
+              {imageUri ? (
+                <Image
+                  source={{ uri: imageUri }}
+                  className="w-32 h-32 rounded-full mb-2"
+                />
+              ) : (
+                <View className="w-32 h-32 rounded-full bg-gray-200 dark:bg-gray-700 items-center justify-center mb-2">
+                  <Camera size={40} color="gray" />
+                </View>
+              )}
+              <Text className="text-blue-500">Cambiar imagen de estudio</Text>
+            </TouchableOpacity>
+
+            <View className="mb-4">
+              <Text className="text-lg mb-2">Nombre</Text>
+              <TextInput
+                className="bg-gray-300 dark:bg-gray-800 p-2 rounded-md dark:text-white"
+                value={name}
+                onChangeText={setName}
+                placeholder="Ingrese nombre del estudio"
               />
-            ) : (
-              <View className="w-32 h-32 rounded-full bg-gray-200 dark:bg-gray-700 items-center justify-center mb-2">
-                <Camera size={40} color="gray" />
-              </View>
-            )}
-            <Text className="text-blue-500">Cambiar imagen de estudio</Text>
-          </TouchableOpacity>
+              <TouchableOpacity
+                className="bg-blue-500 p-2 rounded-md mt-2"
+                onPress={() => {
+                  dismissKeyboard();
+                  updateField("name", name);
+                }}
+                disabled={loading}
+              >
+                <Text className="text-white text-center">
+                  {loading ? "Actualizando..." : "Actualizar nombre"}
+                </Text>
+              </TouchableOpacity>
+            </View>
 
-          <View className="mb-4">
-            <Text className="text-lg mb-2">Nombre</Text>
-            <TextInput
-              className="bg-gray-300 dark:bg-gray-800 p-2 rounded-md dark:text-white"
-              value={name}
-              onChangeText={setName}
-              placeholder="Enter name"
-            />
-            <TouchableOpacity
-              className="bg-blue-500 p-2 rounded-md mt-2"
-              onPress={() => updateField("name", name)}
-              disabled={loading}
-            >
-              <Text className="text-white text-center">
-                {loading ? "Updating..." : "Update Name"}
-              </Text>
-            </TouchableOpacity>
-          </View>
+            <View className="mb-4">
+              <Text className="text-lg mb-2">Dirección</Text>
+              <TextInput
+                className="bg-gray-300 dark:bg-gray-800 p-2 rounded-md dark:text-white"
+                value={address}
+                onChangeText={setAddress}
+                placeholder="Ingrese dirección"
+              />
+              <TouchableOpacity
+                className="bg-blue-500 p-2 rounded-md mt-2"
+                onPress={() => {
+                  dismissKeyboard();
+                  updateField("address", address);
+                }}
+                disabled={loading}
+              >
+                <Text className="text-white text-center">
+                  {loading ? "Actualizando..." : "Actualizar dirección"}
+                </Text>
+              </TouchableOpacity>
+            </View>
 
-          <View className="mb-4">
-            <Text className="text-lg mb-2">Dirección</Text>
-            <TextInput
-              className="bg-gray-300 dark:bg-gray-800 p-2 rounded-md dark:text-white"
-              value={address}
-              onChangeText={setAddress}
-              placeholder="Enter address"
-            />
-            <TouchableOpacity
-              className="bg-blue-500 p-2 rounded-md mt-2"
-              onPress={() => updateField("address", address)}
-              disabled={loading}
-            >
-              <Text className="text-white text-center">
-                {loading ? "Updating..." : "Update Address"}
-              </Text>
-            </TouchableOpacity>
+            <View className="mb-4">
+              <Text className="text-lg mb-2">Descripción</Text>
+              <TextInput
+                className="bg-gray-300 dark:bg-gray-800 p-2 rounded-md dark:text-white h-32"
+                value={description}
+                onChangeText={setDescription}
+                placeholder="Ingrese descripción"
+                multiline
+                textAlignVertical="top"
+              />
+              <TouchableOpacity
+                className="bg-blue-500 p-2 rounded-md mt-2"
+                onPress={() => {
+                  dismissKeyboard();
+                  updateField("description", description);
+                }}
+                disabled={loading}
+              >
+                <Text className="text-white text-center">
+                  {loading ? "Actualizando..." : "Actualizar descripción"}
+                </Text>
+              </TouchableOpacity>
+            </View>
           </View>
-
-          <View className="mb-4">
-            <Text className="text-lg mb-2">Description</Text>
-            <TextInput
-              className="bg-gray-300 dark:bg-gray-800 p-2 rounded-md dark:text-white"
-              value={description}
-              onChangeText={setDescription}
-              placeholder="Enter description"
-            />
-            <TouchableOpacity
-              className="bg-blue-500 p-2 rounded-md mt-2"
-              onPress={() => updateField("description", description)}
-              disabled={loading}
-            >
-              <Text className="text-white text-center">
-                {loading ? "Updating..." : "Update Description"}
-              </Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </ScrollView>
+        </ScrollView>
+      </TouchableWithoutFeedback>
     </KeyboardAvoidingView>
   );
 }
