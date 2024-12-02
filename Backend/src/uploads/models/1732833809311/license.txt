@@ -1,0 +1,11 @@
+Model Information:
+* title:	Tattoo Pescoço
+* source:	https://sketchfab.com/3d-models/tattoo-pescoco-ec3479e41e69489bbb1d9959f86e3a68
+* author:	Rafael S. Souza (https://sketchfab.com/Rafael.Souza4)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Tattoo Pescoço" (https://sketchfab.com/3d-models/tattoo-pescoco-ec3479e41e69489bbb1d9959f86e3a68) by Rafael S. Souza (https://sketchfab.com/Rafael.Souza4) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

@@ -1,0 +1,11 @@
+Model Information:
+* title:	Tattoo Gun
+* source:	https://sketchfab.com/3d-models/tattoo-gun-790056757fa84499b69d506b26f975a4
+* author:	KylePCT (https://sketchfab.com/kylepct)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Tattoo Gun" (https://sketchfab.com/3d-models/tattoo-gun-790056757fa84499b69d506b26f975a4) by KylePCT (https://sketchfab.com/kylepct) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

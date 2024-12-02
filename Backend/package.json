@@ -1,0 +1,31 @@
+{
+  "name": "backend",
+  "version": "1.0.0",
+  "description": "Proyecto capstone ign-tattoo backend",
+  "main": "app.js",
+  "scripts": {
+    "test": "dev",
+    "dev": "nodemon src/app.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "archiver": "^7.0.1",
+    "bcryptjs": "^2.4.3",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.5",
+    "date-fns": "^4.1.0",
+    "dotenv": "^16.4.5",
+    "express": "^4.21.1",
+    "jsonwebtoken": "^9.0.2",
+    "multer": "^1.4.5-lts.1",
+    "nodemailer": "^6.9.16",
+    "nodemon": "^3.1.7",
+    "openai": "^4.71.1",
+    "pdfkit": "^0.15.1",
+    "pg": "^8.13.1",
+    "socket.io": "^4.8.1",
+    "stripe": "^17.4.0",
+    "unzipper": "^0.12.3"
+  }
+}

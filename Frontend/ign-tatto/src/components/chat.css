@@ -1,0 +1,44 @@
+/* src/components/Chat.css */
+.chat-container {
+    width: 400px;
+    margin: 0 auto;
+    border: 1px solid #ccc;
+    padding: 10px;
+    border-radius: 5px;
+    display: flex;
+    flex-direction: column;
+}
+
+.messages {
+    flex: 1;
+    height: 300px;
+    overflow-y: scroll;
+    border-bottom: 1px solid #ccc;
+    padding-bottom: 10px;
+    margin-bottom: 10px;
+}
+
+.sent {
+    text-align: right;
+    margin-bottom: 10px;
+}
+
+.received {
+    text-align: left;
+    margin-bottom: 10px;
+}
+
+.input-area {
+    display: flex;
+    align-items: center;
+}
+
+.input-area input[type="text"] {
+    flex: 1;
+    padding: 5px;
+    margin-right: 5px;
+}
+
+.input-area button {
+    padding: 5px 10px;
+}

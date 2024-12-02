@@ -1,0 +1,11 @@
+Model Information:
+* title:	tattoo update
+* source:	https://sketchfab.com/3d-models/tattoo-update-116f25b0fdfe439cb38328a218301cf4
+* author:	Cerberus1115 (https://sketchfab.com/Cerberus1115)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "tattoo update" (https://sketchfab.com/3d-models/tattoo-update-116f25b0fdfe439cb38328a218301cf4) by Cerberus1115 (https://sketchfab.com/Cerberus1115) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

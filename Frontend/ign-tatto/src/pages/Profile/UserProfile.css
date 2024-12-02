@@ -1,0 +1,27 @@
+/* src/components/UserProfile.css */
+.user-profile-container {
+    width: 600px;
+    margin: 20px auto;
+    border: 1px solid #ccc;
+    padding: 20px;
+    border-radius: 5px;
+}
+
+.user-profile-container h2 {
+    margin-bottom: 20px;
+}
+
+.user-profile-container ul {
+    list-style: none;
+    padding: 0;
+}
+
+.user-profile-container li {
+    margin-bottom: 10px;
+    padding: 10px;
+    border-bottom: 1px solid #eee;
+}
+
+.user-profile-container li h4 {
+    margin: 0;
+}

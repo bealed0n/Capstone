@@ -1,0 +1,11 @@
+Model Information:
+* title:	James Arm Tattoo
+* source:	https://sketchfab.com/3d-models/james-arm-tattoo-c9679c5f46de4a6ea5ad8a940bcbb641
+* author:	RossHarding (https://sketchfab.com/RossHarding)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "James Arm Tattoo" (https://sketchfab.com/3d-models/james-arm-tattoo-c9679c5f46de4a6ea5ad8a940bcbb641) by RossHarding (https://sketchfab.com/RossHarding) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
