@@ -1,8 +1,0 @@
-Model Information:
-* title:	CCO_ Male_base_mesh_standing
-* source:	https://sketchfab.com/3d-models/cco--male-base-mesh-standing-8340f5cc2d08497abfdb42aba8462a33
-* author:	iamsunroy (https://sketchfab.com/iamsunroy)
-
-Model License:
-* license type:	SKETCHFAB Standard (https://sketchfab.com/licenses)
-* requirements:	Under basic restrictions, use worldwide, on all types of media, commercially or not, and in all types of derivative works
