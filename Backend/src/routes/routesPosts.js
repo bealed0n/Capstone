@@ -5,7 +5,7 @@ const Middleware = require('../middlewares/auth');
 const multer = require('multer');
 const path = require('path');
 const { addLike, removeLike, getLikesCount } = require('../controllers/likesController'); // Importa el controlador
-const { addComment, getCommentsByPostId, deleteComment } = require('../controllers/comentController');
+const { addComment, getCommentsByPostId, deleteComment, deletePost } = require('../controllers/comentController');
 
 
 const storage = multer.diskStorage({
@@ -39,5 +39,7 @@ router.get('/:postId/getcomment', Middleware, getCommentsByPostId);
 
 // Ruta para eliminar un comentario (solo el propietario del comentario puede eliminarlo)
 router.delete('/delete/:commentId', Middleware, deleteComment);
+
+
 
 module.exports = router;

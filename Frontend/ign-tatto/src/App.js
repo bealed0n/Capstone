@@ -31,13 +31,14 @@ import DesignGallery from './pages/Models/DesignGallery';
 import DesignDetail from './pages/Models/DesignDetail';
 import Checkout from './pages/Cart/Checkout';
 import Footer from './components/Footer'; // Importa el componente Footer
+import './App.css'; // Asegúrate de tener este archivo
 
 function App() {
 
   return (
   <Router>
-      <Navbar /> {/* Incluir el Navbar */}
       <div className="content">
+      <Navbar /> {/* Incluir el Navbar */}
       <Routes>
         <Route path="/"  element={<Home />} />
         <Route path="/client/register" element={<RegistroClient />} />
@@ -65,10 +66,11 @@ function App() {
         <Route path="/designs/:id" element={<DesignDetail />} />
         <Route path="/checkout" element={<Checkout />} />
       </Routes>
-      </div>
       <BotonChatbot /> {/* Incluir el componente Chatbot */}
+      </div>
       <Footer /> {/* Incluye el componente Footer */}
     </Router>
+    
   );
 }
 

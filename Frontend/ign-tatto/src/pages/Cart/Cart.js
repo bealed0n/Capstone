@@ -1,10 +1,10 @@
-// src/pages/Cart/Cart.js
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Container, Row, Col, Card, Button, Spinner, Alert, Form, Modal } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
-import Checkout from './Checkout'; // Asegúrate de la ruta correcta
+import Checkout from './Checkout';
 import jsPDF from 'jspdf';
+import cartIcon from '../../assets/carrito.png'; // Aseg
 
 const Cart = () => {
   const [cartItems, setCartItems] = useState([]);
@@ -68,8 +68,6 @@ const Cart = () => {
   };
 
   const handleCheckoutSuccess = (paymentIntent) => {
-    alert('Pago exitoso!');
-    // Generar la boleta
     const generatedReceipt = {
       paymentIntentId: paymentIntent.id,
       items: cartItems,
@@ -93,91 +91,140 @@ const Cart = () => {
     doc.save('boleta.pdf');
   };
 
-  if (loading) return <Spinner animation="border" role="status"><span className="visually-hidden">Cargando...</span></Spinner>;
-  if (error) return <Alert variant="danger">{error}</Alert>;
+  if (loading) return (
+    <div className="d-flex justify-content-center align-items-center" style={{height: '100vh'}}>
+      <Spinner animation="border" role="status">
+        <span className="visually-hidden">Cargando...</span>
+      </Spinner>
+    </div>
+  );
+
+  if (error) return <Alert variant="danger" className="text-center mt-5">{error}</Alert>;
 
   const totalAmount = cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0);
 
   return (
-    <Container className="mt-5">
-      <h1 className="text-center mb-4">Carrito de Compras</h1>
-      <Row>
-        {cartItems.map(item => (
-          <Col key={item.id} xs={12} md={6} lg={4} className="mb-4">
-            <Card>
-              <Card.Img
-                variant="top"
-                src={`http://localhost:4000/uploads/${item.image_url}`}
-                style={{ height: '200px', objectFit: 'cover' }}
-                loading="lazy"
-              />
+    <Container className="my-5  cart-container" >
+         <div className="cart-header">
+        <h1 className="cart-title"style={{textAlign:'center'}}>
+    
+          Carrito de Compras
+        </h1>
+      </div>
+      {cartItems.length === 0 ? (
+        <Alert variant="info" className="text-center">Tu carrito está vacío</Alert>
+      ) : (
+        <Row>
+          
+            {cartItems.map(item => (
+              <Card key={item.id} className="mb-3 shadow-sm">
+                <Card.Body>
+                  <Row>
+                    <Col md={3}>
+                      <img
+                        src={`http://localhost:4000/uploads/${item.image_url}`}
+                        alt={item.name}
+                        className="img-fluid rounded"
+                        style={{ objectFit: 'cover', height: '120px', width: '100%' }}
+                      />
+                    </Col>
+                    <Col md={6}>
+                      <h5>{item.name}</h5>
+                  
+                      <h6 className="mt-2">${item.price}</h6>
+                    </Col>
+                    <Col md={3}>
+                      <Form.Group controlId={`quantity-${item.id}`} className="mb-2">
+                        <Form.Label>Cantidad</Form.Label>
+                        <Form.Control
+                          type="number"
+                          value={item.quantity}
+                          onChange={(e) => handleUpdateQuantity(item.id, e.target.value)}
+                          min="1"
+                        />
+                      </Form.Group>
+                      <Button 
+                        variant="outline-danger" 
+                        size="sm"
+                        onClick={() => handleRemoveFromCart(item.id)}
+                        className="w-100"
+                      >
+                        Eliminar
+                      </Button>
+                    </Col>
+                  </Row>
+                </Card.Body>
+              </Card>
+            ))}
+      
+          
+            <Card className="shadow-sm">
               <Card.Body>
-                <Card.Title>{item.name}</Card.Title>
-                <Card.Text>{item.description}</Card.Text>
-                <Card.Text><strong>Precio:</strong> ${item.price}</Card.Text>
-                <Form.Group controlId="quantity">
-                  <Form.Label>Cantidad</Form.Label>
-                  <Form.Control
-                    type="number"
-                    value={item.quantity}
-                    onChange={(e) => handleUpdateQuantity(item.id, e.target.value)}
-                    min="1"
-                  />
-                </Form.Group>
-                <Button variant="danger" onClick={() => handleRemoveFromCart(item.id)} className="mt-2">
-                  Eliminar
+                <h4 className="mb-3">Resumen del Pedido</h4>
+                <div className="d-2flex justify-content-between mb-">
+                  <span>Subtotal</span>
+                  <span>${totalAmount.toFixed(2)}</span>
+                </div>
+                <div className="d-flex justify-content-between mb-2">
+                  <span>Envío</span>
+                  <span>Gratis</span>
+                </div>
+                <hr />
+                <div className="d-flex justify-content-between mb-3">
+                  <strong>Total</strong>
+                  <strong>${totalAmount.toFixed(2)}</strong>
+                </div>
+                <Button 
+                  variant="primary" 
+                  size="lg" 
+                  className="w-100"
+                  onClick={() => setShowCheckout(true)}
+                >
+                  Proceder al pago
                 </Button>
               </Card.Body>
             </Card>
-          </Col>
-        ))}
-      </Row>
-      {cartItems.length > 0 && (
-        <>
-          <Row className="mt-4">
-            <Col>
-              <h3>Total: ${totalAmount}</h3>
-              <Button variant="primary" onClick={() => setShowCheckout(true)}>
-                Checkout
-              </Button>
-            </Col>
-          </Row>
-
-          <Modal show={showCheckout} onHide={() => setShowCheckout(false)} size="lg">
-            <Modal.Header closeButton>
-              <Modal.Title>Proceso de Pago</Modal.Title>
-            </Modal.Header>
-            <Modal.Body>
-              <Checkout cartItems={cartItems} onSuccess={handleCheckoutSuccess} />
-            </Modal.Body>
-          </Modal>
-
-          <Modal show={showReceipt} onHide={() => setShowReceipt(false)}>
-            <Modal.Header closeButton>
-              <Modal.Title>Boleta</Modal.Title>
-            </Modal.Header>
-            <Modal.Body>
-              {receipt && (
-                <div>
-                  <p>ID de Pago: {receipt.paymentIntentId}</p>
-                  <ul>
-                    {receipt.items.map(item => (
-                      <li key={item.id}>{item.name} - {item.quantity} x ${item.price}</li>
-                    ))}
-                  </ul>
-                  <p>Total: ${receipt.totalAmount}</p>
-                </div>
-              )}
-            </Modal.Body>
-            <Modal.Footer>
-              <Button variant="secondary" onClick={() => setShowReceipt(false)}>Cerrar</Button>
-              <Button variant="primary" onClick={handleDownloadReceipt}>Descargar Boleta</Button>
-            </Modal.Footer>
-          </Modal>
-        </>
+         
+        </Row>
       )}
+
+      <Modal show={showCheckout} onHide={() => setShowCheckout(false)} size="lg">
+        <Modal.Header closeButton>
+          <Modal.Title>Proceso de Pago</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Checkout cartItems={cartItems} onSuccess={handleCheckoutSuccess} />
+        </Modal.Body>
+      </Modal>
+
+      <Modal show={showReceipt} onHide={() => setShowReceipt(false)}>
+        <Modal.Header closeButton>
+          <Modal.Title>Boleta</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          {receipt && (
+            <div>
+              <p><strong>ID de Pago:</strong> {receipt.paymentIntentId}</p>
+              <h5 className="mt-3 mb-2">Productos:</h5>
+              <ul className="list-unstyled">
+                {receipt.items.map(item => (
+                  <li key={item.id} className="mb-2">
+                    <strong>{item.name}</strong> - {item.quantity} x ${item.price}
+                  </li>
+                ))}
+              </ul>
+              <h5 className="mt-3">Total: ${receipt.totalAmount.toFixed(2)}</h5>
+            </div>
+          )}
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowReceipt(false)}>Cerrar</Button>
+          <Button variant="primary" onClick={handleDownloadReceipt}>Descargar Boleta</Button>
+        </Modal.Footer>
+      </Modal>
     </Container>
   );
 };
 
 export default Cart;
+

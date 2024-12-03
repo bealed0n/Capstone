@@ -35,19 +35,28 @@ const getModels = async (req, res) => {
   }
 };
 
-// Controlador para obtener un modelo 3D específico por ID
 const getModelById = async (req, res) => {
   const { id } = req.params;
   try {
-    const model = await pool.query('SELECT * FROM models WHERE id = $1', [id]);
-    if (model.rows.length === 0) {
+    const modelQuery = `
+      SELECT models.*, users.username
+      FROM models
+      JOIN users ON models.user_id = users.id
+      WHERE models.id = $1
+    `;
+    const result = await pool.query(modelQuery, [id]);
+
+    if (result.rows.length === 0) {
       return res.status(404).json({ msg: 'Modelo no encontrado' });
     }
-    res.json(model.rows[0]);
+
+    res.json(result.rows[0]);
   } catch (err) {
     console.error('Error al obtener el modelo 3D:', err.message);
     res.status(500).json('Error del servidor');
   }
 };
+
+
 
 module.exports = { addModel, getModels, getModelById };

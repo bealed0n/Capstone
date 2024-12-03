@@ -91,4 +91,5 @@ const searchProducts = async (req, res) => {
   }
 };
 
+
 module.exports = { getProducts, addProducts, getId, searchProducts };

@@ -1,7 +1,10 @@
-// PostulacionForm.js
+// src/pages/Postulaciones/PostulacionForm.js
+
 import React, { useState } from 'react';
 import axios from 'axios';
 import { Button, Form } from 'react-bootstrap';
+import postulacionImage from '../../assets/Postulacion.png'; // Ajusta la ruta si es necesario
+import './postulacion.css'; // Archivo CSS personalizado para postulación
 
 const PostulacionForm = () => {
   const [username, setUsername] = useState('');
@@ -53,78 +56,86 @@ const PostulacionForm = () => {
         setUsername('');
         setEmail('');
         setPassword('');
-        setRole('');
+        setRole('tattoo_artist');
         setRequisitos([]);
+        setError('');
       }
     } catch (err) {
       console.error('Error al enviar la postulación:', err);
       setError('Hubo un problema al enviar la postulación. Intenta de nuevo.');
+      setSuccessMessage('');
     }
   };
 
   return (
-    <div>
-      <h2>Formulario de Postulación</h2>
-      {error && <p style={{ color: 'red' }}>{error}</p>}
-      {successMessage && <p style={{ color: 'green' }}>{successMessage}</p>}
-      
-      <Form onSubmit={handleSubmit}>
-        <Form.Group controlId="formUsername">
-          <Form.Label>Nombre de usuario</Form.Label>
-          <Form.Control
-            type="text"
-            placeholder="Ingresa tu nombre de usuario"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-          />
-        </Form.Group>
+    <div className="postulacion-container">
+      <div className="postulacion-image-container">
+        <img src={postulacionImage} alt="Postulación" className="postulacion-image" />
+      </div>
+      <div className="postulacion-form-container">
+        <form className="postulacion-form" onSubmit={handleSubmit}>
+          <h2>Formulario de Postulación</h2>
 
-        <Form.Group controlId="formEmail">
-          <Form.Label>Email</Form.Label>
-          <Form.Control
-            type="email"
-            placeholder="Ingresa tu email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
-        </Form.Group>
+          {error && <p className="error-message">{error}</p>}
+          {successMessage && <p className="success-message">{successMessage}</p>}
 
-        <Form.Group controlId="formPassword">
-          <Form.Label>Contraseña</Form.Label>
-          <Form.Control
-            type="password"
-            placeholder="Ingresa tu contraseña"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
-        </Form.Group>
+          <Form.Group controlId="formUsername" className="form-group">
+            <Form.Label className="form-label">Nombre de usuario</Form.Label>
+            <Form.Control
+              type="text"
+              placeholder="Ingresa tu nombre de usuario"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+            />
+          </Form.Group>
 
-        <Form.Group controlId="formRole">
-          <Form.Label>Rol</Form.Label>
-          <Form.Control
-            as="select"
-            value={role}
-            onChange={(e) => setRole(e.target.value)}
-          >
-            <option value="tattoo_artist">Tatuador</option>
-            <option value="designer">Diseñador</option>
-          </Form.Control>
-        </Form.Group>
+          <Form.Group controlId="formEmail" className="form-group">
+            <Form.Label className="form-label">Email</Form.Label>
+            <Form.Control
+              type="email"
+              placeholder="Ingresa tu email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
+          </Form.Group>
 
-        <Form.Group controlId="formRequisitos">
-          <Form.Label>Requisitos (OBLIGATORIO CV, Certificado Asepsia)</Form.Label>
-          <Form.Control
-            type="file"
-            multiple
-            name="requisitos"  // Este debe coincidir con el nombre en el backend
-            onChange={handleFileChange}
-          />
-        </Form.Group>
+          <Form.Group controlId="formPassword" className="form-group">
+            <Form.Label className="form-label">Contraseña</Form.Label>
+            <Form.Control
+              type="password"
+              placeholder="Ingresa tu contraseña"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+          </Form.Group>
 
-        <Button variant="primary" type="submit">
-          Postular
-        </Button>
-      </Form>
+          <Form.Group controlId="formRole" className="form-group">
+            <Form.Label className="form-label">Rol</Form.Label>
+            <Form.Control
+              as="select"
+              value={role}
+              onChange={(e) => setRole(e.target.value)}
+            >
+              <option value="tattoo_artist">Tatuador</option>
+              <option value="designer">Diseñador</option>
+            </Form.Control>
+          </Form.Group>
+
+          <Form.Group controlId="formRequisitos" className="form-group">
+            <Form.Label className="form-label">Requisitos (OBLIGATORIO CV, Certificado Asepsia)</Form.Label>
+            <Form.Control
+              type="file"
+              multiple
+              name="requisitos"  // Este debe coincidir con el nombre en el backend
+              onChange={handleFileChange}
+            />
+          </Form.Group>
+
+          <Button variant="primary" type="submit" className="btn-submit">
+            Postular
+          </Button>
+        </form>
+      </div>
     </div>
   );
 };

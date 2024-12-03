@@ -1,0 +1,135 @@
+/* login.css */
+
+/* Aplicar box-sizing globalmente */
+* {
+    box-sizing: border-box;
+  }
+  
+  /* Contenedor principal del login */
+  .login-container {
+    display: flex;
+    flex-direction: row;
+    min-height: 100vh;
+    justify-content: center;
+    align-items: center;
+    background: #FAFAF5;
+  }
+  
+  /* Contenedor de la imagen */
+  .login-image-container {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+  }
+  
+  .login-image {
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+    border-radius: 8px;
+  }
+  
+  /* Contenedor del formulario */
+  .login-form-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center; /* Centra verticalmente */
+    align-items: center;     /* Centra horizontalmente */
+    padding: 2rem;
+  }
+  
+  /* Estilos del formulario */
+  .login-form {
+    width: 100%;
+    max-width: 400px;
+    padding: 2rem;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background-color: #FAFAF5;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+  }
+  
+  /* Título del formulario */
+  .login-form h2 {
+    font-size: 2rem;
+    font-weight: bold;
+    text-align: center;
+    margin-bottom: 2rem; /* Separación entre el título y los campos */
+  }
+  
+  /* Overrides para React Bootstrap Form Groups */
+  .login-form .form-group {
+    width: 100%;
+    margin-bottom: 1.5rem;
+  }
+  
+  /* Etiquetas de los campos */
+  .login-form .form-label {
+    text-align: left;
+    margin-bottom: 0.5rem;
+    font-size: 1rem;
+    color: #333;
+  }
+  
+  /* Campos de entrada */
+  .login-form .form-control {
+    width: 100%;
+    padding: 0.5rem 0.75rem;
+    font-size: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+  }
+  
+  /* Botón de login */
+  .login-form .btn-submit {
+    background-color: #000; /* Color negro */
+    color: #fff;            /* Texto blanco */
+    border: none;
+    border-radius: 4px;
+    padding: 0.75rem;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    width: 100%;            /* Ocupa todo el ancho del formulario */
+  }
+  
+  .login-form .btn-submit:hover {
+    background-color: #333; /* Gris oscuro al pasar el cursor */
+  }
+  
+  /* Mensajes de error y éxito */
+  .login-form .error-message {
+    color: red;
+    margin-bottom: 1rem;
+  }
+  
+  .login-form .success-message {
+    color: green;
+    margin-bottom: 1rem;
+  }
+  
+  /* Media Queries para pantallas pequeñas */
+  @media (max-width: 768px) {
+    .login-container {
+      flex-direction: column;
+    }
+  
+    .login-image-container,
+    .login-form-container {
+      flex: none;
+      width: 100%;
+      padding: 1rem;
+    }
+  
+    .login-image {
+      height: 200px;
+      object-fit: cover;
+    }
+  
+    .login-form {
+      max-width: 100%;
+    }
+  }

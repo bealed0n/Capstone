@@ -1,0 +1,27 @@
+/* navbar.css */
+.navbar-brand-custom {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: white !important; /* Tomato color */
+    display: flex;
+    align-items: center;
+
+  }
+  
+  .nav-link-custom {
+    font-size: 1.2rem;
+    color: #ffffff !important; /* White color */
+  }
+  
+  .navbar-custom {
+    background-color: #343a40 !important; /* Dark background */
+    
+  }
+  .nav-link {
+    font-size: 1rem;
+  }
+  
+  .nav-separator {
+    color: #fff;
+    margin-right: 15px;
+  }

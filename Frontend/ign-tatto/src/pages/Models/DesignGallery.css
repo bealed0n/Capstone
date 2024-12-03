@@ -1,0 +1,150 @@
+/* DesignGallery.css */
+
+.design-gallery-container {
+    display: flex;
+    padding: 20px;
+    background-color: #FAFAF5;
+  }
+  
+  .search-column {
+    width: 300px;
+    position: sticky;
+    top: 20px;
+    height: calc(100vh - 40px);
+    overflow-y: auto;
+    padding-right: 20px;
+  }
+  
+  .products-column {
+    flex: 1;
+    padding-left: 20px;
+  }
+  
+  .product-list-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #333;
+    text-align: center;
+    margin-bottom: 2rem;
+  }
+  
+  .search-form {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+  
+  .search-form .form-label {
+    font-weight: 600;
+    color: #555;
+  }
+  
+  .search-form .form-control {
+    border-radius: 5px;
+    margin-bottom: 1rem;
+  }
+  
+  .search-form .btn-primary {
+    background-color: #007bff;
+    border: none;
+    padding: 10px 20px;
+    font-weight: 600;
+    transition: background-color 0.3s ease;
+    width: 100%;
+  }
+  
+  .search-form .btn-primary:hover {
+    background-color: #0056b3;
+  }
+  
+  .design-card {
+    background-color: #fff;
+    border: none;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+  }
+  
+  .design-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+  }
+  
+  .design-card img {
+    object-fit: cover;
+    height: 200px;
+    width: 100%;
+  }
+  
+  .design-card .card-body {
+    padding: 1.5rem;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .card-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #333;
+    margin-bottom: 0.75rem;
+  }
+  
+  .card-text {
+    color: #666;
+    font-size: 0.95rem;
+    margin-bottom: 0.5rem;
+  }
+  
+  .card-price {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #007bff;
+    margin-bottom: 1rem;
+  }
+  
+  .card-category {
+    font-size: 0.9rem;
+    color: #888;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 1rem;
+  }
+  
+  .btn-view-details {
+    background-color: #007bff;
+    border: none;
+    padding: 10px 20px;
+    font-weight: 600;
+    transition: background-color 0.3s ease;
+    width: 100%;
+    margin-top: auto;
+  }
+  
+  .btn-view-details:hover {
+    background-color: #0056b3;
+  }
+  
+  @media (max-width: 768px) {
+    .design-gallery-container {
+      flex-direction: column;
+    }
+  
+    .search-column {
+      width: 200%;
+      position: static;
+      height: auto;
+      margin-bottom: 20px;
+      padding-right: 0;
+    }
+  
+    .products-column {
+      padding-left: 0;
+    }
+  }

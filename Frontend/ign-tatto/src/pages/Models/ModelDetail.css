@@ -1,0 +1,83 @@
+/* src/pages/ModelDetail.css */
+
+/* Contenedor principal */
+.detail-container {
+    background-color: #FAFAF5;
+    padding: 40px;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    margin-top: 20px;
+    margin-bottom: 100px;
+  }
+  
+  /* Título de la página */
+  .detail-container h1 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #343a40;
+    text-align: center;
+    margin-bottom: 2rem;
+    
+  }
+  
+  /* Visor del modelo 3D */
+  .model-viewer {
+    width: 100%;
+    max-width: 800px;
+    height: 500px;
+    margin: 0 auto;
+    border: 2px solid #f0f0f0;
+    border-radius: 10px;
+    background-color: #f9f9f9;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+  }
+  
+  /* Descripción del modelo */
+  .model-description {
+    font-size: 1.1rem;
+    color: #343a40;
+    margin-top: 1.5rem;
+    text-align: center;
+  }
+  
+  /* Spinner centrado */
+  .center-spinner {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+  }
+  
+  /* Alert personalizada */
+  .alert-custom {
+    font-size: 1.2rem;
+    text-align: center;
+    margin: 20px;
+  }
+  
+  /* Responsividad */
+  @media (max-width: 768px) {
+    .detail-container {
+      padding: 20px;
+    }
+  
+    .model-viewer {
+      height: 300px;
+    }
+  
+    .detail-container h1 {
+      font-size: 2rem;
+    }
+  
+    .model-description {
+      font-size: 1rem;
+    }
+    .diseñadorpor{
+      color: white;
+      text-align: center;
+    }
+    .designer{
+      color: white;
+    }
+  }

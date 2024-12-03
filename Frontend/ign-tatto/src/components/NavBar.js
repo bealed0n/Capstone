@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { Navbar, Nav, Container } from 'react-bootstrap';
+import { Navbar, Nav, Container, NavDropdown, Image } from 'react-bootstrap';
 import { LinkContainer } from 'react-router-bootstrap';
 import { Link } from 'react-router-dom';
-import { jwtDecode } from 'jwt-decode';
+import {jwtDecode} from 'jwt-decode'; // Importación por defecto
 import cookies from 'js-cookie';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import './navbar.css'; // Importar el archivo CSS personalizado
 
 const NavigationBar = () => {
   const [userRole, setUserRole] = useState(null);
@@ -24,72 +25,97 @@ const NavigationBar = () => {
   }, []);
 
   return (
-    <Navbar bg="dark" variant="dark" expand="lg">
-      <Container>
-        <Navbar.Brand as={Link} to="/">IGN.TATTO</Navbar.Brand>
+    <Navbar bg="dark" className="navbar-custom" variant="dark" expand="lg">
+      <Container fluid>
+        {/* Branding alineado a la izquierda */}
+        <Navbar.Brand as={Link} to="/" className="navbar-brand-custom ms-0">
+          <Image src="/assets/navbar.png" alt="Logo" width="60" height="60" className="d-inline-block align-top" />{' '}
+          IGN.TATTO
+        </Navbar.Brand>
+
+        {/* Toggler para pantallas pequeñas */}
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
+
         <Navbar.Collapse id="basic-navbar-nav">
+          {/* Enlaces de navegación alineados a la derecha */}
           <Nav className="ms-auto">
             <LinkContainer to="/">
               <Nav.Link>Inicio</Nav.Link>
             </LinkContainer>
-            <LinkContainer to="/client/register">
-              <Nav.Link>Registro</Nav.Link>
+            <NavDropdown title="Comencemos!" id="account-nav-dropdown" className="nav-link-custom">
+              <LinkContainer to="/client/register">
+                <NavDropdown.Item>Registro Cliente</NavDropdown.Item>
+              </LinkContainer>
+              <LinkContainer to="postulacion-form">
+                <NavDropdown.Item>¿quieres ser un tatuador/diseñado?</NavDropdown.Item>
+              </LinkContainer>
+              <LinkContainer to="/login">
+              <NavDropdown.Item>Login</NavDropdown.Item>
             </LinkContainer>
-            <LinkContainer to="/login">
-              <Nav.Link>Login</Nav.Link>
-            </LinkContainer>
-
+            </NavDropdown>
             <LinkContainer to="/products-lists">
               <Nav.Link>Productos</Nav.Link>
             </LinkContainer>
-            
+            <LinkContainer to="/search">
+              <Nav.Link>Buscador de Usuarios</Nav.Link>
+            </LinkContainer>
+            {/* Enlaces según el rol */}
             {userRole === 'tattoo_artist' && (
               <>
+                  <NavDropdown title="Opciones de Tatuador" id="tattoo-artist-dropdown">
                 <LinkContainer to="/add-product">
-                  <Nav.Link>Agregar Producto</Nav.Link>
+                  <NavDropdown.Item>Agregar Producto</NavDropdown.Item>
                 </LinkContainer>
                 <LinkContainer to="/add-post">
-                  <Nav.Link>Subir Publicación</Nav.Link>
+                  <NavDropdown.Item>Subir Publicación</NavDropdown.Item>
                 </LinkContainer>
                 <LinkContainer to="/create-slot">
-                  <Nav.Link>Agregar Horas</Nav.Link>
+                  <NavDropdown.Item>Agregar Horas</NavDropdown.Item>
                 </LinkContainer>
-                <LinkContainer to="/profile">
-              <Nav.Link>Perfil</Nav.Link>
-            </LinkContainer>
+              </NavDropdown>
+              <LinkContainer to="/profile">
+                  <Nav.Link>Perfil</Nav.Link>
+                </LinkContainer>
               </>
             )}
             {userRole === 'designer' && (
               <>
+                <NavDropdown title="Opciones de diseñador" id="disigner-dropdown">
                 <LinkContainer to="/upload-design">
-                  <Nav.Link>Subir Diseño</Nav.Link>
+                  <NavDropdown.Item>Subir Diseño</NavDropdown.Item>
                 </LinkContainer>
                 <LinkContainer to="/models/add">
-                  <Nav.Link>Añadir Diseño 3D</Nav.Link>
+                  <NavDropdown.Item>Subir Modelo 3D</NavDropdown.Item>
                 </LinkContainer>
-                <LinkContainer to="/postulaciones-list">
-                <Nav.Link>Postulaciones</Nav.Link>
-              </LinkContainer>
-              <LinkContainer to="/profile">
-              <Nav.Link>Perfil</Nav.Link>
-            </LinkContainer>
+              </NavDropdown>
+                <LinkContainer to="/profile">
+                  <Nav.Link>Perfil</Nav.Link>
+                </LinkContainer>
               </>
             )}
             {userRole === 'admin' && (
-              <><LinkContainer to="/postulaciones-list">
-                <Nav.Link>Postulaciones</Nav.Link>
-              </LinkContainer><LinkContainer to="/profile">
+              <>
+                <LinkContainer to="/postulaciones-list">
+                  <Nav.Link>Postulaciones</Nav.Link>
+                </LinkContainer>
+                <LinkContainer to="/profile">
                   <Nav.Link>Perfil</Nav.Link>
-                </LinkContainer></>
-              
+                </LinkContainer>
+                <NavDropdown title="Opciones de Administrador" id="admin-dropdown">
+                <LinkContainer to="/admin/posts">
+                  <NavDropdown.Item>Gestionar Publicaciones</NavDropdown.Item>
+                </LinkContainer>
+                <LinkContainer to="/admin/products">
+                  <NavDropdown.Item>Gestionar Productos</NavDropdown.Item>
+                </LinkContainer>
+                <LinkContainer to="/admin/models">
+                  <NavDropdown.Item>Gestionar Modelos 3D</NavDropdown.Item>
+                </LinkContainer>
+              </NavDropdown>
+              </>
             )}
-
             {userRole === 'client' && (
               <>
-                <LinkContainer to="/reserve-slot">
-                  <Nav.Link>Mis Citas</Nav.Link>
-                </LinkContainer>
                 <LinkContainer to="/profile">
                   <Nav.Link>Perfil</Nav.Link>
                 </LinkContainer>
@@ -102,11 +128,11 @@ const NavigationBar = () => {
               <Nav.Link>Publicaciones</Nav.Link>
             </LinkContainer>
             <LinkContainer to="/design-gallery">
-                  <Nav.Link>Diseños</Nav.Link>
-                </LinkContainer>
-                <LinkContainer to="/models">
-                  <Nav.Link>Diseños 3D</Nav.Link>
-                </LinkContainer>   
+              <Nav.Link>Diseños</Nav.Link>
+            </LinkContainer>
+            <LinkContainer to="/models">
+              <Nav.Link>Diseños 3D</Nav.Link>
+            </LinkContainer>
           </Nav>
         </Navbar.Collapse>
       </Container>

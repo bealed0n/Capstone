@@ -1,0 +1,101 @@
+/* src/pages/ModelList.css */
+
+/* Contenedor principal */
+
+  
+  /* Título de la página */
+  h1.text-center {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #333333;
+    margin-bottom: 2rem;
+  }
+  
+  /* Tarjeta del modelo */
+  .model-card {
+    background-color: #FAFAF5;
+    border: none;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .model-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2);
+  }
+  
+  /* Contenedor para la vista previa del modelo */
+  .model-preview-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    height: 200px; /* Asegura que la altura coincida con la de ModelPreview */
+    background-color: #f8f9fa; /* Opcional: color de fondo para contraste */
+  }
+  
+  /* Asegura que el canvas del modelo no exceda el contenedor */
+  .model-preview-container canvas {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+  }
+  
+  /* Cuerpo de la tarjeta */
+  .card-body {
+    padding: 1.5rem;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  /* Título de la tarjeta */
+  .card-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #333333;
+    margin-bottom: 0.75rem;
+  }
+  
+  /* Texto de la tarjeta */
+  .card-text {
+    color: #666666;
+    font-size: 1rem;
+    margin-bottom: 0.75rem;
+  }
+  
+  /* Botón de detalles */
+  .btn-primary {
+    background-color: #343a40;
+    border: none;
+    padding: 10px 20px;
+    font-weight: 600;
+    transition: background-color 0.3s ease;
+  }
+  
+  .btn-primary:hover {
+    background-color: #343a40;
+  }
+  
+  /* Responsividad */
+  @media (max-width: 768px) {
+    .container {
+      padding: 20px;
+    }
+  
+    .model-card {
+      margin-bottom: 20px;
+    }
+  
+    .model-preview-container {
+      height: 150px;
+    }
+    .designer-link {
+        color: black;
+      }
+  }

@@ -1,37 +1,46 @@
 /* src/components/UserSearch.css */
+
 .user-search-container {
-    width: 400px;
+    max-width: 600px;
     margin: 20px auto;
-    border: 1px solid #ccc;
     padding: 20px;
-    border-radius: 5px;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    margin-bottom: 400px;
 }
 
 .user-search-container h2 {
     margin-bottom: 20px;
+    text-align: center;
+    color: #333;
 }
 
-.user-search-container input {
-    width: calc(100% - 22px);
+.user-search-container .form-control {
+    width: 100%;
     padding: 10px;
     margin-bottom: 10px;
+    border-radius: 4px;
 }
 
-.user-search-container button {
-    padding: 10px 20px;
+.user-search-container .btn-primary {
+    width: 100%;
+    padding: 10px;
+    border-radius: 4px;
 }
 
 .user-search-results {
     list-style: none;
     padding: 0;
+    margin-top: 20px;
 }
 
-.user-search-results li {
+.user-search-results .list-group-item {
     padding: 10px;
     border-bottom: 1px solid #eee;
     cursor: pointer;
 }
 
-.user-search-results li:hover {
-    background-color: #f0f0f0;
+.user-search-results .list-group-item:hover {
+    background-color: #f1f1f1;
 }

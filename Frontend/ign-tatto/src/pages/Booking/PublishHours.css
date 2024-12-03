@@ -1,0 +1,74 @@
+/* src/pages/Booking/PublishHours.css */
+
+.publish-hours-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    background-color: #f9f9f9;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  }
+  
+  .publish-hours-container h2 {
+    font-size: 24px;
+    font-weight: bold;
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  
+  .publish-hours-container .form-group {
+    margin-bottom: 15px;
+  }
+  
+  .publish-hours-container .form-control {
+    border-radius: 4px;
+  }
+  
+  .publish-hours-container .btn-primary {
+    background-color: #007bff;
+    border-color: #007bff;
+    padding: 10px 20px;
+    border-radius: 4px;
+  }
+  
+  .publish-hours-container .btn-primary:hover {
+    background-color: #0056b3;
+    border-color: #0056b3;
+  }
+  
+  /* Estilos para la imagen */
+  .publish-hours-image-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+  }
+  
+  .publish-hours-image {
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+    border-radius: 8px;
+  }
+  
+  /* Estilos para el calendario */
+  .rbc-calendar {
+    font-family: Arial, sans-serif;
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  
+  .rbc-header {
+    background-color: #f1f3f5;
+    padding: 10px;
+    font-weight: bold;
+    color: #495057;
+  }
+  
+  .rbc-event {
+    background-color: #495057;
+    color: #fff;
+    padding: 5px;
+    border-radius: 4px;
+    font-size: 0.875rem;
+  }

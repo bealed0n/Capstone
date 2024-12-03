@@ -7,6 +7,7 @@ import Cookies from 'js-cookie';
 import { Container, Card, ListGroup, Alert, Spinner, Button, Image, Form, Accordion } from 'react-bootstrap';
 import { format, parseISO } from 'date-fns'; // Importa las funciones necesarias
 import ReactStars from 'react-rating-stars-component'; // Importa ReactStars
+import './Profile.css'; // Asegúrate de importar el archivo CSS
 
 const Profile = () => {
   const [profile, setProfile] = useState(null);
@@ -243,7 +244,7 @@ const Profile = () => {
             </Accordion.Item>
 
             {/* Productos Creados (para artistas y diseñadores) */}
-            {(profile.role === 'tattoo_artist' || profile.role === 'designer') && (
+            {(profile.role === 'tattoo_artist') && (
               <Accordion.Item eventKey="4">
                 <Accordion.Header>Productos Creados</Accordion.Header>
                 <Accordion.Body>
@@ -279,35 +280,37 @@ const Profile = () => {
             )}
 
             {/* Publicaciones Creadas */}
-            <Accordion.Item eventKey="5">
-              <Accordion.Header>Publicaciones Creadas</Accordion.Header>
-              <Accordion.Body>
-                {profile.posts_creados && profile.posts_creados.length > 0 ? (
-                  <ListGroup>
-                    {profile.posts_creados.map((post) => (
-                      <ListGroup.Item key={post.id} className="d-flex align-items-center">
-                        {post.image_url && (
-                          <Image
-                            src={`http://localhost:4000/uploads/${post.image_url}`}
-                            alt="Post"
-                            rounded
-                            width="50"
-                            height="50"
-                            className="me-3"
-                          />
-                        )}
-                        <div>
-                          <p>{post.description}</p>
-                          <small>Creado en: {safeFormatDate(post.created_at)}</small>
-                        </div>
-                      </ListGroup.Item>
-                    ))}
-                  </ListGroup>
-                ) : (
-                  <p>No has creado ninguna publicación.</p>
-                )}
-              </Accordion.Body>
-            </Accordion.Item>
+        {profile.role === 'tattoo_artist' && (
+          <Accordion.Item eventKey="5">
+            <Accordion.Header>Publicaciones Creadas</Accordion.Header>
+            <Accordion.Body>
+              {profile.posts_creados && profile.posts_creados.length > 0 ? (
+                <ListGroup>
+                  {profile.posts_creados.map((post) => (
+                    <ListGroup.Item key={post.id} className="d-flex align-items-center">
+                      {post.image_url && (
+                        <Image
+                          src={`http://localhost:4000/uploads/${post.image_url}`}
+                          alt="Post"
+                          rounded
+                          width="50"
+                          height="50"
+                          className="me-3"
+                        />
+                      )}
+                      <div>
+                        <p>{post.description}</p>
+                        <small>Creado en: {safeFormatDate(post.created_at)}</small>
+                      </div>
+                    </ListGroup.Item>
+                  ))}
+                </ListGroup>
+              ) : (
+                <p>No has creado ninguna publicación.</p>
+              )}
+            </Accordion.Body>
+          </Accordion.Item>
+        )}
 
             {/* Horas Agendadas (para clientes) */}
             {profile.role === 'client' && (
@@ -339,7 +342,7 @@ const Profile = () => {
             )}
 
             {/* Reservas de Clientes (para artistas y diseñadores) */}
-            {(profile.role === 'tattoo_artist' || profile.role === 'designer') && (
+            {(profile.role === 'tattoo_artist') && (
               <Accordion.Item eventKey="7">
                 <Accordion.Header>Reservas de Clientes</Accordion.Header>
                 <Accordion.Body>

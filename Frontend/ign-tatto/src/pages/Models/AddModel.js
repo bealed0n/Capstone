@@ -1,13 +1,15 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import { Container, Form, Button, Alert } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
+import modelImage from '../../assets/model.jpg'; // Reemplaza con la ruta correcta a tu imagen
+import './AddModel.css'; // Importa el nuevo archivo CSS
 
 const AddModel = () => {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [model, setModel] = useState(null);
   const [error, setError] = useState(null);
+  const [success, setSuccess] = useState(null);
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
@@ -28,53 +30,67 @@ const AddModel = () => {
         },
         withCredentials: true,
       });
+      setSuccess('Modelo 3D agregado exitosamente.');
+      setError(null);
+      setName('');
+      setDescription('');
+      setModel(null);
       navigate('/models');
     } catch (err) {
       console.error('Error al agregar modelo 3D:', err.response?.data || err.message);
       setError('No se pudo agregar el modelo 3D');
+      setSuccess(null);
     }
   };
 
   return (
-    <Container className="mt-5">
-      <h2>Agregar Modelo 3D</h2>
-      {error && <Alert variant="danger">{error}</Alert>}
-      <Form onSubmit={handleSubmit}>
-        <Form.Group controlId="name">
-          <Form.Label>Nombre</Form.Label>
-          <Form.Control
-            type="text"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            required
-          />
-        </Form.Group>
+    <div className="add-model-container">
+      <div className="add-model-image-container">
+        <img src={modelImage} alt="Agregar Modelo 3D" className="add-model-image" />
+      </div>
+      <div className="add-model-form-container">
+        <form className="add-model-form" onSubmit={handleSubmit}>
+          <h2>Agregar Modelo 3D</h2>
+          {error && <p className="error-message">{error}</p>}
+          {success && <p className="success-message">{success}</p>}
 
-        <Form.Group controlId="description" className="mt-3">
-          <Form.Label>Descripción</Form.Label>
-          <Form.Control
-            as="textarea"
-            rows={3}
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-          />
-        </Form.Group>
+          <div className="form-group">
+            <label htmlFor="name">Nombre:</label>
+            <input
+              type="text"
+              id="name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              required
+              placeholder="Ingresa el nombre del modelo"
+            />
+          </div>
 
-        <Form.Group controlId="model" className="mt-3">
-          <Form.Label>Archivo del Modelo 3D (ZIP)</Form.Label>
-          <Form.Control
-            type="file"
-            accept=".zip"
-            onChange={(e) => setModel(e.target.files[0])}
-            required
-          />
-        </Form.Group>
+          <div className="form-group">
+            <label htmlFor="description">Descripción:</label>
+            <textarea
+              id="description"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              required
+              placeholder="Ingresa la descripción del modelo"
+            ></textarea>
+          </div>
 
-        <Button variant="primary" type="submit" className="mt-3">
-          Agregar Modelo
-        </Button>
-      </Form>
-    </Container>
+          <div className="form-group">
+            <label htmlFor="model">Archivo del Modelo 3D:</label>
+            <input
+              type="file"
+              id="model"
+              onChange={(e) => setModel(e.target.files[0])}
+              required
+            />
+          </div>
+
+          <button type="submit" className="btn-submit">Agregar Modelo 3D</button>
+        </form>
+      </div>
+    </div>
   );
 };
 

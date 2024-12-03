@@ -1,53 +1,100 @@
 .register-container {
-    display: flex;
-    height: 100vh;
-    background-color: #FAFAF5;
-  }
-  
-  .register-content {
-    display: flex;
-    margin: auto;
-    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-    background: #FAFAF5;
-    border-radius: 8px;
-    overflow: hidden;
-  }
-  
-  .register-image-container {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background-color: #f4f4f4;
-  }
-  
-  .register-image {
-    max-width: 100%;
-    height: auto;
-    object-fit: cover;
-  }
-  
-  .register-form-container {
-    flex: 1;
-    padding: 2rem;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-  }
-  
-  .register-title {
-    font-size: 2rem;
-    font-weight: bold;
-    text-align: center;
-    margin-bottom: 1rem;
-  }
-  
-  .register-form .form-group {
-    margin-bottom: 1rem;
-  }
-  
-  .register-form .btn-block {
-    width: 100%;
-    margin-top: 1rem;
-  }
-  
+  display: flex;
+  height: 100vh;
+  background-color: #FAFAF5;
+}
+
+
+.register-content {
+  display: flex;
+  height: 100%;
+  width: 100%;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+  background: #FAFAF5;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+
+.register-image-container {
+  flex: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+
+.register-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* Evita espacios en blanco */
+}
+
+
+.register-form-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center; /* Centrar verticalmente */
+  align-items: center;     /* Centrar horizontalmente */
+  padding: 2rem;
+}
+
+
+
+.register-title {
+  font-size: 2rem;
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+
+.register-form {
+  width: 100%;
+  max-width: 400px;
+  padding: 2rem;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background-color: #f9f9f9;
+}
+
+
+.register-form h2 {
+  font-size: 2rem;
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+
+.register-form .form-group {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 1.5rem;
+}
+
+
+.register-form .form-group input {
+  padding: 0.75rem; /* Asegura un tamaño uniforme */
+  font-size: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+
+.register-form .btn-block {
+  width: 100%;
+  padding: 0.75rem;
+  font-size: 1rem;
+  background-color: #000;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+
+.register-form .btn-block:hover {
+  background-color: #333;
+}

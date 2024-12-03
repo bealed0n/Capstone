@@ -64,26 +64,27 @@ exports.reserveHour = async (req, res) => {
   }
 };
 
+
+
 // Obtener horas disponibles de un artista
+// Función para obtener horas disponibles de un artista específico
 exports.getAvailableHours = async (req, res) => {
   const { artistId } = req.params;
 
   try {
     const query = `
-      SELECT aslots.id, aslots.date, aslots.time
-      FROM available_slots aslots
-      LEFT JOIN reservations res ON aslots.id = res.slot_id
-      WHERE aslots.tattoo_artist_id = $1
-      AND res.id IS NULL
-      ORDER BY aslots.date, aslots.time;
+      SELECT * FROM available_slots
+      WHERE tattoo_artist_id = $1 AND is_reserved = false
     `;
     const result = await db.query(query, [artistId]);
+
     res.json(result.rows);
   } catch (err) {
-    console.error(err.message);
-    res.status(500).send('Error del Servidor');
+    console.error('Error al obtener horas disponibles:', err.message);
+    res.status(500).json({ error: 'Error del servidor' });
   }
 };
+
 
 exports.getArtists = async (req, res) => {
   try {

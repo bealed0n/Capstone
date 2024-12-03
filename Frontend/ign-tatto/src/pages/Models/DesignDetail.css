@@ -1,0 +1,62 @@
+/* DesignDetail.css */
+
+.design-detail-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  .design-detail-container h2 {
+    font-size: 2rem;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 20px;
+  }
+  
+  .design-detail-container p {
+    font-size: 1rem;
+    color: #666;
+    margin-bottom: 10px;
+  }
+  
+  .design-detail-container .form-group {
+    margin-bottom: 15px;
+  }
+  
+  .design-detail-container .form-control {
+    border-radius: 4px;
+  }
+  
+  .design-detail-container .btn-primary {
+    background-color: #007bff;
+    border-color: #007bff;
+    padding: 10px 20px;
+    border-radius: 4px;
+  }
+  
+  .design-detail-container .btn-primary:hover {
+    background-color: #0056b3;
+    border-color: #0056b3;
+  }
+  
+  .design-detail-container .react-stars {
+    margin-bottom: 15px;
+  }
+  
+  .design-detail-container .alert {
+    margin-bottom: 20px;
+  }
+  
+  /* Estilos para los enlaces */
+  .design-detail-container a {
+    color: #007bff; /* Cambia este color al que prefieras */
+    text-decoration: none;
+  }
+  
+  .design-detail-container a:hover {
+    color: #0056b3; /* Cambia este color al que prefieras */
+    text-decoration: underline;
+  }

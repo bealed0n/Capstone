@@ -4,7 +4,7 @@ import axios from 'axios';
 import { Link } from 'react-router-dom';
 import ReactStars from 'react-rating-stars-component';
 import './home.css';
-import logo from '../../assets/logo.png'; // Asegúrate de que la ruta sea correcta
+import logo from '../../assets/blanco.png'; // Asegúrate de que la ruta sea correcta
 
 const Home = () => {
   const [tattooReviews, setTattooReviews] = useState([]);
@@ -30,34 +30,37 @@ const Home = () => {
 
   return (
     <div className="home-container">
-      <div className="jumbotron text-center bg-gray text-black">
+      <div className="home-jumbotron text-center">
         <h1 className="display-4">Bienvenido a Ign.Tattoo</h1>
         <p className="lead">Explora nuestra plataforma para encontrar los mejores diseños y servicios de tatuajes.</p>
         <p>¡Únete a nuestra comunidad y descubre lo último en tendencias de tatuajes!</p>
         <hr className="my-4" />
+        <div className="home-logo-container">
+        <img src={logo} alt="Logo de Ign.Tattoo" className="home-logo-image" />
+      </div>
       </div>
 
-      <div className="text-center mb-5">
-        <img src={logo} alt="Logo de Ign.Tattoo" className="logo-image" />
-      </div>
-      <section className="section">
+    
+
+      <section className="home-section">
         <h2><Link to="/products-lists">Productos Destacados</Link></h2>
-        <div className="cards-container">
+        <div className="home-cards-container">
           {products.map(product => (
-            <div key={product.id} className="card">
-              <img src={getImageUrl(product.image_url)} alt={product.name} className="card-image" />
-              <h3 className="card-title">{product.name}</h3>
+            <div key={product.id} className="home-card">
+              <img src={getImageUrl(product.image_url)} alt={product.name} className="home-card-image" />
+              <h3>{product.name}</h3>
             </div>
           ))}
         </div>
       </section>
-      <section className="section">
+
+      <section className="home-section">
         <h2><Link to="/reviews">Reseñas de Tatuadores</Link></h2>
-        <div className="cards-container">
+        <div className="home-cards-container">
           {tattooReviews.map(review => (
-            <div key={review.id} className="card">
+            <div key={review.id} className="home-card">
               <h3>{/* Aquí puedes reemplazar con el nombre real del tatuador si está disponible */}</h3>
-              <p className="card-text">{review.review_text}</p>
+              <p>{review.review_text}</p>
               <ReactStars
                 count={5}
                 value={review.rating}
@@ -70,13 +73,12 @@ const Home = () => {
         </div>
       </section>
 
-
-      <section className="section">
-        <h2><Link to="/posts">Últimos Posts</Link></h2>
-        <div className="cards-container">
+      <section className="home-section">
+        <h2><Link to="/posts-list">Últimos Posts</Link></h2>
+        <div className="home-cards-container">
           {posts.map(post => (
-            <div key={post.id} className="card">
-              <img src={getImageUrl(post.image_url)} alt={`Post ${post.id}`} className="card-image" />
+            <div key={post.id} className="home-card">
+              <img src={getImageUrl(post.image_url)} alt={`Post ${post.id}`} className="home-card-image" />
             </div>
           ))}
         </div>
@@ -86,3 +88,4 @@ const Home = () => {
 };
 
 export default Home;
+

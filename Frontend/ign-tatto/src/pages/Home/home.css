@@ -1,29 +1,39 @@
-
-
 .home-container {
-  padding: 20px;
+  padding: 40px 20px;
   font-family: 'Arial, sans-serif';
-  background-color: #f9f9f9;
+  background-color: #FAFAF5;
 }
 
-.section {
-  margin-bottom: 40px;
+.home-section {
+  margin-bottom: 60px;
 }
 
-.section h2 {
+.home-section h2 {
+  font-size: 2.5rem;
+  font-weight: 600;
   text-align: center;
-  margin-bottom: 20px;
-  color: #333;
+  margin-bottom: 30px;
+  color: #1a1a1a;
 }
 
-.cards-container {
+.home-section h2 a {
+  color: inherit;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.home-section h2 a:hover {
+  color: #007BFF;
+}
+
+.home-cards-container {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
   gap: 20px;
 }
 
-.card {
+.home-card {
   background-color: #fff;
   border-radius: 10px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
@@ -33,11 +43,11 @@
   transition: transform 0.2s;
 }
 
-.card:hover {
+.home-card:hover {
   transform: translateY(-10px);
 }
 
-.card-image {
+.home-card-image {
   width: 100%;
   height: 180px;
   object-fit: cover;
@@ -45,48 +55,57 @@
   margin-bottom: 15px;
 }
 
-.card h3 {
+.home-card h3 {
   margin-bottom: 10px;
   color: #555;
 }
 
-.card p {
+.home-card p {
   font-size: 14px;
   color: #777;
   margin-bottom: 15px;
 }
 
-.card span {
+.home-card span {
   display: block;
   font-weight: bold;
   color: #333;
 }
 
-.read-more {
-  display: inline-block;
-  margin-top: 10px;
-  padding: 8px 16px;
-  background-color: #007BFF;
+.home-logo-image {
+  max-width: 500px;
+  width: 100%;
+  height: auto;
+}
+
+.home-jumbotron {
+  background-color: #343a40;
   color: #fff;
-  border-radius: 5px;
-  text-decoration: none;
-  transition: background-color 0.3s;
+  padding: 60px 0;
+  border-radius: 15px;
+  margin-bottom: 40px;
+height: 50vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
 }
 
-.read-more:hover {
-  background-color: #0056b3;
-}
-.logo-image {
-  max-width: 500px; /* Ajusta el tamaño máximo de la imagen */
-  width: 200%; /* Asegura que la imagen no exceda el contenedor */
-  height: auto; /* Mantiene la proporción de la imagen */
+.home-jumbotron h1 {
+  font-size: 3rem;
+  font-weight: 700;
+  margin-bottom: 40px;
 }
 
-.section h2 a {
-  color: inherit;
-  text-decoration: none;
+.home-jumbotron p {
+  font-size: 1.2rem;
+  max-width: 600px;
+  margin: 0 auto;
 }
 
-.section h2 a:hover {
-  text-decoration: underline;
+.home-logo-container {
+  text-align: center;
+  margin-bottom: 60px;
 }
+

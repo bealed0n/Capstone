@@ -1,14 +1,17 @@
-/* src/components/Footer.css */
+/* Footer.css */
 .footer {
-    background-color: #343a40;
-    color: white;
-    padding: 20px 0;
-    text-align: center;
-    position: down;
-    bottom: 0;
-    width: 100%;
-  }
+  background-color: #343a40;
+  color: white;
+  padding: 20px 0;
+  text-align: center;
+  width: 100%;
+  position: static;
+  margin-top: auto;
+  padding:1em;
+}
+
+
+.footer p {
+  margin: 0;
   
-  .footer p {
-    margin: 0;
-  }
+}

@@ -1,12 +1,16 @@
+// src/components/AddPost.js
+
 import React, { useState } from 'react';
 import axios from 'axios';
-import { Form, Button, Alert, Container } from 'react-bootstrap';
+import { Container, Row, Col, Form, Button, Alert } from 'react-bootstrap';
+import logo from '../../assets/logo.png'; // Asegúrate de que la ruta sea correcta
+import './addPost.css'; // Importa el nuevo archivo CSS
 
 const AddPost = () => {
   const [description, setDescription] = useState('');
-  const [imageUrl, setImage] = useState(null);
-  const [error, setError] = useState(null);
+  const [imageUrl, setImageUrl] = useState(null);
   const [success, setSuccess] = useState(null);
+  const [error, setError] = useState(null);
 
   const handleAddPost = async (e) => {
     e.preventDefault();
@@ -27,7 +31,7 @@ const AddPost = () => {
       setSuccess('Publicación agregada exitosamente.');
       setError(null);
       setDescription('');
-      setImage(null);
+      setImageUrl(null);
     } catch (error) {
       console.error('Error al agregar publicación:', error);
       setError('Error al agregar publicación. Intenta nuevamente.');
@@ -36,39 +40,41 @@ const AddPost = () => {
   };
 
   return (
-    <Container className="mt-5" style={{ maxWidth: '600px' }}>
-      <h2 className="text-center mb-4">Agregar Publicación</h2>
-      {error && <Alert variant="danger">{error}</Alert>}
-      {success && <Alert variant="success">{success}</Alert>}
-      <Form onSubmit={handleAddPost}>
-        <Form.Group controlId="description" className="mb-3">
-          <Form.Label>Descripción</Form.Label>
-          <Form.Control
-            as="textarea"
-            name="description"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            placeholder="Ingresa la descripción de la publicación"
-            rows={5}
-            required
-          />
-        </Form.Group>
+    <div className="add-post-container">
+      <div className="add-post-image-container">
+        <img src={logo} alt="Agregar Publicación" className="add-post-image" />
+      </div>
+      <div className="add-post-form-container">
+        <form className="add-post-form" onSubmit={handleAddPost}>
+          <h2>Agregar Publicación</h2>
+          {error && <p className="error-message">{error}</p>}
+          {success && <p className="success-message">{success}</p>}
 
-        <Form.Group controlId="image" className="mb-3">
-          <Form.Label>Imagen</Form.Label>
-          <Form.Control
-            type="file"
-            name="image"
-            onChange={(e) => setImage(e.target.files[0])}
-            accept="image/*"
-          />
-        </Form.Group>
+          <div className="form-group">
+            <label htmlFor="description">Descripción:</label>
+            <textarea
+              id="description"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              required
+              placeholder="Ingresa la descripción de la publicación"
+            ></textarea>
+          </div>
 
-        <Button variant="primary" type="submit" className="w-100">
-          Agregar Publicación
-        </Button>
-      </Form>
-    </Container>
+          <div className="form-group">
+            <label htmlFor="imageUrl">Imagen:</label>
+            <input
+              type="file"
+              id="imageUrl"
+              onChange={(e) => setImageUrl(e.target.files[0])}
+              required
+            />
+          </div>
+
+          <button type="submit" className="btn-submit">Agregar Publicación</button>
+        </form>
+      </div>
+    </div>
   );
 };
 

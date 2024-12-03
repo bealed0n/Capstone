@@ -1,0 +1,99 @@
+/* src/pages/Postulaciones/postulacion.css */
+
+/* Contenedor principal de la postulación */
+.postulacion-container {
+    display: flex;
+    flex-direction: row;
+    min-height: 100vh;
+    justify-content: center;
+    align-items: center;
+    background: #FAFAF5;
+  }
+  
+  /* Contenedor de la imagen */
+  .postulacion-image-container {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+  }
+  
+  .postulacion-image {
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+    border-radius: 8px;
+  }
+  
+  /* Contenedor del formulario */
+  .postulacion-form-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center; /* Centra verticalmente */
+    align-items: center;     /* Centra horizontalmente */
+    padding: 2rem;
+  }
+  
+  /* Estilos del formulario */
+  .postulacion-form {
+    width: 100%;
+    max-width: 400px;
+    padding: 2rem;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background-color: #FAFAF5;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+  }
+  
+  /* Título del formulario */
+  .postulacion-form h2 {
+    font-size: 2rem;
+    font-weight: bold;
+    text-align: center;
+    margin-bottom: 2rem; /* Separación entre el título y los campos */
+  }
+  
+  /* Grupo de formulario */
+  .postulacion-form .form-group {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 1.5rem;
+    width: 100%; /* Asegura que cada grupo ocupe todo el ancho del formulario */
+  }
+  
+  /* Etiquetas de los campos */
+  .postulacion-form .form-group label {
+    text-align: left;
+    margin-bottom: 0.5rem;
+    font-size: 1rem;
+    color: #333;
+  }
+  
+  /* Campos de entrada */
+  .postulacion-form .form-group input {
+    width: 100%; /* Asegura que los inputs ocupen todo el ancho del grupo */
+    padding: 0.5rem 0.75rem;
+    font-size: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+  }
+  
+  /* Botón de postulación */
+  .postulacion-form .btn-submit {
+    background-color: #000; /* Color negro */
+    color: #fff; /* Texto blanco */
+    border: none;
+    border-radius: 4px;
+    padding: 0.75rem;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    width: 100%; /* Asegura que el botón ocupe todo el ancho del formulario */
+  }
+  
+  .postulacion-form .btn-submit:hover {
+    background-color: #333; /* Gris oscuro al pasar el cursor */
+  }
+  

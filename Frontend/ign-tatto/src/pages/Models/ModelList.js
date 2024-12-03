@@ -1,7 +1,11 @@
+// src/pages/ModelList.js
+
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { Container, Row, Col, Card, Spinner, Alert } from 'react-bootstrap';
+import { Container, Row, Col, Card, Spinner, Alert, Button } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
+import './ModelList.css';
+import ModelPreview from './ModelPreview'; // Ajusta la ruta según tu estructura de carpetas
 
 const ModelList = () => {
   const [models, setModels] = useState([]);
@@ -24,22 +28,33 @@ const ModelList = () => {
     fetchModels();
   }, []);
 
-  if (loading) return <Spinner animation="border" role="status"><span className="visually-hidden">Cargando...</span></Spinner>;
-  if (error) return <Alert variant="danger">{error}</Alert>;
+  if (loading)
+    return (
+      <div className="d-flex justify-content-center align-items-center" style={{ height: '100vh' }}>
+        <Spinner animation="border" role="status">
+          <span className="visually-hidden">Cargando...</span>
+        </Spinner>
+      </div>
+    );
+
+  if (error) return <Alert variant="danger" className="m-3">{error}</Alert>;
 
   return (
     <Container className="mt-5">
-      <h1 className="text-center mb-4">Lista de Modelos 3D</h1>
+      <h1 className=""style={{textAlign:'center'}}>Lista de Modelos 3D</h1>
       <Row>
         {models.map(model => (
           <Col key={model.id} xs={12} md={6} lg={4} className="mb-4">
-            <Card>
-              <Card.Body>
+            <Card className="model-card h-100">
+              <div className="model-preview-container">
+                <ModelPreview modelUrl={`http://localhost:4000/${model.model_url}`} />
+              </div>
+              <Card.Body className="d-flex flex-column">
                 <Card.Title>{model.name}</Card.Title>
                 <Card.Text>{model.description}</Card.Text>
-                <Link to={`/models/${model.id}`} className="btn btn-primary">
-                  Ver Modelo
-                </Link>
+                <Button as={Link} to={`/models/${model.id}`} variant="primary" className="mt-auto">
+                  Ver Detalles
+                </Button>
               </Card.Body>
             </Card>
           </Col>

@@ -23,7 +23,7 @@ const paymentRoutes = require('./routes/paymentRoutes');
 const routesHome = require('./routes/routesHome');
 const { Pool } = require('pg'); // Asegúrate de importar Pool
 const pool = require('./db'); // Importa la configuración de la base de datos
-
+const adminRoutes = require('./routes/adminRoutes'); 
 const app = express();
 app.use(express.json());
 
@@ -52,6 +52,7 @@ app.use(cartRoutes);
 app.use(routesModels);
 app.use(routesDesing);
 app.use(routesHome);
+app.use(adminRoutes);
 app.use('/api/payments', paymentRoutes);
 // Ruta para cerrar sesión
 app.post('/logout', (req, res) => {

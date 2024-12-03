@@ -1,0 +1,123 @@
+/* src/components/AddPost.css */
+
+.add-post-container {
+    display: flex;
+    flex-direction: row;
+    min-height: 100vh;
+    justify-content: center;
+    align-items: center;
+    background: #FAFAF5;
+  }
+  
+  .add-post-image-container {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+  }
+  
+  .add-post-image {
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+    border-radius: 8px;
+  }
+  
+  .add-post-form-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 2rem;
+  }
+  
+  .add-post-form {
+    width: 100%;
+    max-width: 400px;
+    padding: 2rem;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background-color: #FAFAF5;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+  }
+  
+  .add-post-form h2 {
+    font-size: 2rem;
+    font-weight: bold;
+    text-align: center;
+    margin-bottom: 2rem;
+  }
+  
+  .add-post-form .form-group {
+    width: 100%;
+    margin-bottom: 1.5rem;
+  }
+  
+  .add-post-form .form-group label {
+    text-align: left;
+    margin-bottom: 0.5rem;
+    font-size: 1rem;
+    color: #333;
+  }
+  
+  .add-post-form .form-group input,
+  .add-post-form .form-group select,
+  .add-post-form .form-group textarea {
+    width: 100%;
+    padding: 0.5rem 0.75rem;
+    font-size: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+  }
+  
+  .add-post-form .btn-submit {
+    background-color: #000; /* Color negro */
+    color: #fff;            /* Texto blanco */
+    border: none;
+    border-radius: 4px;
+    padding: 0.75rem;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    width: 100%;            /* Ocupa todo el ancho del formulario */
+  }
+  
+  .add-post-form .btn-submit:hover {
+    background-color: #333; /* Gris oscuro al pasar el cursor */
+  }
+  
+  /* Mensajes de error y éxito */
+  .add-post-form .error-message {
+    color: red;
+    margin-bottom: 1rem;
+  }
+  
+  .add-post-form .success-message {
+    color: green;
+    margin-bottom: 1rem;
+  }
+  
+  /* Media Queries para pantallas pequeñas */
+  @media (max-width: 768px) {
+    .add-post-container {
+      flex-direction: column;
+    }
+  
+    .add-post-image-container,
+    .add-post-form-container {
+      flex: none;
+      width: 100%;
+      padding: 1rem;
+    }
+  
+    .add-post-image {
+      height: 200px;
+      object-fit: cover;
+    }
+  
+    .add-post-form {
+      max-width: 100%;
+    }
+  }

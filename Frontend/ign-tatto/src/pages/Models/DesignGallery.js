@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Container, Row, Col, Card, Button, Spinner, Alert, Form } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
+import './DesignGallery.css'; // Archivo CSS actualizado
 
 const DesignGallery = () => {
   const [designs, setDesigns] = useState([]);
@@ -12,13 +13,7 @@ const DesignGallery = () => {
   const navigate = useNavigate();
 
   // Definir las categorías permitidas
-  const styles = [
-    'abstracto',
-    'geométrico',
-    'floral',
-    'animal',
-    'otros'
-  ];
+  const styles = ['abstracto', 'geométrico', 'floral', 'animal', 'otros'];
 
   useEffect(() => {
     fetchDesigns();
@@ -64,11 +59,11 @@ const DesignGallery = () => {
   if (error) return <Alert variant="danger">{error}</Alert>;
 
   return (
-    <Container className="mt-5">
-      <h1 className="text-center mb-4">Galería de Diseños</h1>
-      <Form onSubmit={handleSearch} className="mb-4">
-        <Row>
-          <Col md={6}>
+    <Container fluid className="design-gallery-container">
+     
+        <Col md={3} className="search-column">
+          <h1 className="product-list-title">Galería de Diseños</h1>
+          <Form onSubmit={handleSearch} className="search-form mb-4">
             <Form.Group controlId="query">
               <Form.Label>Buscar</Form.Label>
               <Form.Control
@@ -78,8 +73,6 @@ const DesignGallery = () => {
                 placeholder="Buscar diseños"
               />
             </Form.Group>
-          </Col>
-          <Col md={4}>
             <Form.Group controlId="style">
               <Form.Label>Estilo</Form.Label>
               <Form.Control
@@ -95,36 +88,39 @@ const DesignGallery = () => {
                 ))}
               </Form.Control>
             </Form.Group>
-          </Col>
-          <Col md={2} className="d-flex align-items-end">
-            <Button variant="primary" type="submit">
+            <Button variant="primary" type="submit" className="w-100 mt-3">
               Buscar
             </Button>
-          </Col>
-        </Row>
-      </Form>
-      <Row>
-        {designs.map(design => (
-          <Col key={design.id} xs={12} md={6} lg={4} className="mb-4">
-            <Card>
-              <Card.Img
-                variant="top"
-                src={`http://localhost:4000/uploads/${design.image_url}`}
-                style={{ height: '200px', objectFit: 'cover' }}
-                loading="lazy"
-              />
-              <Card.Body>
-                <Card.Title>{design.name}</Card.Title>
-                <Card.Text>{design.description}</Card.Text>
-                <Card.Text><strong>Estilo:</strong> {design.estilo}</Card.Text>
-                <Button variant="primary" onClick={() => handleViewDetails(design.id)}>
-                  Ver detalles
-                </Button>
-              </Card.Body>
-            </Card>
-          </Col>
-        ))}
-      </Row>
+          </Form>
+        </Col>
+        <Col md={9} className="products-column">
+          <Row xs={1} md={3} lg={3} xl={3} className="g-4">
+            {designs.map((design) => (
+              <Col key={design.id}>
+                <Card className="design-card">
+                  <Card.Img
+                    variant="top"
+                    src={`http://localhost:4000/uploads/${design.image_url}`}
+                    style={{ height: '200px', objectFit: 'cover' }}
+                    loading="lazy"
+                  />
+                  <Card.Body className="d-flex flex-column">
+                    <Card.Title>{design.name}</Card.Title>
+                    <Card.Text>{design.description}</Card.Text>
+                    <Card.Text className="card-category"><strong>Estilo:</strong> {design.estilo}</Card.Text>
+                    <Button
+                      variant="primary"
+                      className="btn-view-details mt-auto"
+                      onClick={() => handleViewDetails(design.id)}
+                    >
+                      Ver detalles
+                    </Button>
+                  </Card.Body>
+                </Card>
+              </Col>
+            ))}
+          </Row>
+        </Col>
     </Container>
   );
 };

@@ -1,4 +1,3 @@
-// frontend/src/components/PostList.js
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import {
@@ -11,7 +10,7 @@ import {
   Form,
   Alert,
 } from 'react-bootstrap';
-
+import './postList.css'; // Archivo CSS personalizado
 
 const PostList = () => {
   const [posts, setPosts] = useState([]);
@@ -28,7 +27,6 @@ const PostList = () => {
   useEffect(() => {
     const fetchPosts = async () => {
       try {
-        // Obtener todos los posts
         const response = await axios.get('http://localhost:4000/post', {
           withCredentials: true,
           headers: {
@@ -38,7 +36,6 @@ const PostList = () => {
         setPosts(response.data);
         setLoading(false);
 
-        // Obtener likes para cada post
         const likesPromises = response.data.map(async (post) => {
           const likesResponse = await axios.get(
             `http://localhost:4000/${post.id}/likes-count`,
@@ -59,7 +56,6 @@ const PostList = () => {
         }, {});
         setLikes(likesObj);
 
-        // Obtener comentarios para cada post
         const commentsPromises = response.data.map(async (post) => {
           const commentsResponse = await axios.get(
             `http://localhost:4000/${post.id}/getcomment`,
@@ -168,7 +164,6 @@ const PostList = () => {
         }
       );
 
-      // Suponiendo que el backend retorna el comentario creado
       const newComment = response.data.comment;
       setComments((prevComments) => ({
         ...prevComments,
@@ -180,8 +175,12 @@ const PostList = () => {
         [postId]: '',
       });
 
-      setSuccess('Comentario añadido exitosamente.');
       setError(null);
+
+      // Eliminar el mensaje de éxito después de 3 segundos
+      setTimeout(() => {
+        setSuccess(null);
+      }, 3000);
     } catch (err) {
       console.error('Error al añadir comentario:', err);
       setError('Error al añadir comentario.');
@@ -199,19 +198,19 @@ const PostList = () => {
     );
 
   return (
-    <Container className="mt-5">
-      {error && <Alert variant="danger">{error}</Alert>}
-      {success && <Alert variant="success">{success}</Alert>}
-      <Row className="g-4">
+    <Container fluid className="post-list-container mt-5">
+      {error && <Alert variant="danger" className="small-alert">{error}</Alert>}
+      {success && <Alert variant="success" className="small-alert">{success}</Alert>}
+      <Row className="justify-content-center">
         {posts.map((post) => (
-          <Col md={6} lg={4} key={post.id}>
-            <Card>
+          <Col md={8} lg={6} key={post.id} className="mb-4">
+            <Card className="post-card">
               {post.image_url && (
                 <Card.Img
                   variant="top"
                   src={`http://localhost:4000/uploads/${post.image_url}`} // Asegúrate de que esta ruta es correcta
                   alt="Post"
-                  style={{ height: '200px', objectFit: 'cover' }}
+                  style={{ height: '400px', objectFit: 'cover' }}
                 />
               )}
               <Card.Body>
