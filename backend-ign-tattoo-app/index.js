@@ -47,10 +47,10 @@ app.use("/uploads", express.static(uploadsDir));
 
 // Configuración de la conexión a PostgreSQL
 const pool = new Pool({
-  user: "admin-igntattoo",
+  user: "dbuser",
   host: "localhost",
-  database: "ign-tattoo-test",
-  password: "1234",
+  database: "your_database",
+  password: "your_password",
   port: 5432,
 });
 
@@ -264,8 +264,8 @@ app.post("/register", upload.single("profile_pic"), async (req, res) => {
     const transporter = nodemailer.createTransport({
       service: "Gmail",
       auth: {
-        user: "igntattoo.contacto@gmail.com",
-        pass: "caiy hset szzy aopz",
+        user: "yourmail@.com",
+        pass: "password-app",
       },
     });
 
@@ -276,7 +276,7 @@ app.post("/register", upload.single("profile_pic"), async (req, res) => {
 
     // Enviar correo de verificación
     await transporter.sendMail({
-      from: '"IGN Tattoo" <igntattoo.contacto@gmail.com>',
+      from: '"YOURAPP',
       to: email,
       subject: "Verifica tu correo",
       html: `
@@ -357,8 +357,8 @@ app.post("/forgot-password", async (req, res) => {
     const transporter = nodemailer.createTransport({
       service: "Gmail",
       auth: {
-        user: "igntattoo.contacto@gmail.com",
-        pass: "caiy hset szzy aopz",
+        user: "yourmail@gmai.com",
+        pass: "password-app",
       },
     });
 
@@ -369,7 +369,7 @@ app.post("/forgot-password", async (req, res) => {
 
     // Enviar correo con el enlace para restablecer la contraseña
     await transporter.sendMail({
-      from: '"IGN Tattoo" <igntattoo.contacto@gmail.com>',
+      from: '"app>',
       to: email,
       subject: "Restablecer tu contraseña",
       html: `
@@ -723,14 +723,14 @@ app.post(
       const transporter = nodemailer.createTransport({
         service: "Gmail",
         auth: {
-          user: "igntattoo.contacto@gmail.com",
-          pass: "caiy hset szzy aopz",
+          user: "yourmail@gmail.com",
+          pass: "password-app",
         },
       });
 
       // Enviar correo de notificación
       await transporter.sendMail({
-        from: '"IgnTattoo" <igntattoo.contacto@gmail.com>',
+        from: '"app',
         to: email,
         subject: "Postulación Recibida",
         html: `
@@ -810,14 +810,14 @@ app.post("/postulaciones/:id/aprobar", async (req, res) => {
     const transporter = nodemailer.createTransport({
       service: "Gmail",
       auth: {
-        user: "igntattoo.contacto@gmail.com",
-        pass: "caiy hset szzy aopz",
+        user: "yourmail@.com",
+        pass: "password-app",
       },
     });
 
     // Enviar correo de notificación
     await transporter.sendMail({
-      from: '"IgnTattoo" <igntattoo.contacto@gmail.com>',
+      from: '"app',
       to: postulacion.email,
       subject: "Solicitud Aceptada",
       html: `
@@ -857,14 +857,14 @@ app.post("/postulaciones/:id/rechazar", async (req, res) => {
     const transporter = nodemailer.createTransport({
       service: "Gmail",
       auth: {
-        user: "igntattoo.contacto@gmail.com",
-        pass: "caiy hset szzy aopz",
+        user: "yourmail@.com",
+        pass: "password-app",
       },
     });
 
     // Enviar correo de notificación
     await transporter.sendMail({
-      from: '"IGN Tattoo" <igntattoo.contacto@gmail.com>',
+      from: '"app',
       to: postulacion.email,
       subject: "Solicitud Rechazada",
       html: `
